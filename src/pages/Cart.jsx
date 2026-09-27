@@ -229,7 +229,7 @@ const Cart = () => {
                                             {/* Inventory-aware quantity stepper */}
                                             <QuantityStepper
                                                 value={item.quantity}
-                                                min={1}
+                                                min={0}
                                                 max={Number.isFinite(stockByItem[item.id + '::' + (item.size || '')]) ? stockByItem[item.id + '::' + (item.size || '')] : item.quantity}
                                                 onChange={(next) => updateQuantity(index, next)}
                                                 compact
