@@ -1,4 +1,4 @@
-const admin = require('firebase-admin');
+import admin from 'firebase-admin';
 
 // Initialize Firebase Admin (Only once)
 if (!admin.apps.length) {
@@ -15,7 +15,7 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
     try {
         const baseUrl = "https://milano-store.com"; // Change to your actual domain
         
