@@ -25,12 +25,12 @@ export default function QuantityStepper({
                 onClick={() => canDecrease && onChange(numericValue - 1)}
                 disabled={!canDecrease}
                 aria-label={`${label} -`}
-                className={`${compact ? 'w-8 h-8' : 'w-10 h-10'} rounded-full flex items-center justify-center text-white bg-red-500 hover:bg-red-600 active:scale-95 transition-all disabled:opacity-35 disabled:cursor-not-allowed shadow-sm`}
+                className={`${compact ? 'w-7 h-7 rounded-lg' : 'w-10 h-10 rounded-xl'} flex items-center justify-center text-red-700 dark:text-red-300 bg-red-500/15 border border-red-500/25 hover:bg-red-500/25 active:scale-95 transition-all disabled:opacity-35 disabled:cursor-not-allowed shadow-sm`}
             >
                 <Minus size={compact ? 15 : 18} strokeWidth={3} />
             </button>
             <span
-                className={`${compact ? 'min-w-8 h-8 text-sm' : 'min-w-10 h-10 text-lg'} rounded-xl border border-gray-200 dark:border-white/15 bg-white dark:bg-white/5 flex items-center justify-center font-black text-gray-900 dark:text-white px-2`}
+                className={`${compact ? 'min-w-7 h-7 text-xs' : 'min-w-10 h-10 text-lg'} rounded-xl border border-gray-200 dark:border-white/15 bg-white dark:bg-white/5 flex items-center justify-center font-black text-gray-900 dark:text-white px-2`}
                 aria-live="polite"
             >
                 {numericValue}
@@ -41,7 +41,7 @@ export default function QuantityStepper({
                 disabled={!canIncrease}
                 aria-label={`${label} +`}
                 title={!canIncrease && max !== Infinity ? `Available: ${max}` : label}
-                className={`${compact ? 'w-8 h-8' : 'w-10 h-10'} rounded-full flex items-center justify-center text-white bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all disabled:opacity-35 disabled:cursor-not-allowed shadow-sm`}
+                className={`${compact ? 'w-7 h-7 rounded-lg' : 'w-10 h-10 rounded-xl'} flex items-center justify-center text-blue-700 dark:text-blue-300 bg-blue-500/15 border border-blue-500/25 hover:bg-blue-500/25 active:scale-95 transition-all disabled:opacity-35 disabled:cursor-not-allowed shadow-sm`}
             >
                 <Plus size={compact ? 15 : 18} strokeWidth={3} />
             </button>

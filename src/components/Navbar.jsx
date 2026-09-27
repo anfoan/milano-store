@@ -500,12 +500,12 @@ const Navbar = () => {
                                     />
 
                                     {/* Notification Badge - Positioned near the cart handle on the top-left */}
-                                    <span className={`absolute top-[4px] left-[-3px] md:top-[6px] md:left-[-1px] ${cartCount > 0 ? 'bg-yellow-400 text-black' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white'} text-[10px] font-black rounded-full min-w-[17px] h-[17px] flex items-center justify-center shadow-lg border border-white dark:border-[#15171a] z-30 transition-colors`}>
+                                    <span className={`absolute top-[4px] left-[-8px] md:top-[6px] md:left-[-6px] ${cartCount > 0 ? 'bg-yellow-400 text-black' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white'} text-[10px] font-black rounded-full min-w-[17px] h-[17px] flex items-center justify-center shadow-lg border border-white dark:border-[#15171a] z-30 transition-colors`}>
                                         {cartCount}
                                     </span>
                                 </div>
                             </div>
-                            <span className="text-[10px] font-black tracking-wider text-black group-hover:text-blue-600 dark:text-white dark:hover:text-blue-400 transition-colors leading-none relative z-10">العربة</span>
+                            <span className="text-[10px] font-black tracking-wider text-black group-hover:text-blue-600 dark:text-white dark:hover:text-blue-400 transition-colors leading-none relative z-10">سلة</span>
                         </Link>
 
                         {/* Mini Cart Dropdown (Floats upwards from the bottom nav) */}

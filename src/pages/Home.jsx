@@ -580,15 +580,6 @@ const Home = () => {
                                                                     <span>{t('product.discount')} {product.discount ? `${product.discount}%` : ''}</span>
                                                                 </div>
                                                             )}
-
-                                                            {/* Menu Icon */}
-                                                            <div className="absolute top-4 right-4 w-10 h-10 bg-white/80 dark:bg-[#111317]/80 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-900 dark:text-white border border-gray-200 dark:border-white/5 z-10 hover:bg-gray-100 dark:hover:bg-black transition-colors">
-                                                                <div className="space-y-1">
-                                                                    <div className="w-5 h-0.5 bg-gray-900 dark:bg-white rounded-full"></div>
-                                                                    <div className="w-5 h-0.5 bg-gray-900 dark:bg-white rounded-full"></div>
-                                                                    <div className="w-5 h-0.5 bg-gray-900 dark:bg-white rounded-full"></div>
-                                                                </div>
-                                                            </div>
                                                         </div>
 
                                                         {/* Title Section */}
