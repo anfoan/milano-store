@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { db } from '../lib/firebase';
 
-import { collection, addDoc, doc, updateDoc, increment, getDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, updateDoc, increment, getDoc, onSnapshot, serverTimestamp, runTransaction } from 'firebase/firestore';
 import { useSettings } from '../hooks/useSettings';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -404,13 +404,18 @@ const Checkout = () => {
             }
         }));
 
-        // Validate stock if automatic hiding is enabled
-        if (interfaceSettings?.hideOutOfStock) {
-            const outOfStockItem = cartItemsWithDetails.find(item => item.currentStock <= 0);
-            if (outOfStockItem) {
-                alert(`عذراً، المنتج "${outOfStockItem.title}" نفد من المخزون!`);
-                return;
-            }
+        // Always validate the requested quantity against the latest inventory.
+        const invalidStockItem = cartItemsWithDetails.find(item => {
+            const requested = Number(item.quantity) || 0;
+            const currentStock = Number(item.currentStock) || 0;
+            const sizeStock = item.size && item.sizeStocks && Object.prototype.hasOwnProperty.call(item.sizeStocks, item.size)
+                ? Number(item.sizeStocks[item.size] || 0)
+                : currentStock;
+            return requested <= 0 || requested > currentStock || (item.size && item.sizeStocks && requested > sizeStock);
+        });
+        if (invalidStockItem) {
+            alert(`عذراً، الكمية المطلوبة من "${invalidStockItem.title}" أكبر من الكمية المتوفرة في المخزون.`);
+            return;
         }
 
         const productSavings = cartTotal - effectiveSubtotal;
@@ -485,32 +490,46 @@ const Checkout = () => {
                 }
             }
 
-            // 1. Save to Firestore
-            await addDoc(collection(db, "orders"), orderData);
+            // Save the order and decrement inventory in one transaction.
+            // This prevents two customers from buying the same last units at once.
+            const orderRef = doc(collection(db, "orders"));
+            await runTransaction(db, async (transaction) => {
+                const grouped = new Map();
+                cartItems.forEach(item => {
+                    const current = grouped.get(item.id) || { items: [], total: 0 };
+                    current.items.push(item);
+                    current.total += Number(item.quantity) || 0;
+                    grouped.set(item.id, current);
+                });
 
-            // ⚡ INVENTORY UPDATE: Decrement Stock
-            // We use Promise.all to ensure all updates finish before navigating
-            const updatePromises = cartItems.map(async (item) => {
-                try {
-                    const productRef = doc(db, "products", item.id);
-                    const qtyToDeduct = Number(item.quantity) || 1;
+                const productRefs = [...grouped.keys()].map(id => doc(db, "products", id));
+                const productSnaps = await Promise.all(productRefs.map(ref => transaction.get(ref)));
 
-                    // Safety check to ensure we don't deduct huge amounts by mistake
-                    if (qtyToDeduct > 0 && qtyToDeduct < 10000) {
-                        const updates = {
-                            stock: increment(-qtyToDeduct)
-                        };
-                        if (item.size) {
-                            updates[`sizeStocks.${item.size}`] = increment(-qtyToDeduct);
-                        }
-                        await updateDoc(productRef, updates);
+                productSnaps.forEach((snap, idx) => {
+                    const productId = [...grouped.keys()][idx];
+                    const group = grouped.get(productId);
+                    if (!snap.exists()) throw new Error(`PRODUCT_NOT_FOUND:${productId}`);
+                    const data = snap.data();
+                    const currentStock = Number(data.stock || 0);
+                    if (group.total > currentStock) throw new Error(`INSUFFICIENT_STOCK:${productId}`);
+
+                    const updates = { stock: currentStock - group.total };
+                    if (data.sizeStocks && Object.keys(data.sizeStocks).length > 0) {
+                        const nextSizeStocks = { ...data.sizeStocks };
+                        group.items.forEach(item => {
+                            if (item.size && Object.prototype.hasOwnProperty.call(nextSizeStocks, item.size)) {
+                                const currentSizeStock = Number(nextSizeStocks[item.size] || 0);
+                                const qty = Number(item.quantity) || 0;
+                                if (qty > currentSizeStock) throw new Error(`INSUFFICIENT_SIZE_STOCK:${productId}:${item.size}`);
+                                nextSizeStocks[item.size] = currentSizeStock - qty;
+                            }
+                        });
+                        updates.sizeStocks = nextSizeStocks;
                     }
-                } catch (err) {
-                    console.error("Error updating stock for", item.title, err);
-                }
+                    transaction.update(productRefs[idx], updates);
+                });
+                transaction.set(orderRef, orderData);
             });
-
-            await Promise.all(updatePromises);
 
             // Auto-fix: cap negative stock at 0 and sync total with sizes
             try {

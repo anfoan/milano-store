@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Trash2, ChevronDown, ArrowRight } from 'lucide-react';
+import { Trash2, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import ImageWithFallback from '../components/ImageWithFallback';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 import { useSettings } from '../hooks/useSettings';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
+import QuantityStepper from '../components/QuantityStepper';
 
 const Cart = () => {
     const { t, direction, language } = useLanguage();
@@ -16,6 +17,7 @@ const Cart = () => {
     const { formatPrice } = useCurrency();
     const navigate = useNavigate();
     const [items, setItems] = useState([]);
+    const [stockByItem, setStockByItem] = useState({});
     const [showCouponInput, setShowCouponInput] = useState(false);
 
     // Coupon State
@@ -36,6 +38,23 @@ const Cart = () => {
             storedCart = [];
         }
         setItems(storedCart);
+
+        // Read live stock so a stale cart cannot request more than inventory.
+        const loadStock = async () => {
+            const entries = await Promise.all(storedCart.map(async (item) => {
+                try {
+                    const snap = await getDoc(doc(db, 'products', item.id));
+                    if (!snap.exists()) return [item.id + '::' + (item.size || ''), 0];
+                    const data = snap.data();
+                    const stock = item.size && data.sizeStocks && Object.prototype.hasOwnProperty.call(data.sizeStocks, item.size)
+                        ? Number(data.sizeStocks[item.size] || 0)
+                        : Number(data.stock || 0);
+                    return [item.id + '::' + (item.size || ''), Math.max(0, stock)];
+                } catch { return [item.id + '::' + (item.size || ''), 0]; }
+            }));
+            setStockByItem(Object.fromEntries(entries));
+        };
+        loadStock();
 
         // Restore applied coupon if exists
         const storedCoupon = JSON.parse(localStorage.getItem('cart_coupon') || 'null');
@@ -58,11 +77,23 @@ const Cart = () => {
     };
 
     const updateQuantity = (index, newQty) => {
-        const qty = parseInt(newQty);
+        const item = items[index];
+        const key = item.id + '::' + (item.size || '');
+        const maxStock = stockByItem[key];
+        const requested = Math.max(0, parseInt(newQty, 10) || 0);
+        const qty = Number.isFinite(maxStock) ? Math.min(requested, maxStock) : requested;
 
-        // Check Max Product Count Limit
+        if (requested > qty) {
+            alert(`عذراً، الكمية المتوفرة لهذا المنتج هي ${maxStock} فقط`);
+        }
+        if (qty === 0) {
+            removeFromCart(index);
+            return;
+        }
+
+        // Check the store-wide cart limit as well as product inventory.
         if (cartSettings?.enableMaxCount && cartSettings?.maxProductCount) {
-            const currentTotalItems = items.reduce((acc, item, i) => acc + (i === index ? 0 : item.quantity), 0);
+            const currentTotalItems = items.reduce((acc, current, i) => acc + (i === index ? 0 : current.quantity), 0);
             if ((currentTotalItems + qty) > cartSettings.maxProductCount) {
                 alert(t('cart.max_limit_alert').replace('{count}', cartSettings.maxProductCount));
                 return;
@@ -195,19 +226,15 @@ const Cart = () => {
 
                                         {/* Row for Quantity and Remove Button */}
                                         <div className="flex items-center gap-2">
-                                            {/* Quantity Dropdown */}
-                                            <div className="relative">
-                                                <select
-                                                    value={item.quantity}
-                                                    onChange={(e) => updateQuantity(index, e.target.value)}
-                                                    className="appearance-none bg-gray-100 dark:bg-[#2a2e35] text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 rounded-lg px-6 py-1 outline-none focus:border-brand-blue font-bold min-w-[60px] text-center cursor-pointer text-xs"
-                                                >
-                                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => <option key={n} value={n}>{n}</option>)}
-                                                </select>
-                                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center px-1.5 text-gray-400">
-                                                    <ChevronDown size={12} />
-                                                </div>
-                                            </div>
+                                            {/* Inventory-aware quantity stepper */}
+                                            <QuantityStepper
+                                                value={item.quantity}
+                                                min={1}
+                                                max={Number.isFinite(stockByItem[item.id + '::' + (item.size || '')]) ? stockByItem[item.id + '::' + (item.size || '')] : item.quantity}
+                                                onChange={(next) => updateQuantity(index, next)}
+                                                compact
+                                                label={t('cart.quantity') || 'Quantity'}
+                                            />
 
                                             {/* Trash Button - Next to Quantity */}
                                             <button

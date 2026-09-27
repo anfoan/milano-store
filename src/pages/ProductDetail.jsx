@@ -18,6 +18,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import DraggableScrollContainer from '../components/DraggableScrollContainer';
+import QuantityStepper from '../components/QuantityStepper';
 
 const ProductDetail = () => {
     const { t, direction, language } = useLanguage();
@@ -228,6 +229,25 @@ const ProductDetail = () => {
     const colors = product.variants?.find(v => v.type === 'color')?.values || [];
     const gallery = [product.mainImage, ...(product.gallery || [])].filter(Boolean);
 
+    // The customer can only add the quantity still available for the selected variant.
+    const getSelectedStock = () => {
+        if (selectedSize && product.sizeStocks && Object.prototype.hasOwnProperty.call(product.sizeStocks, selectedSize)) {
+            return Math.max(0, Number(product.sizeStocks[selectedSize]) || 0);
+        }
+        return Math.max(0, Number(product.stock) || 0);
+    };
+    const selectedStock = getSelectedStock();
+    const existingCartQuantity = (() => {
+        try {
+            const stored = JSON.parse(localStorage.getItem('cart') || '[]');
+            const match = Array.isArray(stored) && stored.find(item =>
+                item.id === product.id && item.size === selectedSize && item.color === selectedColor
+            );
+            return Number(match?.quantity || 0);
+        } catch { return 0; }
+    })();
+    const maxAddableQuantity = Math.max(0, selectedStock - existingCartQuantity);
+
     const addToCart = () => {
         let cart = [];
         try {
@@ -268,6 +288,12 @@ const ProductDetail = () => {
         );
 
         if (existingItemIndex > -1) {
+            const availableForExisting = maxAddableQuantity;
+            if (newItem.quantity > availableForExisting) {
+                setShowLimitToast(true);
+                setTimeout(() => setShowLimitToast(false), 5000);
+                return;
+            }
             cart[existingItemIndex].quantity += newItem.quantity;
         } else {
             cart.push(newItem);
@@ -357,11 +383,17 @@ const ProductDetail = () => {
                             </div>
 
                             {/* Quantity Row */}
-                            <div className="flex flex-row justify-between items-center px-0.5 md:px-1">
+                            <div className="flex flex-row justify-between items-center px-0.5 md:px-1 gap-3">
                                 <span className="text-gray-900 dark:text-white font-black text-sm md:text-base text-right">{t('product.quantity')}</span>
-                                <div className="font-black text-lg md:text-xl text-gray-900 dark:text-white">
-                                    <span>x {quantity}</span>
-                                </div>
+                                <QuantityStepper
+                                    value={quantity}
+                                    min={1}
+                                    max={Math.max(1, maxAddableQuantity)}
+                                    onChange={setQuantity}
+                                    disabled={maxAddableQuantity <= 0}
+                                    compact
+                                    label={t('product.quantity')}
+                                />
                             </div>
 
                             <div className="h-[1.5px] bg-gray-400 dark:bg-white/40 w-full" />
@@ -484,40 +516,15 @@ const ProductDetail = () => {
 
                                 <div className="col-span-5 grid grid-cols-5 items-center order-2">
                                     <div className="col-span-3 flex justify-center relative z-30">
-                                        <div className="relative z-30 mx-auto">
-                                            <button
-                                                onClick={() => setShowQtyDropdown(!showQtyDropdown)}
-                                                className="bg-transparent border border-gray-600 dark:border-white/20 rounded-xl px-2 md:px-4 py-1 md:py-1.5 flex items-center justify-center gap-2 text-gray-900 dark:text-white hover:border-blue-500 transition-colors min-w-[50px] md:min-w-[60px]"
-                                            >
-                                                <span className="font-bold text-base md:text-lg font-mono">{quantity}</span>
-                                                <ChevronDown size={14} className={`transition-transform duration-200 ${showQtyDropdown ? 'rotate-180' : ''}`} />
-                                            </button>
-                                            <AnimatePresence>
-                                                {showQtyDropdown && (
-                                                    <motion.div
-                                                        initial={{ opacity: 0, scale: 0.95 }}
-                                                        animate={{ opacity: 1, scale: 1 }}
-                                                        exit={{ opacity: 0, scale: 0.95 }}
-                                                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-full min-w-[55px] bg-[#1a1d23]/95 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden shadow-2xl max-h-48 overflow-y-auto z-40 scrollbar-hide"
-                                                    >
-                                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num, idx, arr) => (
-                                                            <button
-                                                                key={num}
-                                                                onClick={() => {
-                                                                    setQuantity(num);
-                                                                    setShowQtyDropdown(false);
-                                                                }}
-                                                                className={`w-full py-2.5 text-center text-white font-black text-sm transition-colors
-                                                                ${quantity === num ? 'bg-blue-600' : 'hover:bg-white/5'}
-                                                                ${idx !== arr.length - 1 ? 'border-b border-white/5' : ''}`}
-                                                            >
-                                                                {num}
-                                                            </button>
-                                                        ))}
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                        </div>
+                                        <QuantityStepper
+                                            value={quantity}
+                                            min={1}
+                                            max={Math.max(1, maxAddableQuantity)}
+                                            onChange={setQuantity}
+                                            disabled={maxAddableQuantity <= 0}
+                                            compact
+                                            label={t('product.quantity')}
+                                        />
                                     </div>
 
                                     <div className="col-span-2 flex justify-center">
@@ -559,40 +566,15 @@ const ProductDetail = () => {
                                     </div>
                                 </div>
 
-                                <div className="relative w-full z-40">
-                                    <button
-                                        onClick={() => setShowQtyDropdown(!showQtyDropdown)}
-                                        className="w-full py-4 px-6 bg-transparent border border-gray-200 dark:border-white/10 rounded-[20px] flex justify-between items-center text-gray-900 dark:text-white"
-                                    >
-                                        <span className="font-black text-lg">{quantity}</span>
-                                        <ChevronDown size={18} className={`transition-transform duration-200 ${showQtyDropdown ? 'rotate-180' : ''}`} />
-                                    </button>
-
-                                    <AnimatePresence>
-                                        {showQtyDropdown && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: 10 }}
-                                                className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#1a1d23] border border-gray-200 dark:border-white/10 rounded-[20px] overflow-hidden shadow-2xl z-50 max-h-[300px] overflow-y-auto scrollbar-hide"
-                                            >
-                                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num, idx, arr) => (
-                                                    <button
-                                                        key={num}
-                                                        onClick={() => {
-                                                            setQuantity(num);
-                                                            setShowQtyDropdown(false);
-                                                        }}
-                                                        className={`w-full py-4 text-center font-black text-lg transition-colors
-                                                            ${quantity === num ? 'bg-blue-600 text-white' : 'text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/5'}
-                                                            ${idx !== arr.length - 1 ? 'border-b border-gray-100 dark:border-white/5' : ''}`}
-                                                    >
-                                                        {num}
-                                                    </button>
-                                                ))}
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
+                                <div className="relative w-full z-40 flex justify-center py-2">
+                                    <QuantityStepper
+                                        value={quantity}
+                                        min={1}
+                                        max={Math.max(1, maxAddableQuantity)}
+                                        onChange={setQuantity}
+                                        disabled={maxAddableQuantity <= 0}
+                                        label={t('product.quantity')}
+                                    />
                                 </div>
 
                                 <div className="flex justify-start px-2 mt-2">
