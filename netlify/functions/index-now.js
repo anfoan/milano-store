@@ -1,4 +1,4 @@
-const { google } = require('googleapis');
+import { google } from 'googleapis';
 
 // Google Service Account Key (MUST be provided via Netlify Environment Variable: GOOGLE_SERVICE_ACCOUNT_KEY)
 let auth;
@@ -14,7 +14,7 @@ try {
     console.error("Auth init error:", e.message);
 }
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
     if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method Not Allowed" };
     if (!auth) return { statusCode: 500, body: "Google Auth Not Configured. Please add GOOGLE_SERVICE_ACCOUNT_KEY to Netlify." };
 
