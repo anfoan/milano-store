@@ -17,35 +17,15 @@ const UserProfile = () => {
         const savedOrders = localStorage.getItem('myOrders');
         if (savedOrders) {
             const parsedOrders = JSON.parse(savedOrders);
-            const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
-            const now = Date.now();
-
-            // Filter: keep only orders newer than 5 days
-            const validOrders = parsedOrders.filter((order) => {
-                const ts = order.timestamp
-                    ? order.timestamp
-                    : order.createdAt
-                    ? new Date(order.createdAt).getTime()
-                    : order.date
-                    ? new Date(order.date).getTime()
-                    : null;
-                if (!ts) return true; // keep if no timestamp info (legacy)
-                return (now - ts) < FIVE_DAYS_MS;
-            });
-
-            // Clean up expired orders from localStorage
-            if (validOrders.length !== parsedOrders.length) {
-                localStorage.setItem('myOrders', JSON.stringify(validOrders));
-            }
-
-            // Sort by newest first
-            const sortedOrders = validOrders.sort((a, b) => {
+            // Orders remain permanently on this customer's device until browser data is cleared.
+            // Sort newest first without expiring historical invoices.
+            const sortedOrders = parsedOrders.sort((a, b) => {
                 const tsA = a.timestamp || new Date(a.createdAt || a.date || 0).getTime();
                 const tsB = b.timestamp || new Date(b.createdAt || b.date || 0).getTime();
                 return tsB - tsA;
             });
 
-            setOrders(sortedOrders);
+            setOrders([...sortedOrders]);
         }
     }, [t]);
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Star, MapPin, Search, Clock, ShieldCheck, Info, Facebook, Instagram, Music2, Share2, Map as MapIcon, Package, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Star, MapPin, Search, Clock, ShieldCheck, Info, Facebook, Instagram, Music2, Share2, Map as MapIcon, Package, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { collection, query, getDocs, orderBy, doc, getDoc, onSnapshot, setDoc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
@@ -467,59 +467,48 @@ const Home = () => {
                         </div>
                     </div>
 
-                    <div
-                        ref={categoryScrollRef}
-                        onScroll={handleCategoryScroll}
-                        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-0"
-                    >
-                        {/* Final Precise Chunking: 6 for Mobile (3x2), 12 for Desktop (6x2) */}
-                        {(() => {
-                            const chunkSize = isDesktopView ? 12 : 6;
-                            const pages = Math.ceil(allCategories.length / chunkSize);
-
-                            return Array.from({ length: pages }).map((_, pageIdx) => (
-                                <div key={pageIdx} className="w-full flex-shrink-0 snap-start px-1">
-                                    <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                                        {allCategories.slice(pageIdx * chunkSize, pageIdx * chunkSize + chunkSize).map((cat) => (
-                                            <Link
-                                                to={`/category/${encodeURIComponent(cat.name)}`}
-                                                key={cat.id}
-                                                className="flex flex-col items-center px-1.5 pt-2 pb-1 min-h-[115px] md:min-h-[110px] bg-white dark:bg-[#1a1d23] rounded-[16px] border border-gray-100 dark:border-white/5 hover:border-cyan-500/30 transition-all shadow-sm"
-                                            >
-                                                <div className="w-full aspect-square mb-0.5 relative shrink-0 overflow-hidden rounded-[12px]">
-                                                    <img
-                                                        src={cat.image || "/catalog.png"}
-                                                        alt={cat.name}
-                                                        className="w-full h-full object-cover scale-100 group-hover:scale-110 transition-transform duration-500"
-                                                        loading="lazy"
-                                                        decoding="async"
-                                                    />
-                                                </div>
-                                                <span className="text-gray-900 dark:text-white font-black text-[11px] md:text-[12px] text-center leading-tight line-clamp-2 w-full mt-auto mb-1">{cat.name}</span>
-                                            </Link>
-                                        ))}
+                    <div className="relative group/categories">
+                        <button
+                            type="button"
+                            aria-label="Previous categories"
+                            onClick={() => categoryScrollRef.current?.scrollBy({ left: -280, behavior: 'smooth' })}
+                            className="absolute z-20 left-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 dark:bg-[#1a1d23]/90 border border-gray-200 dark:border-white/10 shadow-lg flex items-center justify-center text-gray-700 dark:text-white hover:bg-cyan-50 dark:hover:bg-white/10 transition-all opacity-0 group-hover/categories:opacity-100"
+                        >
+                            <ChevronLeft size={18} />
+                        </button>
+                        <div
+                            ref={categoryScrollRef}
+                            className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-2 px-1 pb-1 scroll-smooth"
+                            onScroll={handleCategoryScroll}
+                        >
+                            {allCategories.map((cat) => (
+                                <Link
+                                    to={`/category/${encodeURIComponent(cat.name)}`}
+                                    key={cat.id}
+                                    className="flex flex-col items-center px-1.5 pt-2 pb-1 min-w-[112px] md:min-w-[145px] h-[124px] md:h-[138px] shrink-0 snap-start bg-white dark:bg-[#1a1d23] rounded-[16px] border border-gray-100 dark:border-white/5 hover:border-cyan-500/30 transition-all shadow-sm"
+                                >
+                                    <div className="w-full aspect-square mb-1 relative shrink-0 overflow-hidden rounded-[12px]">
+                                        <img
+                                            src={cat.image || "/catalog.png"}
+                                            alt={cat.name}
+                                            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
                                     </div>
-                                </div>
-                            ));
-                        })()}
+                                    <span className="text-gray-900 dark:text-white font-black text-[11px] md:text-[12px] text-center leading-tight line-clamp-1 w-full mt-auto mb-1">{cat.name}</span>
+                                </Link>
+                            ))}
+                        </div>
+                        <button
+                            type="button"
+                            aria-label="Next categories"
+                            onClick={() => categoryScrollRef.current?.scrollBy({ left: 280, behavior: 'smooth' })}
+                            className="absolute z-20 right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 dark:bg-[#1a1d23]/90 border border-gray-200 dark:border-white/10 shadow-lg flex items-center justify-center text-gray-700 dark:text-white hover:bg-cyan-50 dark:hover:bg-white/10 transition-all opacity-0 group-hover/categories:opacity-100"
+                        >
+                            <ChevronRight size={18} />
+                        </button>
                     </div>
-
-                    {/* Dynamic Pagination Dots */}
-                    {(() => {
-                        const chunkSize = isDesktopView ? 12 : 6;
-                        const pages = Math.ceil(allCategories.length / chunkSize);
-
-                        return pages > 1 && (
-                            <div className="flex justify-center gap-1.5 mt-4">
-                                {Array.from({ length: pages }).map((_, i) => (
-                                    <div
-                                        key={i}
-                                        className={`h-1.5 rounded-full transition-all duration-300 ${activeCatPage === i ? 'w-6 bg-cyan-500' : 'w-1.5 bg-gray-300 dark:bg-gray-700'}`}
-                                    />
-                                ))}
-                            </div>
-                        );
-                    })()}
                 </section>
             )}
 
