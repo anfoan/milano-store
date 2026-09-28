@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Star, MapPin, Search, Clock, ShieldCheck, Info, Facebook, Instagram, Music2, Share2, Map as MapIcon, Package, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShoppingBag, Star, MapPin, Search, Clock, ShieldCheck, Info, Facebook, Instagram, Music2, Share2, Map as MapIcon, Package, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { collection, query, getDocs, orderBy, doc, getDoc, onSnapshot, setDoc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
@@ -63,7 +63,7 @@ const Home = () => {
     const storeName = generalSettings?.storeName || 'متجر ميلانو';
     const brandImages = imageSettings?.brands || {};
     const contactEnabled = interfaceSettings?.contactForm ?? true;
-    const showCategoriesGrid = interfaceSettings?.showCategories; // Controls the top Categories Grid ("أقسام المتجر")
+    const showCategoriesGrid = interfaceSettings?.showCategories ?? true; // Keep categories visible unless explicitly disabled
     const showProductSections = true; // Always show product rows to ensure content visibility
 
     // Calculate max discount for the banner
@@ -72,7 +72,7 @@ const Home = () => {
         : 50;
     const hideOutOfStock = interfaceSettings?.hideOutOfStock;
     const categoryScrollRef = useRef(null);
-    const [activeCatPage, setActiveCatPage] = useState(0);
+    const categoryMotionDirection = useRef(-1);
     const [isDesktopView, setIsDesktopView] = useState(window.innerWidth >= 768);
 
     const [minHeightShim, setMinHeightShim] = useState('100vh');
@@ -150,16 +150,34 @@ const Home = () => {
         };
     }, [products.length]); // Re-run when products load
 
-    const handleCategoryScroll = (e) => {
-        const container = e.target;
-        const scrollPosition = Math.abs(container.scrollLeft);
-        const pageWidth = container.offsetWidth;
-        const newPage = Math.round(scrollPosition / pageWidth);
-        if (newPage !== activeCatPage) {
-            setActiveCatPage(newPage);
-        }
-    };
 
+
+    // Move the single category row continuously from right to left, then back again.
+    // The animation uses the real scroll container so every category remains clickable.
+    useEffect(() => {
+        const container = categoryScrollRef.current;
+        if (!container || allCategories.length < 2) return undefined;
+        let frameId;
+        let lastTime = performance.now();
+        const speed = 26; // pixels per second
+        const tick = (now) => {
+            const delta = Math.min((now - lastTime) / 1000, 0.05);
+            lastTime = now;
+            const maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
+            if (maxScroll > 0) {
+                if (categoryMotionDirection.current < 0) {
+                    container.scrollLeft -= speed * delta;
+                    if (Math.abs(container.scrollLeft) >= maxScroll - 1) categoryMotionDirection.current = 1;
+                } else {
+                    container.scrollLeft += speed * delta;
+                    if (Math.abs(container.scrollLeft) <= 1) categoryMotionDirection.current = -1;
+                }
+            }
+            frameId = requestAnimationFrame(tick);
+        };
+        frameId = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(frameId);
+    }, [allCategories.length]);
 
     useEffect(() => {
         // 1. Real-time Store Status Sync
@@ -467,25 +485,17 @@ const Home = () => {
                         </div>
                     </div>
 
-                    <div className="relative group/categories">
-                        <button
-                            type="button"
-                            aria-label="Previous categories"
-                            onClick={() => categoryScrollRef.current?.scrollBy({ left: -280, behavior: 'smooth' })}
-                            className="absolute z-20 left-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 dark:bg-[#1a1d23]/90 border border-gray-200 dark:border-white/10 shadow-lg flex items-center justify-center text-gray-700 dark:text-white hover:bg-cyan-50 dark:hover:bg-white/10 transition-all opacity-0 group-hover/categories:opacity-100"
-                        >
-                            <ChevronLeft size={18} />
-                        </button>
+                    <div className="relative w-full overflow-hidden">
                         <div
                             ref={categoryScrollRef}
-                            className="flex flex-nowrap overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-2 px-1 pb-1 scroll-smooth"
-                            onScroll={handleCategoryScroll}
+                            dir="rtl"
+                            className="flex flex-nowrap items-stretch overflow-x-auto scrollbar-hide gap-2 px-1 pb-1"
                         >
                             {allCategories.map((cat) => (
                                 <Link
                                     to={`/category/${encodeURIComponent(cat.name)}`}
                                     key={cat.id}
-                                    className="flex flex-col items-center px-1.5 pt-2 pb-1 min-w-[112px] md:min-w-[145px] h-[124px] md:h-[138px] shrink-0 snap-start bg-white dark:bg-[#1a1d23] rounded-[16px] border border-gray-100 dark:border-white/5 hover:border-cyan-500/30 transition-all shadow-sm"
+                                    className="flex flex-col items-center px-1.5 pt-2 pb-1 w-[31vw] max-w-[160px] min-w-[112px] md:w-[145px] md:min-w-[145px] md:max-w-[145px] h-[124px] md:h-[138px] shrink-0 bg-white dark:bg-[#1a1d23] rounded-[16px] border border-gray-100 dark:border-white/5 hover:border-cyan-500/30 transition-all shadow-sm"
                                 >
                                     <div className="w-full aspect-square mb-1 relative shrink-0 overflow-hidden rounded-[12px]">
                                         <img
@@ -500,14 +510,6 @@ const Home = () => {
                                 </Link>
                             ))}
                         </div>
-                        <button
-                            type="button"
-                            aria-label="Next categories"
-                            onClick={() => categoryScrollRef.current?.scrollBy({ left: 280, behavior: 'smooth' })}
-                            className="absolute z-20 right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 dark:bg-[#1a1d23]/90 border border-gray-200 dark:border-white/10 shadow-lg flex items-center justify-center text-gray-700 dark:text-white hover:bg-cyan-50 dark:hover:bg-white/10 transition-all opacity-0 group-hover/categories:opacity-100"
-                        >
-                            <ChevronRight size={18} />
-                        </button>
                     </div>
                 </section>
             )}
