@@ -405,7 +405,7 @@ const Navbar = () => {
                         {location.pathname === '/' && (
                             <motion.div
                                 layoutId="bottom-nav-watery-bg"
-                                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0 will-change-transform"
+                                className="absolute left-1/2 top-[22px] -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0 will-change-transform"
                                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
                             />
                         )}
@@ -424,7 +424,7 @@ const Navbar = () => {
                             {isCurrencyOpen && (
                                 <motion.div
                                     layoutId="bottom-nav-watery-bg"
-                                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0 will-change-transform"
+                                    className="absolute left-1/2 top-[22px] -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0 will-change-transform"
                                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                                 />
                             )}
@@ -470,7 +470,7 @@ const Navbar = () => {
                         {location.pathname === '/offers' && (
                             <motion.div
                                 layoutId="bottom-nav-watery-bg"
-                                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-red-500/10 dark:bg-red-400/15 rounded-full z-0 will-change-transform"
+                                className="absolute left-1/2 top-[22px] -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-red-500/10 dark:bg-red-400/15 rounded-full z-0 will-change-transform"
                                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
                             />
                         )}
@@ -486,7 +486,7 @@ const Navbar = () => {
                             {location.pathname === '/cart' && (
                                 <motion.div
                                     layoutId="bottom-nav-watery-bg"
-                                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0 will-change-transform"
+                                    className="absolute left-1/2 top-[22px] -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0 will-change-transform"
                                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                                 />
                             )}

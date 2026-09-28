@@ -476,7 +476,7 @@ const Home = () => {
             )}
 
             {/* Store Categories Grid - Controlled by 'showCategories' */}
-            {showCategoriesGrid && allCategories.length > 0 && (
+            {allCategories.length > 0 && (
                 <section className="w-full px-0 mb-6 mt-4">
                     <div className="flex items-center justify-between mb-2 px-3">
                         <div className="flex items-center gap-2">
