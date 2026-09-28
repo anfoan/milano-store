@@ -416,7 +416,7 @@ const Navbar = () => {
                             className="relative flex flex-col items-center justify-center w-full h-full group rounded-[1.8rem] py-1"
                         >
                             <div className="relative w-[58px] h-[48px] flex items-center justify-center">
-                                {isCurrencyOpen && <motion.div layoutId="bottom-nav-watery-bg" className="absolute inset-0 m-auto w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0" transition={{ type: "spring", stiffness: 380, damping: 30 }} />}
+                                {isCurrencyOpen && <motion.div layoutId="bottom-nav-watery-bg" className="absolute inset-0 m-auto w-12 h-12 pointer-events-none bg-green-500/10 dark:bg-green-400/15 rounded-full z-0" transition={{ type: "spring", stiffness: 380, damping: 30 }} />}
                                 <img 
                                     src="/nav-currency.png" 
                                     alt="Currency" 
@@ -466,7 +466,7 @@ const Navbar = () => {
                     <div className="relative w-full h-full flex flex-col items-center justify-center pointer-events-auto" ref={cartRef}> 
                         <Link to="/cart" className="relative w-full h-full flex flex-col items-center justify-center group rounded-[1.8rem] py-1">
                             <div className="relative w-[58px] h-[48px] flex items-center justify-center">
-                                {location.pathname === '/cart' && <motion.div layoutId="bottom-nav-watery-bg" className="absolute inset-0 m-auto w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0" transition={{ type: "spring", stiffness: 380, damping: 30 }} />}
+                                {location.pathname === '/cart' && <motion.div layoutId="bottom-nav-watery-bg" className="absolute inset-0 m-auto w-12 h-12 pointer-events-none bg-gray-500/10 dark:bg-gray-400/15 rounded-full z-0" transition={{ type: "spring", stiffness: 380, damping: 30 }} />}
                                 <div className="relative w-[58px] h-[58px] md:w-[62px] md:h-[62px] flex items-center justify-center">
                                     {/* The New Shopping Cart Image exactly as requested - Theme aware favicons */}
                                     <img 
