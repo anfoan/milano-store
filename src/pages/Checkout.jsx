@@ -503,6 +503,13 @@ const Checkout = () => {
                 });
 
                 const productRefs = [...grouped.keys()].map(id => doc(db, "products", id));
+                const couponRef = appliedCoupon?.id ? doc(db, "coupons", appliedCoupon.id) : null;
+                const couponSnap = couponRef ? await transaction.get(couponRef) : null;
+                if (couponSnap?.exists() && !couponSnap.data().isUnlimited) {
+                    const used = Number(couponSnap.data().usedCount || 0);
+                    const max = Number(couponSnap.data().maxUses || 0);
+                    if (used >= max) throw new Error("COUPON_LIMIT_REACHED");
+                }
                 const productSnaps = await Promise.all(productRefs.map(ref => transaction.get(ref)));
 
                 productSnaps.forEach((snap, idx) => {
@@ -529,6 +536,9 @@ const Checkout = () => {
                     transaction.update(productRefs[idx], updates);
                 });
                 transaction.set(orderRef, orderData);
+                if (couponRef && couponSnap?.exists() && !couponSnap.data().isUnlimited) {
+                    transaction.update(couponRef, { usedCount: increment(1) });
+                }
             });
 
             // Auto-fix: cap negative stock at 0 and sync total with sizes
@@ -563,17 +573,6 @@ const Checkout = () => {
                 console.warn("Auto-fix stock error:", autoFixErr);
             }
 
-            // Update Coupon Usage
-            if (appliedCoupon && appliedCoupon.id) {
-                try {
-                    const couponRef = doc(db, "coupons", appliedCoupon.id);
-                    await updateDoc(couponRef, {
-                        usedCount: increment(1)
-                    });
-                } catch (err) {
-                    console.error("Error updating coupon usage:", err);
-                }
-            }
 
             // 2. Save to LocalStorage
             const existingOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
@@ -604,6 +603,11 @@ const Checkout = () => {
             navigate(`/order-tracking/${cleanId}`);
         } catch (error) {
             console.error("Error placing order:", error);
+            if (error.message === "COUPON_LIMIT_REACHED") {
+                alert(language === 'ar' ? "عذراً، انتهت كمية استخدام هذا الكوبون." : "Sorry, this coupon has reached its usage limit.");
+                localStorage.removeItem('cart_coupon');
+                return;
+            }
             alert(t('checkout.error_message'));
         }
     };

@@ -405,7 +405,7 @@ const Navbar = () => {
                         {location.pathname === '/' && (
                             <motion.div
                                 layoutId="bottom-nav-watery-bg"
-                                className="absolute inset-0 bg-blue-500/10 dark:bg-blue-400/15 rounded-[1.8rem] z-0"
+                                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0"
                                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
                             />
                         )}
@@ -424,7 +424,7 @@ const Navbar = () => {
                             {isCurrencyOpen && (
                                 <motion.div
                                     layoutId="bottom-nav-watery-bg"
-                                    className="absolute inset-0 bg-blue-500/10 dark:bg-blue-400/15 rounded-[1.8rem] z-0"
+                                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0"
                                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                                 />
                             )}
@@ -470,7 +470,7 @@ const Navbar = () => {
                         {location.pathname === '/offers' && (
                             <motion.div
                                 layoutId="bottom-nav-watery-bg"
-                                className="absolute inset-0 bg-red-500/10 dark:bg-red-400/15 rounded-[1.8rem] z-0"
+                                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-red-500/10 dark:bg-red-400/15 rounded-full z-0"
                                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
                             />
                         )}
@@ -486,7 +486,7 @@ const Navbar = () => {
                             {location.pathname === '/cart' && (
                                 <motion.div
                                     layoutId="bottom-nav-watery-bg"
-                                    className="absolute inset-0 bg-blue-500/10 dark:bg-blue-400/15 rounded-[1.8rem] z-0"
+                                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0"
                                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                                 />
                             )}
@@ -505,7 +505,7 @@ const Navbar = () => {
                                     </span>
                                 </div>
                             </div>
-                            <span className="text-[10px] font-black tracking-wider text-black group-hover:text-blue-600 dark:text-white dark:hover:text-blue-400 transition-colors leading-none relative z-10">سلة</span>
+                            <span className="text-[10px] font-black tracking-wider text-black group-hover:text-blue-600 dark:text-white dark:hover:text-blue-400 transition-colors leading-none relative z-10">السلة</span>
                         </Link>
 
                         {/* Mini Cart Dropdown (Floats upwards from the bottom nav) */}

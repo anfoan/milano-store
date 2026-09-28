@@ -6,7 +6,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { 
     Banknote, Building2, Wallet, Repeat, Smartphone, 
     CreditCard, Info, ChevronRight, X, MapPin, 
-    Award, Phone, Star, Landmark, Coins, ArrowRightLeft, WalletCards, CircleDollarSign
+    Award, ShieldCheck, Phone, Star, Landmark, Coins, ArrowRightLeft, WalletCards, CircleDollarSign
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -120,14 +120,10 @@ const Footer = () => {
                         </p>
                         
                         <div className={`space-y-0.5 md:space-y-2 flex flex-col ${isRTL ? 'items-end' : 'items-start'} md:items-end w-full`}>
-                            <div className={`flex items-center justify-between w-full min-h-[24px] md:min-h-[30px] gap-0.5 md:gap-2 group`}>
-                                <MapPin size={13} className="shrink-0 text-red-600 sm:w-[16px] sm:h-[16px]" />
-                                <span className="shrink text-gray-800 dark:text-gray-200 font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight text-right flex-1">{footerData.storeSection?.address}</span>
-                            </div>
-                            <div className={`flex items-center justify-between w-full min-h-[24px] md:min-h-[30px] gap-0.5 md:gap-2 group`}>
-                                <Award size={13} className="shrink-0 text-amber-500 sm:w-[16px] sm:h-[16px]" />
-                                <span className="shrink text-gray-800 dark:text-gray-200 font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight text-right flex-1">{footerData.storeSection?.qualityStatement}</span>
-                            </div>
+                            <div className="flex items-center justify-between w-full min-h-[24px] md:min-h-[30px] gap-0.5 md:gap-2 group"><Building2 size={13} className="shrink-0 text-gray-500 sm:w-[16px] sm:h-[16px]" /><span className="shrink text-gray-800 dark:text-gray-200 font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight text-right flex-1">{footerData.storeSection?.address}</span></div>
+                            <div className="flex items-center justify-between w-full min-h-[24px] md:min-h-[30px] gap-0.5 md:gap-2 group"><ShieldCheck size={13} className="shrink-0 text-cyan-400 sm:w-[16px] sm:h-[16px]" /><span className="shrink text-gray-800 dark:text-gray-200 font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight text-right flex-1">{footerData.storeSection?.qualityStatement}</span></div>
+                            <div className="flex items-center justify-between w-full min-h-[24px] md:min-h-[30px] gap-0.5 md:gap-2 group"><MapPin size={13} className="shrink-0 text-red-600 sm:w-[16px] sm:h-[16px]" /><span className="shrink text-gray-800 dark:text-gray-200 font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight text-right flex-1">{footerData.storeSection?.address}</span></div>
+                            <div className="flex items-center justify-between w-full min-h-[24px] md:min-h-[30px] gap-0.5 md:gap-2 group"><Phone size={13} className="shrink-0 text-green-500 sm:w-[16px] sm:h-[16px]" /><span className="shrink text-gray-800 dark:text-gray-200 font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight text-right flex-1">{footerData.storeSection?.phone}</span></div>
                         </div>
                     </div>
                 </div>
