@@ -61,6 +61,7 @@ const Home = () => {
     const coverImage = imageSettings?.coverImage || "/banner.jpeg";
     const profileImage = imageSettings?.profileImage || "/logo.jpg";
     const storeName = generalSettings?.storeName || 'متجر ميلانو';
+    const brandImages = imageSettings?.brands || {};
     const contactEnabled = interfaceSettings?.contactForm ?? true;
     const showCategoriesGrid = interfaceSettings?.showCategories; // Controls the top Categories Grid ("أقسام المتجر")
     const showProductSections = true; // Always show product rows to ensure content visibility
@@ -271,28 +272,28 @@ const Home = () => {
                             <div className="flex items-center justify-center gap-4 md:gap-6 mb-3 mt-1">
                                 {/* Nike */}
                                 <img 
-                                    src="/nike.png" 
+                                    src={brandImages.nike || "/nike.png"}
                                     alt="Nike" 
                                     className="w-[62px] h-[62px] md:w-[80px] md:h-[80px] rounded-[18px] md:rounded-[24px] object-cover drop-shadow-md hover:-translate-y-1 transition-transform duration-300 hover:scale-105" 
                                     draggable="false" 
                                 />
                                 {/* Adidas */}
                                 <img 
-                                    src="/adidas.png" 
+                                    src={brandImages.adidas || "/adidas.png"}
                                     alt="Adidas" 
                                     className="w-[62px] h-[62px] md:w-[80px] md:h-[80px] rounded-[18px] md:rounded-[24px] object-cover drop-shadow-md hover:-translate-y-1 transition-transform duration-300 hover:scale-105" 
                                     draggable="false" 
                                 />
                                 {/* Puma */}
                                 <img 
-                                    src="/puma.png" 
+                                    src={brandImages.puma || "/puma.png"}
                                     alt="Puma" 
                                     className="w-[62px] h-[62px] md:w-[80px] md:h-[80px] rounded-[18px] md:rounded-[24px] object-cover drop-shadow-md hover:-translate-y-1 transition-transform duration-300 hover:scale-105" 
                                     draggable="false" 
                                 />
                                 {/* Lacoste */}
                                 <img 
-                                    src="/lacoste.png" 
+                                    src={brandImages.lacoste || "/lacoste.png"}
                                     alt="Lacoste" 
                                     className="w-[62px] h-[62px] md:w-[80px] md:h-[80px] rounded-[18px] md:rounded-[24px] object-cover drop-shadow-md hover:-translate-y-1 transition-transform duration-300 hover:scale-105" 
                                     draggable="false" 
