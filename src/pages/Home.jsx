@@ -495,7 +495,7 @@ const Home = () => {
                                 <Link
                                     to={`/category/${encodeURIComponent(cat.name)}`}
                                     key={cat.id}
-                                    className="flex flex-col items-center px-1.5 pt-2 pb-1 w-[34vw] max-w-[176px] min-w-[128px] md:w-[160px] md:min-w-[160px] md:max-w-[160px] h-[148px] md:h-[160px] shrink-0 bg-white dark:bg-[#1a1d23] rounded-[16px] border border-gray-100 dark:border-white/5 hover:border-cyan-500/30 transition-all shadow-sm"
+                                    className="flex flex-col items-center px-1.5 pt-2 pb-1 w-[34vw] max-w-[176px] min-w-[128px] md:w-[160px] md:min-w-[160px] md:max-w-[160px] h-[180px] md:h-[192px] shrink-0 bg-white dark:bg-[#1a1d23] rounded-[16px] border border-gray-100 dark:border-white/5 hover:border-cyan-500/30 transition-all shadow-sm"
                                 >
                                     <div className="w-full aspect-square mb-1.5 relative shrink-0 overflow-hidden rounded-[12px]">
                                         <img
@@ -506,7 +506,7 @@ const Home = () => {
                                             decoding="async"
                                         />
                                     </div>
-                                    <span className="text-gray-900 dark:text-white font-black text-[11px] md:text-[12px] text-center leading-tight line-clamp-2 w-full mt-auto mb-1 px-0.5">{cat.name}</span>
+                                    <span className="text-gray-900 dark:text-white font-black text-[11px] md:text-[12px] text-center leading-tight line-clamp-2 w-full min-h-[28px] mt-1 mb-1 px-0.5 flex items-center justify-center">{cat.name}</span>
                                 </Link>
                             ))}
                         </div>
