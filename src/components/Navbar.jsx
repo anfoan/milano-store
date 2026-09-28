@@ -402,14 +402,8 @@ const Navbar = () => {
                 <div className="flex items-center justify-around h-[64px] md:h-[68px] px-2 relative" dir={direction === 'rtl' ? 'rtl' : 'ltr'}>
                     {/* Home */}
                     <Link to="/" className="relative flex flex-col items-center justify-center w-full h-full text-black hover:text-blue-600 dark:text-white dark:hover:text-blue-400 transition-colors group pointer-events-auto rounded-[1.8rem] py-1">
-                        {location.pathname === '/' && (
-                            <motion.div
-                                layoutId="bottom-nav-watery-bg"
-                                className="absolute left-1/2 top-[22px] -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0 will-change-transform"
-                                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                            />
-                        )}
-                        <div className="h-[48px] flex items-center justify-center relative z-10">
+                        <div className="h-[48px] flex items-center justify-center relative">
+                            {location.pathname === '/' && <motion.div layoutId="bottom-nav-watery-bg" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0" transition={{ type: "spring", stiffness: 380, damping: 30 }} />}
                             <img src="/nav-home.png" alt="Home" className="w-[38px] h-[38px] md:w-[42px] md:h-[42px] -translate-y-[3px] transition-transform group-hover:scale-110 object-contain" />
                         </div>
                         <span className="text-[10px] font-black tracking-wider leading-none relative z-10">الرئيسية</span>
@@ -421,14 +415,8 @@ const Navbar = () => {
                             onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
                             className="relative flex flex-col items-center justify-center w-full h-full group rounded-[1.8rem] py-1"
                         >
-                            {isCurrencyOpen && (
-                                <motion.div
-                                    layoutId="bottom-nav-watery-bg"
-                                    className="absolute left-1/2 top-[22px] -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0 will-change-transform"
-                                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                                />
-                            )}
-                            <div className="h-[48px] flex items-center justify-center relative z-10">
+                            <div className="h-[48px] flex items-center justify-center relative">
+                                {isCurrencyOpen && <motion.div layoutId="bottom-nav-watery-bg" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0" transition={{ type: "spring", stiffness: 380, damping: 30 }} />}
                                 <img 
                                     src="/nav-currency.png" 
                                     alt="Currency" 
@@ -467,14 +455,8 @@ const Navbar = () => {
 
                     {/* Offers */}
                     <Link to="/offers" className="relative flex flex-col items-center justify-center w-full h-full text-red-600 hover:text-red-700 dark:text-red-500 dark:hover:text-red-400 transition-colors group pointer-events-auto rounded-[1.8rem] py-1">
-                        {location.pathname === '/offers' && (
-                            <motion.div
-                                layoutId="bottom-nav-watery-bg"
-                                className="absolute left-1/2 top-[22px] -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-red-500/10 dark:bg-red-400/15 rounded-full z-0 will-change-transform"
-                                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                            />
-                        )}
-                        <div className="h-[48px] flex items-center justify-center relative z-10">
+                        <div className="h-[48px] flex items-center justify-center relative">
+                            {location.pathname === '/offers' && <motion.div layoutId="bottom-nav-watery-bg" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-red-500/10 dark:bg-red-400/15 rounded-full z-0" transition={{ type: "spring", stiffness: 380, damping: 30 }} />}
                             <img src="/nav-offers.png" alt="Offers" className="w-[38px] h-[38px] md:w-[42px] md:h-[42px] transition-transform group-hover:scale-110 object-contain drop-shadow-md" />
                         </div>
                         <span className="text-[10px] font-black tracking-wider leading-none relative z-10">عروض</span>
@@ -483,14 +465,8 @@ const Navbar = () => {
                     {/* Cart Section - Direct Link to /cart */}
                     <div className="relative w-full h-full flex flex-col items-center justify-center pointer-events-auto" ref={cartRef}> 
                         <Link to="/cart" className="relative w-full h-full flex flex-col items-center justify-center group rounded-[1.8rem] py-1">
-                            {location.pathname === '/cart' && (
-                                <motion.div
-                                    layoutId="bottom-nav-watery-bg"
-                                    className="absolute left-1/2 top-[22px] -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0 will-change-transform"
-                                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                                />
-                            )}
-                            <div className="h-[48px] flex items-center justify-center relative z-10 -translate-y-[3px]">
+                            <div className="h-[48px] flex items-center justify-center relative -translate-y-[3px]">
+                                {location.pathname === '/cart' && <motion.div layoutId="bottom-nav-watery-bg" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0" transition={{ type: "spring", stiffness: 380, damping: 30 }} />}
                                 <div className="relative w-[58px] h-[58px] md:w-[62px] md:h-[62px] flex items-center justify-center">
                                     {/* The New Shopping Cart Image exactly as requested - Theme aware favicons */}
                                     <img 
