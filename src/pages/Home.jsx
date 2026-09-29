@@ -479,10 +479,10 @@ const Home = () => {
                         <div
                             ref={categoryScrollRef}
                             dir="rtl"
-                            className="relative w-full overflow-hidden"
+                            className="relative w-full overflow-hidden flex justify-end"
                         >
                             <motion.div
-                                className="flex flex-nowrap items-stretch gap-2 px-1 pb-1 w-max"
+                                className="flex flex-nowrap items-stretch gap-2 px-1 pb-1 w-max shrink-0"
                                 animate={categoryMotionDistance > 0 ? { x: [0, -categoryMotionDistance, 0] } : { x: 0 }}
                                 transition={categoryMotionDistance > 0 ? { duration: Math.max(12, (categoryMotionDistance / 26) * 2), ease: 'linear', repeat: Infinity } : { duration: 0 }}
                             >
