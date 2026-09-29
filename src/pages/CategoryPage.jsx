@@ -1,11 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { db } from '../lib/firebase';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { ArrowRight, ShoppingBag, Filter } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useSettings } from '../hooks/useSettings';
+
+const optimizeCategoryImage = (url, width = 560) => {
+    if (!url || typeof url !== 'string') return url;
+    try {
+        const parsed = new URL(url, window.location.href);
+        if (parsed.hostname.includes('res.cloudinary.com') && parsed.pathname.includes('/upload/')) {
+            parsed.pathname = parsed.pathname.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`);
+        } else if (parsed.hostname.includes('images.unsplash.com')) {
+            parsed.searchParams.set('auto', 'format');
+            parsed.searchParams.set('fit', 'crop');
+            parsed.searchParams.set('w', String(width));
+        }
+        return parsed.toString();
+    } catch { return url; }
+};
 
 const CategoryPage = () => {
     const { categoryName } = useParams();
@@ -24,17 +39,17 @@ const CategoryPage = () => {
             // window.scrollTo(0, 0); // Handled globally by ScrollToTop
             setLoading(true);
             try {
-                // Determine if we should fetch all and filter or query directly
-                // Using client-side filtering safely matches the Home logic
-                const productsRef = collection(db, 'products');
-                const snapshot = await getDocs(productsRef);
-
-                const allProducts = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-
                 const hideOutOfStock = interfaceSettings?.hideOutOfStock;
+                // Use the Home cache for instant navigation, then refresh only this category.
+                let allProducts = [];
+                try {
+                    const cached = JSON.parse(localStorage.getItem('cached_products') || '[]');
+                    if (Array.isArray(cached)) allProducts = cached;
+                } catch { /* network fetch below remains the source of truth */ }
+
+                const productsRef = query(collection(db, 'products'), where('category', '==', decodedCategoryName));
+                const snapshot = await getDocs(productsRef);
+                allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 const filtered = allProducts
                     .filter(p => {
                         const matchesCategory = p.category === decodedCategoryName;
@@ -106,7 +121,7 @@ const CategoryPage = () => {
                                     {/* Image Container */}
                                     <div className="relative aspect-square w-full bg-gray-200 dark:bg-[#2b2d31]">
                                         <img
-                                            src={product.mainImage}
+                                            src={optimizeCategoryImage(product.mainImage)}
                                             alt={product.name}
                                             className="absolute inset-0 w-full h-full object-cover"
                                             draggable="false"

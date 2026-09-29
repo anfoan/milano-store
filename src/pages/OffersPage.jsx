@@ -19,6 +19,14 @@ const OffersPage = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
+        try {
+            const cached = JSON.parse(localStorage.getItem('cached_products') || '[]');
+            if (Array.isArray(cached)) {
+                const cachedOffers = cached.filter(p => !p.hidden && !p.isOfferPaused && (Number(p.discount || 0) > 0 || Number(p.priceAfterDiscount || 0) < Number(p.price || 0)));
+                setProducts(cachedOffers);
+                setLoading(false);
+            }
+        } catch { /* real-time refresh below */ }
         const q = collection(db, "products");
         const unsubscribe = onSnapshot(q, (snapshot) => {
             try {
@@ -123,6 +131,8 @@ const OffersPage = () => {
                                         <ImageWithFallback
                                             src={product.mainImage}
                                             alt={product.name}
+                                            loading="lazy"
+                                            decoding="async"
                                             className="absolute inset-0 w-full h-full object-cover"
                                         />
 

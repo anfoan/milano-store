@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ShoppingBag } from 'lucide-react';
 
-const ImageWithFallback = ({ src, alt, className }) => {
+const ImageWithFallback = ({ src, alt, className, loading = "lazy", decoding = "async" }) => {
     const [error, setError] = useState(false);
 
     if (!src || error) {
@@ -17,6 +17,8 @@ const ImageWithFallback = ({ src, alt, className }) => {
             src={src}
             alt={alt}
             className={className}
+            loading={loading}
+            decoding={decoding}
             onError={() => setError(true)}
             draggable="false"
         />
