@@ -566,7 +566,7 @@ const Home = () => {
                                 <Link
                                     to={`/category/${encodeURIComponent(cat.name)}`}
                                     key={cat.id}
-                                    className="flex flex-col items-center p-0 w-[42vw] max-w-[220px] min-w-[180px] md:w-[220px] md:min-w-[220px] md:max-w-[220px] h-[244px] md:h-[252px] shrink-0 bg-white dark:bg-[#1a1d23] rounded-[16px] border border-gray-100 dark:border-white/5 hover:border-cyan-500/30 transition-all shadow-sm overflow-hidden"
+                                    className="flex flex-col items-center p-0 w-[42vw] max-w-[220px] min-w-[180px] md:w-[220px] md:min-w-[220px] md:max-w-[220px] h-[224px] md:h-[240px] shrink-0 bg-white dark:bg-[#1a1d23] rounded-[16px] border border-gray-100 dark:border-white/5 hover:border-cyan-500/30 transition-all shadow-sm overflow-hidden"
                                 >
                                     <div className="w-full aspect-square mb-1 relative shrink-0 overflow-hidden rounded-t-[16px]">
                                         <img
