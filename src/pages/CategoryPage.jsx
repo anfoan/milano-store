@@ -46,6 +46,13 @@ const CategoryPage = () => {
                     const cached = JSON.parse(localStorage.getItem('cached_products') || '[]');
                     if (Array.isArray(cached)) allProducts = cached;
                 } catch { /* network fetch below remains the source of truth */ }
+                if (allProducts.length > 0) {
+                    const cachedCategory = allProducts
+                        .filter(p => p.category === decodedCategoryName && !p.hidden && (!hideOutOfStock || Number(p.stock || 0) > 0))
+                        .sort((a, b) => Number(a.order ?? 999999) - Number(b.order ?? 999999));
+                    setProducts(cachedCategory);
+                    setLoading(false);
+                }
 
                 const productsRef = query(collection(db, 'products'), where('category', '==', decodedCategoryName));
                 const snapshot = await getDocs(productsRef);
