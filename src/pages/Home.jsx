@@ -72,7 +72,7 @@ const Home = () => {
         : 50;
     const hideOutOfStock = interfaceSettings?.hideOutOfStock;
     const categoryScrollRef = useRef(null);
-    const [categoryMotionDistance, setCategoryMotionDistance] = useState(0);
+    const categoryTrackRef = useRef(null);
     const [isDesktopView, setIsDesktopView] = useState(window.innerWidth >= 768);
 
     const [minHeightShim, setMinHeightShim] = useState('100vh');
@@ -152,8 +152,42 @@ const Home = () => {
 
 
 
-    // Measure the overflow once the category images are laid out, then animate
-    // the whole track so RTL scrollLeft differences cannot stop the motion.
+    // Move the right-aligned track directly so the motion cannot stall
+    // because of browser-specific RTL scroll or animation behavior.
+    useEffect(() => {
+        const container = categoryScrollRef.current;
+        const track = categoryTrackRef.current;
+        if (!container || !track || allCategories.length < 2) return undefined;
+
+        let frameId;
+        let position = 0;
+        let direction = -1;
+        let lastTime = performance.now();
+        const speed = 26;
+        const tick = (now) => {
+            const delta = Math.min((now - lastTime) / 1000, 0.05);
+            lastTime = now;
+            const distance = Math.max(0, track.scrollWidth - container.clientWidth);
+            if (distance > 0) {
+                position += direction * speed * delta;
+                if (position <= -distance) {
+                    position = -distance;
+                    direction = 1;
+                } else if (position >= 0) {
+                    position = 0;
+                    direction = -1;
+                }
+                track.style.transform = `translate3d(${position}px, 0, 0)`;
+            }
+            frameId = requestAnimationFrame(tick);
+        };
+        frameId = requestAnimationFrame(tick);
+        return () => {
+            cancelAnimationFrame(frameId);
+            track.style.transform = '';
+        };
+    }, [allCategories.length]);
+
     useEffect(() => {
         const container = categoryScrollRef.current;
         if (!container || allCategories.length < 2) {
@@ -481,10 +515,9 @@ const Home = () => {
                             dir="rtl"
                             className="relative w-full overflow-hidden flex justify-end"
                         >
-                            <motion.div
+                            <div
+                                ref={categoryTrackRef}
                                 className="flex flex-nowrap items-stretch gap-2 px-1 pb-1 w-max shrink-0"
-                                animate={categoryMotionDistance > 0 ? { x: [0, -categoryMotionDistance, 0] } : { x: 0 }}
-                                transition={categoryMotionDistance > 0 ? { duration: Math.max(12, (categoryMotionDistance / 26) * 2), ease: 'linear', repeat: Infinity } : { duration: 0 }}
                             >
                             {allCategories.map((cat) => (
                                 <Link
@@ -504,7 +537,7 @@ const Home = () => {
                                     <span className="text-gray-900 dark:text-white font-black text-[11px] md:text-[12px] text-center leading-tight line-clamp-2 w-full min-h-[28px] mt-0 mb-1 px-2 flex items-center justify-center">{cat.name}</span>
                                 </Link>
                             ))}
-                            </motion.div>
+                            </div>
                         </div>
                     </div>
                 </section>
