@@ -10,6 +10,28 @@ import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import DraggableScrollContainer from '../components/DraggableScrollContainer';
 
+
+const normalizeCategoryName = (value = '') => value
+    .replace(/[ًٌٍَُِّْـ]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const orderStoreCategories = (items = []) => {
+    const ordered = [...items].sort((a, b) => (a.order || 9999) - (b.order || 9999));
+    const targetIndex = ordered.findIndex((category) => {
+        const name = normalizeCategoryName(category.name);
+        return name === 'بواتي حبوب درجه اولى'
+            || name === 'بواتي حبوب درجة اولى'
+            || name === 'بواتي حبوب درجة أولى'
+            || (name.includes('بواتي حبوب') && name.includes('اولى'));
+    });
+    if (targetIndex > 0) {
+        const [target] = ordered.splice(targetIndex, 1);
+        ordered.unshift(target);
+    }
+    return ordered;
+};
+
 const Home = () => {
     // SECURITY & DATA FIX: Clear old cache if project has changed
     const currentProjectId = "milano-store-53d33"; // New Project ID
@@ -43,7 +65,7 @@ const Home = () => {
     const [allCategories, setAllCategories] = useState(() => {
         try {
             const cached = localStorage.getItem('cached_all_categories');
-            return cached ? JSON.parse(cached) : [];
+            return cached ? orderStoreCategories(JSON.parse(cached)) : [];
         } catch (e) {
             return [];
         }
@@ -230,7 +252,7 @@ const Home = () => {
         // 3. Real-time Products & Categories Sync
         const unsubCategories = onSnapshot(collection(db, "categories"), (catSnapshot) => {
             const rawCats = catSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-            const sortedCats = rawCats.sort((a, b) => (a.order || 9999) - (b.order || 9999));
+            const sortedCats = orderStoreCategories(rawCats);
             setAllCategories(sortedCats);
             localStorage.setItem('cached_all_categories', JSON.stringify(sortedCats));
         }, (err) => console.error("Error fetching categories:", err));
