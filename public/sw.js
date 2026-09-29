@@ -44,6 +44,20 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    const requestUrl = new URL(event.request.url);
+    const isSameOriginStatic = requestUrl.origin === self.location.origin && event.request.destination !== 'document';
+    if (isSameOriginStatic) {
+        // Hashed Vite assets and local fonts/images can be served instantly on repeat visits.
+        event.respondWith(
+            caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
+                const responseClone = response.clone();
+                caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+                return response;
+            }))
+        );
+        return;
+    }
+
     event.respondWith(
         fetch(event.request)
             .then((response) => {
