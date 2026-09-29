@@ -183,7 +183,7 @@ const Home = () => {
 
         let frameId;
         let position = 0;
-        let direction = -1;
+        let direction = 1;
         let lastTime = performance.now();
         const speed = 26;
         const tick = (now) => {
@@ -192,12 +192,12 @@ const Home = () => {
             const distance = Math.max(0, track.scrollWidth - container.clientWidth);
             if (distance > 0) {
                 position += direction * speed * delta;
-                if (position <= -distance) {
-                    position = -distance;
-                    direction = 1;
-                } else if (position >= 0) {
-                    position = 0;
+                if (position >= distance) {
+                    position = distance;
                     direction = -1;
+                } else if (position <= 0) {
+                    position = 0;
+                    direction = 1;
                 }
                 track.style.transform = `translate3d(${position}px, 0, 0)`;
             }
