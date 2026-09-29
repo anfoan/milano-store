@@ -519,12 +519,12 @@ const Home = () => {
                     <div className="relative w-full overflow-hidden">
                         <div
                             ref={categoryScrollRef}
-                            dir="rtl"
+                            dir="ltr"
                             className="relative w-full overflow-hidden flex justify-end"
                         >
                             <div
                                 ref={categoryTrackRef}
-                                className="flex flex-nowrap items-stretch gap-2 px-1 pb-1 w-max shrink-0"
+                                className="flex flex-row-reverse flex-nowrap items-stretch gap-2 px-1 pb-1 w-max shrink-0"
                             >
                             {allCategories.map((cat) => (
                                 <Link
