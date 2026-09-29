@@ -449,8 +449,7 @@ const Home = () => {
                                             alt="Country"
                                             className="w-full h-full object-cover"
                                             draggable="false"
-                                            loading={catIndex < 4 ? "eager" : "lazy"}
-                                            fetchPriority={catIndex === 0 ? "high" : "auto"}
+                                            loading="lazy"
                                             decoding="async"
                                         />
                                     </div >
@@ -595,7 +594,8 @@ const Home = () => {
                                             src={optimizeImageUrl(cat.image || "/catalog.png", 440)}
                                             alt={cat.name}
                                             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                                            loading="lazy"
+                                            loading={catIndex < 4 ? "eager" : "lazy"}
+                                            fetchPriority={catIndex === 0 ? "high" : "auto"}
                                             decoding="async"
                                         />
                                     </div>
