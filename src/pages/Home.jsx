@@ -95,6 +95,9 @@ const Home = () => {
     const hideOutOfStock = interfaceSettings?.hideOutOfStock;
     const categoryScrollRef = useRef(null);
     const categoryTrackRef = useRef(null);
+    const categoryPositionRef = useRef(0);
+    const categoryDirectionRef = useRef(1);
+    const categoryDragRef = useRef({ active: false, startX: 0, startPosition: 0 });
     const [isDesktopView, setIsDesktopView] = useState(window.innerWidth >= 768);
 
     const [minHeightShim, setMinHeightShim] = useState('100vh');
@@ -182,23 +185,22 @@ const Home = () => {
         if (!container || !track || allCategories.length < 2) return undefined;
 
         let frameId;
-        let position = 0;
-        let direction = 1;
         let lastTime = performance.now();
         const speed = 26;
         const tick = (now) => {
             const delta = Math.min((now - lastTime) / 1000, 0.05);
             lastTime = now;
             const distance = Math.max(0, track.scrollWidth - container.clientWidth);
-            if (distance > 0) {
-                position += direction * speed * delta;
+            if (distance > 0 && !categoryDragRef.current.active) {
+                let position = categoryPositionRef.current + categoryDirectionRef.current * speed * delta;
                 if (position >= distance) {
                     position = distance;
-                    direction = -1;
+                    categoryDirectionRef.current = -1;
                 } else if (position <= 0) {
                     position = 0;
-                    direction = 1;
+                    categoryDirectionRef.current = 1;
                 }
+                categoryPositionRef.current = position;
                 track.style.transform = `translate3d(${position}px, 0, 0)`;
             }
             frameId = requestAnimationFrame(tick);
@@ -520,7 +522,33 @@ const Home = () => {
                         <div
                             ref={categoryScrollRef}
                             dir="ltr"
-                            className="relative w-full overflow-hidden flex justify-end"
+                            className="relative w-full overflow-hidden flex justify-end touch-pan-y select-none cursor-grab active:cursor-grabbing"
+                            onPointerDown={(event) => {
+                                const track = categoryTrackRef.current;
+                                if (!track) return;
+                                event.currentTarget.setPointerCapture?.(event.pointerId);
+                                categoryDragRef.current = {
+                                    active: true,
+                                    startX: event.clientX,
+                                    startPosition: categoryPositionRef.current
+                                };
+                            }}
+                            onPointerMove={(event) => {
+                                const drag = categoryDragRef.current;
+                                const container = categoryScrollRef.current;
+                                const track = categoryTrackRef.current;
+                                if (!drag.active || !container || !track) return;
+                                const distance = Math.max(0, track.scrollWidth - container.clientWidth);
+                                const position = Math.max(0, Math.min(distance, drag.startPosition + (event.clientX - drag.startX)));
+                                categoryPositionRef.current = position;
+                                categoryDirectionRef.current = event.clientX - drag.startX >= 0 ? 1 : -1;
+                                track.style.transform = `translate3d(${position}px, 0, 0)`;
+                            }}
+                            onPointerUp={(event) => {
+                                event.currentTarget.releasePointerCapture?.(event.pointerId);
+                                categoryDragRef.current.active = false;
+                            }}
+                            onPointerCancel={() => { categoryDragRef.current.active = false; }}
                         >
                             <div
                                 ref={categoryTrackRef}
