@@ -98,6 +98,8 @@ const Home = () => {
     const categoryPositionRef = useRef(0);
     const categoryDirectionRef = useRef(1);
     const categoryDragRef = useRef({ active: false, startX: 0, startPosition: 0 });
+    const categoryDragTargetRef = useRef(0);
+    const categoryDragFrameRef = useRef(null);
     const [isDesktopView, setIsDesktopView] = useState(window.innerWidth >= 768);
 
     const [minHeightShim, setMinHeightShim] = useState('100vh');
@@ -208,6 +210,7 @@ const Home = () => {
         frameId = requestAnimationFrame(tick);
         return () => {
             cancelAnimationFrame(frameId);
+            if (categoryDragFrameRef.current) cancelAnimationFrame(categoryDragFrameRef.current);
             track.style.transform = '';
         };
     }, [allCategories.length]);
@@ -538,11 +541,18 @@ const Home = () => {
                                 const container = categoryScrollRef.current;
                                 const track = categoryTrackRef.current;
                                 if (!drag.active || !container || !track) return;
+                                event.preventDefault();
                                 const distance = Math.max(0, track.scrollWidth - container.clientWidth);
                                 const position = Math.max(0, Math.min(distance, drag.startPosition + (event.clientX - drag.startX)));
-                                categoryPositionRef.current = position;
+                                categoryDragTargetRef.current = position;
                                 categoryDirectionRef.current = event.clientX - drag.startX >= 0 ? 1 : -1;
-                                track.style.transform = `translate3d(${position}px, 0, 0)`;
+                                if (!categoryDragFrameRef.current) {
+                                    categoryDragFrameRef.current = requestAnimationFrame(() => {
+                                        categoryPositionRef.current = categoryDragTargetRef.current;
+                                        track.style.transform = `translate3d(${categoryPositionRef.current}px, 0, 0)`;
+                                        categoryDragFrameRef.current = null;
+                                    });
+                                }
                             }}
                             onPointerUp={(event) => {
                                 event.currentTarget.releasePointerCapture?.(event.pointerId);
@@ -552,7 +562,7 @@ const Home = () => {
                         >
                             <div
                                 ref={categoryTrackRef}
-                                className="flex flex-row-reverse flex-nowrap items-stretch gap-2 px-1 pb-1 w-max shrink-0"
+                                className="flex flex-row-reverse flex-nowrap items-stretch gap-2 px-1 pb-1 w-max shrink-0 will-change-transform"
                             >
                             {allCategories.map((cat) => (
                                 <Link
