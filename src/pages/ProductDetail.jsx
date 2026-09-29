@@ -48,6 +48,16 @@ const ProductDetail = () => {
         const fetchProductAndRelated = async () => {
             try {
                 setLoading(true);
+                // Render the product from the Home cache immediately on direct navigation.
+                try {
+                    const cachedProducts = JSON.parse(localStorage.getItem('cached_products') || '[]');
+                    const cachedProduct = Array.isArray(cachedProducts) ? cachedProducts.find(item => item.id === id) : null;
+                    if (cachedProduct) {
+                        setProduct(cachedProduct);
+                        setActiveImage(cachedProduct.mainImage);
+                        setLoading(false);
+                    }
+                } catch { /* network record below remains the source of truth */ }
                 const docRef = doc(db, "products", id);
                 const docSnap = await getDoc(docRef);
 
@@ -495,6 +505,8 @@ const ProductDetail = () => {
                                         <img
                                             src={product.mainImage}
                                             alt={product.name}
+                                            loading="eager"
+                                            decoding="async"
                                             className="w-full h-full object-cover"
                                             draggable="false"
                                         />
@@ -549,7 +561,7 @@ const ProductDetail = () => {
                                         className="w-24 h-24 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-[#1a1d23] shrink-0"
                                         onClick={() => { setImageViewerStartIndex(0); setShowImageViewer(true); }}
                                     >
-                                        <img src={product.mainImage} alt={product.name} className="w-full h-full object-cover" />
+                                        <img src={product.mainImage} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex flex-col items-start gap-2 text-right">
                                         <h1 className="text-base font-black text-gray-900 dark:text-white leading-tight">
