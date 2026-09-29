@@ -99,7 +99,6 @@ const Home = () => {
     const categoryDirectionRef = useRef(1);
     const categoryDragRef = useRef({ active: false, startX: 0, startPosition: 0 });
     const categoryDragTargetRef = useRef(0);
-    const categoryDragFrameRef = useRef(null);
     const [isDesktopView, setIsDesktopView] = useState(window.innerWidth >= 768);
 
     const [minHeightShim, setMinHeightShim] = useState('100vh');
@@ -193,14 +192,21 @@ const Home = () => {
             const delta = Math.min((now - lastTime) / 1000, 0.05);
             lastTime = now;
             const distance = Math.max(0, track.scrollWidth - container.clientWidth);
-            if (distance > 0 && !categoryDragRef.current.active) {
-                let position = categoryPositionRef.current + categoryDirectionRef.current * speed * delta;
-                if (position >= distance) {
-                    position = distance;
-                    categoryDirectionRef.current = -1;
-                } else if (position <= 0) {
-                    position = 0;
-                    categoryDirectionRef.current = 1;
+            if (distance > 0) {
+                let position = categoryPositionRef.current;
+                if (categoryDragRef.current.active) {
+                    // Follow the finger with a short, responsive easing instead of
+                    // jumping on individual pointer events.
+                    position += (categoryDragTargetRef.current - position) * 0.28;
+                } else {
+                    position += categoryDirectionRef.current * speed * delta;
+                    if (position >= distance) {
+                        position = distance;
+                        categoryDirectionRef.current = -1;
+                    } else if (position <= 0) {
+                        position = 0;
+                        categoryDirectionRef.current = 1;
+                    }
                 }
                 categoryPositionRef.current = position;
                 track.style.transform = `translate3d(${position}px, 0, 0)`;
@@ -210,7 +216,6 @@ const Home = () => {
         frameId = requestAnimationFrame(tick);
         return () => {
             cancelAnimationFrame(frameId);
-            if (categoryDragFrameRef.current) cancelAnimationFrame(categoryDragFrameRef.current);
             track.style.transform = '';
         };
     }, [allCategories.length]);
@@ -546,13 +551,6 @@ const Home = () => {
                                 const position = Math.max(0, Math.min(distance, drag.startPosition + (event.clientX - drag.startX)));
                                 categoryDragTargetRef.current = position;
                                 categoryDirectionRef.current = event.clientX - drag.startX >= 0 ? 1 : -1;
-                                if (!categoryDragFrameRef.current) {
-                                    categoryDragFrameRef.current = requestAnimationFrame(() => {
-                                        categoryPositionRef.current = categoryDragTargetRef.current;
-                                        track.style.transform = `translate3d(${categoryPositionRef.current}px, 0, 0)`;
-                                        categoryDragFrameRef.current = null;
-                                    });
-                                }
                             }}
                             onPointerUp={(event) => {
                                 event.currentTarget.releasePointerCapture?.(event.pointerId);
