@@ -72,7 +72,7 @@ const Home = () => {
         : 50;
     const hideOutOfStock = interfaceSettings?.hideOutOfStock;
     const categoryScrollRef = useRef(null);
-    const categoryMotionDirection = useRef(-1);
+    const [categoryMotionDistance, setCategoryMotionDistance] = useState(0);
     const [isDesktopView, setIsDesktopView] = useState(window.innerWidth >= 768);
 
     const [minHeightShim, setMinHeightShim] = useState('100vh');
@@ -152,31 +152,21 @@ const Home = () => {
 
 
 
-    // Move the single category row continuously from right to left, then back again.
-    // The animation uses the real scroll container so every category remains clickable.
+    // Measure the overflow once the category images are laid out, then animate
+    // the whole track so RTL scrollLeft differences cannot stop the motion.
     useEffect(() => {
         const container = categoryScrollRef.current;
-        if (!container || allCategories.length < 2) return undefined;
-        let frameId;
-        let lastTime = performance.now();
-        const speed = 26; // pixels per second
-        const tick = (now) => {
-            const delta = Math.min((now - lastTime) / 1000, 0.05);
-            lastTime = now;
-            const maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
-            if (maxScroll > 0) {
-                if (categoryMotionDirection.current < 0) {
-                    container.scrollLeft -= speed * delta;
-                    if (Math.abs(container.scrollLeft) >= maxScroll - 1) categoryMotionDirection.current = 1;
-                } else {
-                    container.scrollLeft += speed * delta;
-                    if (Math.abs(container.scrollLeft) <= 1) categoryMotionDirection.current = -1;
-                }
-            }
-            frameId = requestAnimationFrame(tick);
+        if (!container || allCategories.length < 2) {
+            setCategoryMotionDistance(0);
+            return undefined;
+        }
+        const measure = () => {
+            setCategoryMotionDistance(Math.max(0, container.scrollWidth - container.clientWidth));
         };
-        frameId = requestAnimationFrame(tick);
-        return () => cancelAnimationFrame(frameId);
+        measure();
+        const observer = new ResizeObserver(measure);
+        observer.observe(container);
+        return () => observer.disconnect();
     }, [allCategories.length]);
 
     useEffect(() => {
@@ -489,8 +479,13 @@ const Home = () => {
                         <div
                             ref={categoryScrollRef}
                             dir="rtl"
-                            className="flex flex-nowrap items-stretch overflow-x-auto scrollbar-hide gap-2 px-1 pb-1"
+                            className="relative w-full overflow-hidden"
                         >
+                            <motion.div
+                                className="flex flex-nowrap items-stretch gap-2 px-1 pb-1 w-max"
+                                animate={categoryMotionDistance > 0 ? { x: [0, -categoryMotionDistance, 0] } : { x: 0 }}
+                                transition={categoryMotionDistance > 0 ? { duration: Math.max(12, (categoryMotionDistance / 26) * 2), ease: 'linear', repeat: Infinity } : { duration: 0 }}
+                            >
                             {allCategories.map((cat) => (
                                 <Link
                                     to={`/category/${encodeURIComponent(cat.name)}`}
@@ -509,6 +504,7 @@ const Home = () => {
                                     <span className="text-gray-900 dark:text-white font-black text-[11px] md:text-[12px] text-center leading-tight line-clamp-2 w-full min-h-[28px] mt-0 mb-1 px-2 flex items-center justify-center">{cat.name}</span>
                                 </Link>
                             ))}
+                            </motion.div>
                         </div>
                     </div>
                 </section>
