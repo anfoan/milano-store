@@ -32,6 +32,27 @@ const orderStoreCategories = (items = []) => {
     return ordered;
 };
 
+// Request appropriately sized Cloudinary/Unsplash images without changing stored URLs.
+const optimizeImageUrl = (url, width) => {
+    if (!url || typeof url !== 'string') return url;
+    try {
+        const parsed = new URL(url, window.location.href);
+        if (parsed.hostname.includes('res.cloudinary.com') && parsed.pathname.includes('/upload/')) {
+            parsed.pathname = parsed.pathname.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`);
+            return parsed.toString();
+        }
+        if (parsed.hostname.includes('images.unsplash.com')) {
+            parsed.searchParams.set('auto', 'format');
+            parsed.searchParams.set('fit', 'crop');
+            parsed.searchParams.set('w', String(width));
+            return parsed.toString();
+        }
+    } catch (error) {
+        // Keep the original URL for non-standard or local image paths.
+    }
+    return url;
+};
+
 const Home = () => {
     // SECURITY & DATA FIX: Clear old cache if project has changed
     const currentProjectId = "milano-store-53d33"; // New Project ID
@@ -331,28 +352,28 @@ const Home = () => {
                             <div className="flex items-center justify-center gap-4 md:gap-6 mb-3 mt-1">
                                 {/* Nike */}
                                 <img 
-                                    src={brandImages.nike || "/nike.png"}
+                                    src={optimizeImageUrl(brandImages.nike || "/nike.png", 180)}
                                     alt="Nike" 
                                     className="w-[62px] h-[62px] md:w-[80px] md:h-[80px] rounded-[18px] md:rounded-[24px] object-cover drop-shadow-md hover:-translate-y-1 transition-transform duration-300 hover:scale-105" 
                                     draggable="false" 
                                 />
                                 {/* Adidas */}
                                 <img 
-                                    src={brandImages.adidas || "/adidas.png"}
+                                    src={optimizeImageUrl(brandImages.adidas || "/adidas.png", 180)}
                                     alt="Adidas" 
                                     className="w-[62px] h-[62px] md:w-[80px] md:h-[80px] rounded-[18px] md:rounded-[24px] object-cover drop-shadow-md hover:-translate-y-1 transition-transform duration-300 hover:scale-105" 
                                     draggable="false" 
                                 />
                                 {/* Puma */}
                                 <img 
-                                    src={brandImages.puma || "/puma.png"}
+                                    src={optimizeImageUrl(brandImages.puma || "/puma.png", 180)}
                                     alt="Puma" 
                                     className="w-[62px] h-[62px] md:w-[80px] md:h-[80px] rounded-[18px] md:rounded-[24px] object-cover drop-shadow-md hover:-translate-y-1 transition-transform duration-300 hover:scale-105" 
                                     draggable="false" 
                                 />
                                 {/* Lacoste */}
                                 <img 
-                                    src={brandImages.lacoste || "/lacoste.png"}
+                                    src={optimizeImageUrl(brandImages.lacoste || "/lacoste.png", 180)}
                                     alt="Lacoste" 
                                     className="w-[62px] h-[62px] md:w-[80px] md:h-[80px] rounded-[18px] md:rounded-[24px] object-cover drop-shadow-md hover:-translate-y-1 transition-transform duration-300 hover:scale-105" 
                                     draggable="false" 
@@ -428,7 +449,8 @@ const Home = () => {
                                             alt="Country"
                                             className="w-full h-full object-cover"
                                             draggable="false"
-                                            loading="lazy"
+                                            loading={catIndex < 4 ? "eager" : "lazy"}
+                                            fetchPriority={catIndex === 0 ? "high" : "auto"}
                                             decoding="async"
                                         />
                                     </div >
@@ -562,7 +584,7 @@ const Home = () => {
                                 ref={categoryTrackRef}
                                 className="flex flex-row-reverse flex-nowrap items-stretch gap-2 px-1 pb-1 w-max shrink-0 will-change-transform"
                             >
-                            {allCategories.map((cat) => (
+                            {allCategories.map((cat, catIndex) => (
                                 <Link
                                     to={`/category/${encodeURIComponent(cat.name)}`}
                                     key={cat.id}
@@ -570,7 +592,7 @@ const Home = () => {
                                 >
                                     <div className="w-full aspect-[1/1.04] md:aspect-square mb-1 relative shrink-0 overflow-hidden rounded-t-[16px]">
                                         <img
-                                            src={cat.image || "/catalog.png"}
+                                            src={optimizeImageUrl(cat.image || "/catalog.png", 440)}
                                             alt={cat.name}
                                             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                                             loading="lazy"
@@ -616,7 +638,7 @@ const Home = () => {
                                                 <div key={i} className="min-w-[200px] md:min-w-[260px] snap-start aspect-[4/5] bg-zinc-900/50 rounded-3xl animate-pulse" />
                                             ))
                                         ) : (
-                                            categoryProducts.map((product) => (
+                                            categoryProducts.map((product, productIndex) => (
                                                 <Link
                                                     to={`/product/${product.id}`}
                                                     key={product.id}
@@ -629,12 +651,13 @@ const Home = () => {
                                                         {/* Image Container */}
                                                         <div className="relative aspect-square w-full bg-gray-200 dark:bg-[#2b2d31]">
                                                             <img
-                                                                src={product.mainImage || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=500"}
+                                                                src={optimizeImageUrl(product.mainImage || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=500", 560)}
                                                                 alt={product.name}
                                                                 className="absolute inset-0 w-full h-full object-cover"
                                                                 draggable="false"
-                                                                loading="eager"
-                                                                decoding="sync"
+                                                                loading="lazy"
+                                                                fetchPriority={productIndex === 0 ? "high" : "auto"}
+                                                                decoding="async"
                                                             />
 
                                                             {/* Discount Badge */}
