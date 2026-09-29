@@ -189,21 +189,6 @@ const Home = () => {
     }, [allCategories.length]);
 
     useEffect(() => {
-        const container = categoryScrollRef.current;
-        if (!container || allCategories.length < 2) {
-            setCategoryMotionDistance(0);
-            return undefined;
-        }
-        const measure = () => {
-            setCategoryMotionDistance(Math.max(0, container.scrollWidth - container.clientWidth));
-        };
-        measure();
-        const observer = new ResizeObserver(measure);
-        observer.observe(container);
-        return () => observer.disconnect();
-    }, [allCategories.length]);
-
-    useEffect(() => {
         // 1. Real-time Store Status Sync
         const statusRef = doc(db, 'settings', 'store');
         const unsubscribeStatus = onSnapshot(statusRef, (docSnap) => {
