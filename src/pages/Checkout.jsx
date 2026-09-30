@@ -9,6 +9,7 @@ import { useSettings } from '../hooks/useSettings';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
+import { getCustomerWalletId, hashWalletPin, walletNumber } from '../lib/wallet';
 
 const Checkout = () => {
     const { t, direction, language } = useLanguage();
@@ -49,6 +50,13 @@ const Checkout = () => {
     });
 
     const [loading, setLoading] = useState(true);
+    const walletId = getCustomerWalletId();
+    const [customerWallet, setCustomerWallet] = useState(null);
+    const [useWalletCredit, setUseWalletCredit] = useState(false);
+    const [walletPin, setWalletPin] = useState('');
+    const [walletPinVerified, setWalletPinVerified] = useState(false);
+    const [walletPinOpen, setWalletPinOpen] = useState(false);
+    const [walletPinError, setWalletPinError] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -83,6 +91,14 @@ const Checkout = () => {
         };
         fetchData();
     }, []);
+
+    useEffect(() => {
+        const walletRef = doc(db, 'customer_wallets', walletId);
+        const unsubscribe = onSnapshot(walletRef, snapshot => {
+            setCustomerWallet(snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null);
+        }, error => console.error('Checkout wallet listener:', error));
+        return () => unsubscribe();
+    }, [walletId]);
 
     // Fetch Cart Settings
     const [cartSettings, setCartSettings] = useState({});
@@ -298,6 +314,44 @@ const Checkout = () => {
 
     const discountAmount = (cartTotal - effectiveSubtotal) + couponDiscount;
     const total = cartTotal - discountAmount + deliveryCost;
+    const walletBalance = Math.max(0, Number(customerWallet?.balance || 0));
+    const walletApplied = useWalletCredit && walletPinVerified ? Math.min(walletBalance, total) : 0;
+    const amountDueAfterWallet = Math.max(0, total - walletApplied);
+
+    const requestWalletCredit = () => {
+        if (useWalletCredit) {
+            setUseWalletCredit(false);
+            setWalletPinVerified(false);
+            setWalletPin('');
+            return;
+        }
+        if (!customerWallet?.pinHash) {
+            alert('يرجى إعداد وتأمين محفظتك برمز PIN أولاً من زر المحفظة أعلى المتجر.');
+            return;
+        }
+        if (walletBalance <= 0) {
+            alert('لا يوجد رصيد متاح في محفظتك حاليًا.');
+            return;
+        }
+        setWalletPinError('');
+        setWalletPinOpen(true);
+    };
+
+    const confirmWalletPin = async () => {
+        try {
+            const hash = await hashWalletPin(walletPin);
+            if (hash !== customerWallet?.pinHash) {
+                setWalletPinError('الرمز السري غير صحيح.');
+                return;
+            }
+            setWalletPinVerified(true);
+            setUseWalletCredit(true);
+            setWalletPinOpen(false);
+            setWalletPin('');
+        } catch (error) {
+            setWalletPinError('أدخل رمزًا من 4 إلى 6 أرقام إنجليزية.');
+        }
+    };
 
     const handleConfirm = async (e) => {
         e.preventDefault();
@@ -347,7 +401,7 @@ const Checkout = () => {
             }
 
             // 0.7 Payment Method Validation
-            if (!formData.paymentMethod) {
+            if (!formData.paymentMethod && amountDueAfterWallet > 0) {
                 throw new Error(t('checkout.payment_required'));
             }
 
@@ -434,6 +488,10 @@ const Checkout = () => {
             couponCode: appliedCoupon ? appliedCoupon.code : null,
             deliveryCost,
             orderId: newOrderId,
+            paymentMethod: amountDueAfterWallet === 0 && walletApplied > 0 ? 'wallet' : formData.paymentMethod,
+            customerWalletId: walletId,
+            walletApplied,
+            amountDueAfterWallet,
             status: 'new',
             currency: activeCurrency, // Store the currency the customer used
             date: new Date().toISOString().split('T')[0],
@@ -493,6 +551,8 @@ const Checkout = () => {
             // Save the order and decrement inventory in one transaction.
             // This prevents two customers from buying the same last units at once.
             const orderRef = doc(collection(db, "orders"));
+            const walletRef = walletApplied > 0 ? doc(db, 'customer_wallets', walletId) : null;
+            const walletTransactionRef = walletRef ? doc(collection(db, 'wallet_transactions')) : null;
             await runTransaction(db, async (transaction) => {
                 const grouped = new Map();
                 cartItems.forEach(item => {
@@ -505,12 +565,34 @@ const Checkout = () => {
                 const productRefs = [...grouped.keys()].map(id => doc(db, "products", id));
                 const couponRef = appliedCoupon?.id ? doc(db, "coupons", appliedCoupon.id) : null;
                 const couponSnap = couponRef ? await transaction.get(couponRef) : null;
+                const walletSnap = walletRef ? await transaction.get(walletRef) : null;
                 if (couponSnap?.exists() && !couponSnap.data().isUnlimited) {
                     const used = Number(couponSnap.data().usedCount || 0);
                     const max = Number(couponSnap.data().maxUses || 0);
                     if (used >= max) throw new Error("COUPON_LIMIT_REACHED");
                 }
                 const productSnaps = await Promise.all(productRefs.map(ref => transaction.get(ref)));
+
+                if (walletRef) {
+                    if (!walletSnap?.exists() || Number(walletSnap.data().balance || 0) < walletApplied) {
+                        throw new Error('WALLET_BALANCE_CHANGED');
+                    }
+                    transaction.update(walletRef, {
+                        balance: Number(walletSnap.data().balance || 0) - walletApplied,
+                        phone: walletSnap.data().phone || `${selectedCountry.dial_code}${formData.phone}`,
+                        updatedAt: serverTimestamp()
+                    });
+                    transaction.set(walletTransactionRef, {
+                        walletId,
+                        type: 'spend',
+                        amount: walletApplied,
+                        orderId: newOrderId,
+                        customerName: formData.name || '',
+                        phone: walletSnap.data().phone || `${selectedCountry.dial_code}${formData.phone}`,
+                        createdAt: serverTimestamp(),
+                        source: 'checkout'
+                    });
+                }
 
                 productSnaps.forEach((snap, idx) => {
                     const productId = [...grouped.keys()][idx];
@@ -881,6 +963,11 @@ const Checkout = () => {
                                 <span className="text-blue-500">{formatPrice(total)}</span>
                                 <span className="text-gray-900 dark:text-white">{t('cart.total')}</span>
                             </div>
+                            <button type="button" onClick={requestWalletCredit} className={`mt-2 flex w-full items-center justify-between rounded-xl border p-3 text-right transition-all ${useWalletCredit ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-400/50 dark:bg-emerald-400/10' : 'border-slate-200 bg-slate-50 hover:border-emerald-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-emerald-400/40'}`}>
+                                <div className="flex items-center gap-2"><div className={`flex h-7 w-7 items-center justify-center rounded-lg ${useWalletCredit ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-300'}`}>{useWalletCredit ? <CheckCircle2 size={16}/> : <CheckCircle2 size={16}/>}</div><div><p className="text-xs font-black text-slate-800 dark:text-white">استخدام رصيد محفظتي</p><p className="mt-0.5 text-[9px] font-bold text-slate-400">رصيد متاح: <span dir="ltr" className="font-mono text-emerald-600 dark:text-emerald-300">$ {walletNumber(walletBalance)}</span></p></div></div>
+                                <span className={`h-5 w-5 rounded-full border-2 ${useWalletCredit ? 'border-emerald-500 bg-emerald-500' : 'border-slate-300 dark:border-slate-600'}`}>{useWalletCredit && <CheckCircle2 size={16} className="m-[-1px] text-white"/>}</span>
+                            </button>
+                            {walletApplied > 0 && <><div className="flex justify-between items-center text-sm font-black text-emerald-600 dark:text-emerald-300"><span dir="ltr">- $ {walletNumber(walletApplied)}</span><span>خصم من المحفظة</span></div><div className="flex justify-between items-center text-base font-black text-emerald-600 dark:text-emerald-300"><span>{amountDueAfterWallet > 0 ? formatPrice(amountDueAfterWallet) : '0'}</span><span>المتبقي للدفع</span></div></>}
                         </div>
 
                         {/* Payment Method */}
@@ -1003,6 +1090,8 @@ const Checkout = () => {
                             ) : ((!storeStatus || !storeStatus.isOpen) ? 'المتجر مشغول حاليا' : t('checkout.complete_order'))}
                         </button>
                     </div>
+
+                    {walletPinOpen && <div className="fixed inset-0 z-[220] flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-sm"><div className="w-full max-w-sm rounded-2xl border border-white/10 bg-white p-5 shadow-2xl dark:bg-[#171b26]"><div className="flex items-start justify-between gap-3"><div><h3 className="text-base font-black text-slate-900 dark:text-white">تأكيد استخدام رصيد المحفظة</h3><p className="mt-1 text-[10px] font-bold text-slate-400">أدخل رمز PIN لحماية رصيدك.</p></div><button type="button" onClick={() => { setWalletPinOpen(false); setWalletPin(''); setWalletPinError(''); }} className="text-slate-400">×</button></div><div className="mt-4 rounded-xl bg-emerald-50 px-3 py-2 text-center text-[11px] font-black text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-200">سيُستخدم حتى <span dir="ltr" className="font-mono">$ {walletNumber(Math.min(walletBalance, total))}</span> من رصيدك.</div><input autoFocus value={walletPin} onChange={event => setWalletPin(event.target.value.replace(/\D/g, '').slice(0, 6))} onKeyDown={event => event.key === 'Enter' && confirmWalletPin()} inputMode="numeric" type="password" placeholder="رمز PIN من 4 إلى 6 أرقام" className="mt-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-center font-mono text-sm font-black outline-none focus:border-emerald-400 dark:border-white/10 dark:bg-white/5"/><p className="mt-2 min-h-4 text-center text-[10px] font-bold text-rose-500">{walletPinError}</p><div className="mt-3 flex gap-2"><button type="button" onClick={confirmWalletPin} className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-black text-white">تأكيد الخصم</button><button type="button" onClick={() => setWalletPinOpen(false)} className="rounded-xl px-4 text-sm font-black text-slate-500">إلغاء</button></div></div></div>}
 
                 </form>
 

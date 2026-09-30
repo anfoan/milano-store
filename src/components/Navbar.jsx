@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, ShoppingBag, ShoppingCart, Search, ArrowRight, CheckCircle2, Check, Home, LayoutGrid, BadgePercent, Package } from 'lucide-react';
+import { Menu, X, ShoppingBag, ShoppingCart, Search, ArrowRight, CheckCircle2, Check, Home, LayoutGrid, BadgePercent, Package, Landmark } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../lib/firebase';
@@ -12,6 +12,7 @@ import { useSettings } from '../hooks/useSettings';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
+import { getCustomerWalletId, walletNumber } from '../lib/wallet';
 
 const Navbar = () => {
     const { theme } = useTheme();
@@ -31,6 +32,7 @@ const Navbar = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
+    const [walletBalance, setWalletBalance] = useState(0);
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -97,6 +99,14 @@ const Navbar = () => {
 
         window.addEventListener('cart-updated', handleCartUpdate);
         return () => window.removeEventListener('cart-updated', handleCartUpdate);
+    }, []);
+
+    useEffect(() => {
+        const walletId = getCustomerWalletId();
+        const unsubscribe = onSnapshot(doc(db, 'customer_wallets', walletId), snapshot => {
+            setWalletBalance(snapshot.exists() ? Number(snapshot.data().balance || 0) : 0);
+        }, error => console.error('Customer wallet listener:', error));
+        return () => unsubscribe();
     }, []);
 
     // Search Handler
@@ -182,6 +192,15 @@ const Navbar = () => {
 
                         {/* Left Section: Search & Theme & Categories (Reordered: Search Right, Theme Middle, Categories Left) */}
                         <div className="flex items-center gap-2 md:gap-3">
+                            {/* Customer Wallet */}
+                            <Link
+                                to="/wallet"
+                                className="flex h-9 items-center gap-1.5 rounded-xl border border-emerald-300/80 bg-emerald-100/75 px-2.5 text-emerald-700 shadow-sm transition-all hover:bg-emerald-200 active:scale-95 dark:border-emerald-400/40 dark:bg-emerald-400/15 dark:text-emerald-200 dark:hover:bg-emerald-400/20 md:h-10"
+                                aria-label="محفظة المتجر"
+                            >
+                                <Landmark className="h-4 w-4 shrink-0" strokeWidth={2.4}/>
+                                <span dir="ltr" className="font-sans text-[11px] font-black tabular-nums md:text-xs">$ {walletNumber(walletBalance)}</span>
+                            </Link>
                             {/* Search (Restored Frame + Centered) */}
                             <div className="flex flex-col items-center gap-1 translate-y-[3.5px]">
                                 <button

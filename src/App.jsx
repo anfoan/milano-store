@@ -16,6 +16,7 @@ const CustomerChat = lazy(() => import('./pages/CustomerChat'));
 const RateOrder = lazy(() => import('./pages/RateOrder'));
 const OrderTracking = lazy(() => import('./pages/OrderTracking'));
 const OffersPage = lazy(() => import('./pages/OffersPage'));
+const CustomerWallet = lazy(() => import('./pages/CustomerWallet'));
 
 // Lazy load admin pages
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
@@ -54,6 +55,7 @@ function App() {
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
             <Route path="/offers" element={<OffersPage />} />
+            <Route path="/wallet" element={<CustomerWallet />} />
             <Route path="products" element={<div className="p-20 text-center">صفحة المنتجات (قيد الإنشاء)</div>} />
             <Route path="*" element={<div className="p-20 text-center">404 - الصفحة غير موجودة</div>} />
           </Route >
