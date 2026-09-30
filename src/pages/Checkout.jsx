@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { db } from '../lib/firebase';
 
-import { collection, doc, updateDoc, increment, getDoc, onSnapshot, serverTimestamp, runTransaction } from 'firebase/firestore';
+import { collection, doc, updateDoc, increment, getDoc, onSnapshot, serverTimestamp, runTransaction, setDoc } from 'firebase/firestore';
 import { useSettings } from '../hooks/useSettings';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -482,6 +482,7 @@ const Checkout = () => {
             discount: productSavings, // Store product-level savings
             discountPercentage: appliedCoupon ? appliedCoupon.discountPercent : 0, // Store coupon percentage
             couponCode: appliedCoupon ? appliedCoupon.code : null,
+            couponId: appliedCoupon ? appliedCoupon.id : null,
             deliveryCost,
             orderId: newOrderId,
             paymentMethod: amountDueAfterWallet === 0 && walletApplied > 0 ? 'wallet' : formData.paymentMethod,
@@ -497,6 +498,7 @@ const Checkout = () => {
             ipAddress
         };
 
+        const orderRef = doc(collection(db, "orders"));
         try {
             // Re-validate Coupon Logic (kept as is)
             if (appliedCoupon) {
@@ -550,7 +552,6 @@ const Checkout = () => {
 
             // Save the order and decrement inventory in one transaction.
             // This prevents two customers from buying the same last units at once.
-            const orderRef = doc(collection(db, "orders"));
             const walletRef = walletApplied > 0 ? doc(db, 'customer_wallets', walletId) : null;
             const walletTransactionRef = walletRef ? doc(collection(db, 'wallet_transactions')) : null;
             await runTransaction(db, async (transaction) => {
@@ -690,6 +691,29 @@ const Checkout = () => {
                 localStorage.removeItem('cart_coupon');
                 setLoading(false);
                 return;
+            }
+            // Store visitors may create orders but are intentionally not granted public product-update
+            // permission. Preserve the sale instead of showing a generic browser error; the authenticated
+            // admin dashboard reconciles this marked order with inventory exactly once.
+            if (error?.code === 'permission-denied' && walletApplied === 0 && !appliedCoupon) {
+                try {
+                    await setDoc(orderRef, {
+                        ...orderData,
+                        inventorySyncPending: true,
+                        inventorySyncStatus: 'pending-admin-sync',
+                        createdWithoutPublicInventoryWrite: true
+                    });
+                    const existingOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
+                    existingOrders.unshift({ ...orderData, inventorySyncPending: true, createdAt: new Date().toISOString(), timestamp: Date.now() });
+                    localStorage.setItem('myOrders', JSON.stringify(existingOrders));
+                    localStorage.removeItem('cart');
+                    localStorage.removeItem('cart_coupon');
+                    window.dispatchEvent(new CustomEvent('cart-updated'));
+                    navigate(`/order-tracking/${newOrderId.replace('#', '')}`);
+                    return;
+                } catch (fallbackError) {
+                    console.error('Order fallback creation error:', fallbackError);
+                }
             }
             setLoading(false);
             alert(t('checkout.error_message'));

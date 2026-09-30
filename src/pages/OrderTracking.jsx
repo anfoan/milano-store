@@ -32,6 +32,17 @@ const OrderTracking = () => {
                 let rawId = decodeURIComponent(orderId).replace(/\s+/g, '').trim();
                 const possibleIds = [rawId, `#${rawId.replace(/^#/, '')}`, rawId.replace(/^#/, '')];
                 const uniqueIds = [...new Set(possibleIds)];
+                let localOrder = null;
+                try {
+                    const deviceOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
+                    localOrder = Array.isArray(deviceOrders) ? deviceOrders.find(item => uniqueIds.includes(String(item.orderId || item.id || '').trim())) : null;
+                    if (localOrder) {
+                        setOrder(localOrder);
+                        setLoading(false);
+                    }
+                } catch (localError) {
+                    console.warn('Unable to read local order history:', localError);
+                }
 
                 let targetDocRef = null;
                 const ordersRef = collection(db, "orders");
@@ -63,23 +74,29 @@ const OrderTracking = () => {
                             setOrder(doc.data());
                             setLoading(false);
                         } else {
-                            setError(`تم حذف الطلب أو غير موجود.`);
-                            setLoading(false);
+                            if (!localOrder) {
+                                setError(`تم حذف الطلب أو غير موجود.`);
+                                setLoading(false);
+                            }
                         }
                     }, (err) => {
                         console.error("Realtime error:", err);
-                        setError(t('checkout.error_message'));
-                        setLoading(false);
+                        if (!localOrder) {
+                            setError(t('checkout.error_message'));
+                            setLoading(false);
+                        }
                     });
-                } else {
+                } else if (!localOrder) {
                     setError(`${t('tracking.order_not_found')}: ${rawId}`);
                     setLoading(false);
                 }
 
             } catch (err) {
                 console.error("Setup error:", err);
-                setError(t('checkout.error_message'));
-                setLoading(false);
+                if (!localOrder) {
+                    setError(t('checkout.error_message'));
+                    setLoading(false);
+                }
             }
         };
 
