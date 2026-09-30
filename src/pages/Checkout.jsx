@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { db } from '../lib/firebase';
 
-import { collection, doc, updateDoc, increment, getDoc, onSnapshot, serverTimestamp, runTransaction, setDoc } from 'firebase/firestore';
+import { collection, doc, updateDoc, increment, getDoc, onSnapshot, serverTimestamp, runTransaction } from 'firebase/firestore';
 import { useSettings } from '../hooks/useSettings';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -553,7 +553,6 @@ const Checkout = () => {
             // Save the order and decrement inventory in one transaction.
             // This prevents two customers from buying the same last units at once.
             const walletRef = walletApplied > 0 ? doc(db, 'customer_wallets', walletId) : null;
-            const walletTransactionRef = walletRef ? doc(collection(db, 'wallet_transactions')) : null;
             await runTransaction(db, async (transaction) => {
                 const grouped = new Map();
                 cartItems.forEach(item => {
@@ -582,16 +581,6 @@ const Checkout = () => {
                         balance: Number(walletSnap.data().balance || 0) - walletApplied,
                         phone: walletSnap.data().phone || `${selectedCountry.dial_code}${formData.phone}`,
                         updatedAt: serverTimestamp()
-                    });
-                    transaction.set(walletTransactionRef, {
-                        walletId,
-                        type: 'spend',
-                        amount: walletApplied,
-                        orderId: newOrderId,
-                        customerName: formData.name || '',
-                        phone: walletSnap.data().phone || `${selectedCountry.dial_code}${formData.phone}`,
-                        createdAt: serverTimestamp(),
-                        source: 'checkout'
                     });
                 }
 
@@ -695,16 +684,30 @@ const Checkout = () => {
             // Store visitors may create orders but are intentionally not granted public product-update
             // permission. Preserve the sale instead of showing a generic browser error; the authenticated
             // admin dashboard reconciles this marked order with inventory exactly once.
-            if (error?.code === 'permission-denied' && walletApplied === 0 && !appliedCoupon) {
+            if (error?.code === 'permission-denied' && !appliedCoupon) {
                 try {
-                    await setDoc(orderRef, {
-                        ...orderData,
-                        inventorySyncPending: true,
-                        inventorySyncStatus: 'pending-admin-sync',
-                        createdWithoutPublicInventoryWrite: true
+                    await runTransaction(db, async transaction => {
+                        if (walletApplied > 0) {
+                            const walletRef = doc(db, 'customer_wallets', walletId);
+                            const walletSnap = await transaction.get(walletRef);
+                            if (!walletSnap.exists() || Number(walletSnap.data().balance || 0) < walletApplied) {
+                                throw new Error('WALLET_BALANCE_CHANGED');
+                            }
+                            transaction.update(walletRef, {
+                                balance: Number(walletSnap.data().balance || 0) - walletApplied,
+                                updatedAt: serverTimestamp()
+                            });
+                        }
+                        transaction.set(orderRef, {
+                            ...orderData,
+                            inventorySyncPending: true,
+                            inventorySyncStatus: 'pending-admin-sync',
+                            walletDebitPending: walletApplied > 0,
+                            createdWithoutPublicInventoryWrite: true
+                        });
                     });
                     const existingOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
-                    existingOrders.unshift({ ...orderData, inventorySyncPending: true, createdAt: new Date().toISOString(), timestamp: Date.now() });
+                    existingOrders.unshift({ ...orderData, inventorySyncPending: true, walletDebitPending: walletApplied > 0, createdAt: new Date().toISOString(), timestamp: Date.now() });
                     localStorage.setItem('myOrders', JSON.stringify(existingOrders));
                     localStorage.removeItem('cart');
                     localStorage.removeItem('cart_coupon');

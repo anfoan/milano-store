@@ -45,7 +45,7 @@ const CustomerWallet = () => {
             const next = snapshot.docs.map(item => ({ id: item.id, ...item.data() }));
             next.sort((a, b) => Number(toDate(b.createdAt)?.getTime() || 0) - Number(toDate(a.createdAt)?.getTime() || 0));
             setTransactions(next);
-        });
+        }, () => setTransactions([]));
         return () => { stopWallet(); stopConfig(); stopTransactions(); };
     }, [walletId]);
 
