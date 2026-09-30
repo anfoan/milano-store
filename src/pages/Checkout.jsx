@@ -435,14 +435,9 @@ const Checkout = () => {
 
         // Prepare Order Data
         const newOrderId = '#ORD-' + Math.floor(100000 + Math.random() * 900000);
-        let ipAddress = 'غير متوفر';
-        try {
-            const res = await fetch('https://api.ipify.org?format=json');
-            const data = await res.json();
-            ipAddress = data.ip;
-        } catch (error) {
-            console.error("Failed to fetch IP", error);
-        }
+        // Never block order completion on an optional third-party IP lookup.
+        // On weak Wi-Fi this request could stay pending and leave the submit UI loading forever.
+        const ipAddress = 'غير متوفر';
 
         // Fetch current costPrices and current stock for inventory logic
         const cartItemsWithDetails = await Promise.all(cartItems.map(async (item) => {
@@ -469,6 +464,7 @@ const Checkout = () => {
         });
         if (invalidStockItem) {
             alert(`عذراً، الكمية المطلوبة من "${invalidStockItem.title}" أكبر من الكمية المتوفرة في المخزون.`);
+            setLoading(false);
             return;
         }
 
@@ -513,6 +509,7 @@ const Checkout = () => {
                     if (!currentCoupon.isUnlimited && currentCoupon.usedCount >= currentCoupon.maxUses) {
                         alert("عذراً، لقد انتهت صلاحية هذا الكوبون للتو!");
                         localStorage.removeItem('cart_coupon');
+                        setLoading(false);
                         window.location.reload();
                         return;
                     }
@@ -524,6 +521,7 @@ const Checkout = () => {
                         if (today > expiry) {
                             alert("عذراً، لقد انتهى تاريخ صلاحية هذا الكوبون!");
                             localStorage.removeItem('cart_coupon');
+                            setLoading(false);
                             window.location.reload();
                             return;
                         }
@@ -537,12 +535,14 @@ const Checkout = () => {
                     if (currentCoupon.minOrderAmount && currentSubTotal < currentCoupon.minOrderAmount) {
                         alert(`عذراً، هذا الكوبون يتطلب مشتريات (قبل الخصم) بحد أدنى ${formatPrice(currentCoupon.minOrderAmount)}!`);
                         localStorage.removeItem('cart_coupon');
+                        setLoading(false);
                         window.location.reload();
                         return;
                     }
                 } else {
                     alert("عذراً، هذا الكوبون لم يعد متاحاً.");
                     localStorage.removeItem('cart_coupon');
+                    setLoading(false);
                     window.location.reload();
                     return;
                 }
@@ -688,8 +688,10 @@ const Checkout = () => {
             if (error.message === "COUPON_LIMIT_REACHED") {
                 alert(language === 'ar' ? "عذراً، انتهت كمية استخدام هذا الكوبون." : "Sorry, this coupon has reached its usage limit.");
                 localStorage.removeItem('cart_coupon');
+                setLoading(false);
                 return;
             }
+            setLoading(false);
             alert(t('checkout.error_message'));
         }
     };
@@ -943,7 +945,7 @@ const Checkout = () => {
                                 <span className="text-gray-500 dark:text-gray-400">{t('cart.subtotal')}</span>
                             </div>
                             <div className="flex justify-between items-center text-sm font-bold">
-                                <span className="text-[#16a34a] dark:text-[#4ade80]">- {formatPrice(discountAmount)}</span>
+                                <span className="text-red-600 dark:text-red-400">- {formatPrice(discountAmount)}</span>
                                 <div className="flex items-center gap-2 font-bold">
                                     {cartTotal > 0 && discountAmount > 0 && (
                                         <span className="text-[10px] bg-emerald-100/80 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/50 font-black">
