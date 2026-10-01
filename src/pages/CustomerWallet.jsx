@@ -163,6 +163,8 @@ const CustomerWallet = () => {
                 <Link to="/profile" className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-sm font-black text-white dark:bg-white dark:text-slate-900"><Landmark size={16}/> طلباتك وفواتيرك السابقة</Link>
             </>}
 
+            {screen !== 'wallet' && <section className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#171b26]"><div className="flex items-start gap-2"><div className="rounded-lg bg-emerald-50 p-2 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300"><Gift size={17}/></div><div><h2 className="text-sm font-black">كيف تكسب من محفظتك؟</h2><p className="mt-1 text-[10px] font-bold leading-5 text-slate-500 dark:text-slate-300">عند اكتمال وتسليم طلب مؤهل، تُضاف مكافأة المتجر تلقائيًا إلى محفظتك. قيمة المكافأة الحالية: <span dir="ltr" className="font-mono text-emerald-600 dark:text-emerald-300">$ {walletNumber(walletSettings.defaultReward)}</span>.</p></div></div></section>}
+
             {noticeView}
         </main>
     </div>;
