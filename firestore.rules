@@ -49,7 +49,8 @@ service cloud.firestore {
       allow get: if true;
       allow list: if isAdmin();
       allow create: if request.resource.data.walletId == walletId &&
-        request.resource.data.balance == 0 &&
+        request.resource.data.balance is number &&
+        (request.resource.data.balance == 0 || validInitialStoreReward()) &&
         request.resource.data.pinConfigured == true &&
         request.resource.data.deviceBound == true &&
         request.resource.data.phone is string &&
@@ -58,6 +59,12 @@ service cloud.firestore {
       allow update: if isAdmin() || validWalletPinUpdate() || validWalletDebit();
       allow delete: if isAdmin();
 
+      // A customer receives the configured store reward only on the first creation
+      // of their phone-linked wallet. Existing balances stay unchanged and protected.
+      function validInitialStoreReward() {
+        return exists(/databases/$(database)/documents/settings/wallet) &&
+          request.resource.data.balance == get(/databases/$(database)/documents/settings/wallet).data.defaultReward;
+      }
       function validWalletPinUpdate() {
         return request.resource.data.walletId == resource.data.walletId &&
           request.resource.data.balance == resource.data.balance &&
