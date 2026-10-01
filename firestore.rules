@@ -74,6 +74,14 @@ service cloud.firestore {
           request.resource.data.balance < resource.data.balance &&
           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balance', 'updatedAt']);
       }
+
+      // Movement documents are stored under the random device-bound wallet ID.
+      // Customers can read this history from their own wallet screen; only the
+      // authenticated dashboard writes audit entries.
+      match /transactions/{transactionId} {
+        allow get, list: if true;
+        allow create, update, delete: if isAdmin();
+      }
     }
     match /wallet_transactions/{transactionId} {
       allow read, write: if isAdmin();
