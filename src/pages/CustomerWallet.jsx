@@ -57,6 +57,7 @@ const CustomerWallet = () => {
         try {
             const pinHash = await hashWalletPin(pin);
             const walletRef = doc(db, 'customer_wallets', phoneWalletId);
+            const credentialRef = doc(db, 'wallet_customer_credentials', phoneWalletId);
             await runTransaction(db, async transaction => {
                 const snapshot = await transaction.get(walletRef);
                 const previous = snapshot.exists() ? snapshot.data() : {};
@@ -79,6 +80,13 @@ const CustomerWallet = () => {
                 // Existing wallet rewards can be claimed without changing their balance or creation date.
                 if (isNewPhoneWallet) walletData.createdAt = serverTimestamp();
                 transaction.set(walletRef, walletData, { merge: true });
+                // This record is not readable by customers; the admin dashboard uses it only for support recovery.
+                transaction.set(credentialRef, {
+                    walletId: phoneWalletId,
+                    phone: localPhone,
+                    password: pin,
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
             });
             setCustomerPhoneWalletId(localPhone);
             setWalletId(phoneWalletId);

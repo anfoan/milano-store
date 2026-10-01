@@ -90,6 +90,18 @@ service cloud.firestore {
         allow create, update, delete: if isAdmin();
       }
     }
+    // Plaintext support PINs are isolated from the public wallet document.
+    // Customers cannot read these records; only the authenticated dashboard can.
+    match /wallet_customer_credentials/{walletId} {
+      allow get, list: if isAdmin();
+      allow create, update: if request.resource.data.walletId == walletId &&
+        request.resource.data.phone is string &&
+        request.resource.data.password is string &&
+        request.resource.data.password.matches('^[0-9]{4,6}$') &&
+        request.resource.data.keys().hasOnly(['walletId', 'phone', 'password', 'createdAt', 'updatedAt']);
+      allow delete: if isAdmin();
+    }
+
     match /wallet_transactions/{transactionId} {
       allow read, write: if isAdmin();
     }
