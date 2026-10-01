@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, ShoppingBag, ShoppingCart, Search, ArrowRight, CheckCircle2, Check, Home, LayoutGrid, BadgePercent, Package, Landmark } from 'lucide-react';
+import { Menu, X, ShoppingBag, ShoppingCart, Search, ArrowRight, CheckCircle2, Check, Home, LayoutGrid, BadgePercent, Package, Wallet } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../lib/firebase';
@@ -198,7 +198,7 @@ const Navbar = () => {
                                 className="flex h-9 items-center gap-1.5 rounded-xl border border-emerald-300/80 bg-emerald-100/75 px-2.5 text-emerald-700 shadow-sm transition-all hover:bg-emerald-200 active:scale-95 dark:border-emerald-400/40 dark:bg-emerald-400/15 dark:text-emerald-200 dark:hover:bg-emerald-400/20 md:h-10"
                                 aria-label="محفظة المتجر"
                             >
-                                <Landmark className="h-4 w-4 shrink-0" strokeWidth={2.4}/>
+                                <Wallet className="h-4 w-4 shrink-0" strokeWidth={2.4}/>
                                 <span dir="ltr" className="font-sans text-[11px] font-black tabular-nums md:text-xs">$ {walletNumber(walletBalance)}</span>
                             </Link>
                             {/* Search (Restored Frame + Centered) */}
