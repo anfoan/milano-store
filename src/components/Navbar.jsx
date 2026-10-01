@@ -197,18 +197,18 @@ const Navbar = () => {
                         </div>
 
                         {/* Left Section: Search & Theme & Categories (Reordered: Search Right, Theme Middle, Categories Left) */}
-                        <div className="flex items-center gap-2 md:gap-3">
+                        <div className="flex items-center gap-1.5 md:gap-2">
                             {/* Customer Wallet */}
                             <Link
                                 to="/wallet"
-                                className="flex h-9 items-center gap-1.5 rounded-xl border border-emerald-300/80 bg-emerald-100/75 px-2.5 text-emerald-700 shadow-sm transition-all hover:bg-emerald-200 active:scale-95 dark:border-emerald-400/40 dark:bg-emerald-400/15 dark:text-emerald-200 dark:hover:bg-emerald-400/20 md:h-10"
+                                className="flex h-9 -translate-x-1 items-center gap-1.5 rounded-xl border border-emerald-300/80 bg-emerald-100/75 px-2.5 text-emerald-700 shadow-sm transition-all hover:bg-emerald-200 active:scale-95 dark:border-emerald-400/40 dark:bg-emerald-400/15 dark:text-emerald-200 dark:hover:bg-emerald-400/20 md:h-10 md:-translate-x-1.5"
                                 aria-label="محفظة المتجر"
                             >
                                 <Wallet className="h-4 w-4 shrink-0" strokeWidth={2.4}/>
                                 <span dir="ltr" className="font-sans text-[11px] font-black tabular-nums md:text-xs">$ {walletNumber(walletBalance)}</span>
                             </Link>
                             {/* Search (Restored Frame + Centered) */}
-                            <div className="flex flex-col items-center gap-1 translate-y-[3.5px]">
+                            <div className="flex -translate-x-1 flex-col items-center gap-1 translate-y-[5px] md:-translate-x-1.5">
                                 <button
                                     onClick={() => setIsSearchOpen(true)}
                                     className="group flex h-11 w-11 items-center justify-center text-gray-700 transition-all active:scale-95 md:h-12 md:w-12 dark:text-gray-300"
@@ -219,7 +219,7 @@ const Navbar = () => {
                             </div>
 
                             {/* Theme Toggle (Restored Frame + Centered) */}
-                            <div className="flex flex-col items-center gap-1 translate-y-[3.5px]">
+                            <div className="flex -translate-x-1 flex-col items-center gap-1 translate-y-[5px] md:-translate-x-1.5">
                                 <div className="transition-all w-11 h-11 md:w-12 md:h-12 flex items-center justify-center">
                                     <ThemeToggle />
                                 </div>
