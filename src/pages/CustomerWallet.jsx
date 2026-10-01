@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CheckCircle2, Gift, KeyRound, Landmark, ReceiptText, ShieldCheck, WalletCards, X } from 'lucide-react';
 import { collection, doc, onSnapshot, runTransaction, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { getCustomerWalletId, hashWalletPin, isValidWalletPin, normalizePhone, walletNumber } from '../lib/wallet';
+import { getCustomerWalletId, getPhoneWalletId, hashWalletPin, isValidWalletPin, normalizePhone, setCustomerPhoneWalletId, walletNumber } from '../lib/wallet';
 import { useLanguage } from '../context/LanguageContext';
 
 const toDate = (value) => {
@@ -17,7 +17,7 @@ const toDate = (value) => {
 const CustomerWallet = () => {
     const { direction, language } = useLanguage();
     const navigate = useNavigate();
-    const walletId = useMemo(() => getCustomerWalletId(), []);
+    const [walletId, setWalletId] = useState(() => getCustomerWalletId());
     const [wallet, setWallet] = useState(null);
     const [walletSettings, setWalletSettings] = useState({ defaultReward: 500, enabled: true });
     const [transactions, setTransactions] = useState([]);
@@ -58,12 +58,13 @@ const CustomerWallet = () => {
         setSaving(true); setNotice('');
         try {
             const pinHash = await hashWalletPin(pin);
-            const walletRef = doc(db, 'customer_wallets', walletId);
+            const phoneWalletId = getPhoneWalletId(normalizedPhone) || walletId;
+            const walletRef = doc(db, 'customer_wallets', phoneWalletId);
             await runTransaction(db, async transaction => {
                 const snapshot = await transaction.get(walletRef);
                 const previous = snapshot.exists() ? snapshot.data() : {};
                 transaction.set(walletRef, {
-                    walletId,
+                    walletId: phoneWalletId,
                     phone: normalizedPhone,
                     balance: Number(previous.balance || 0),
                     pinHash,
@@ -73,6 +74,8 @@ const CustomerWallet = () => {
                     createdAt: previous.createdAt || serverTimestamp()
                 }, { merge: true });
             });
+            setCustomerPhoneWalletId(normalizedPhone);
+            setWalletId(phoneWalletId);
             setPin(''); setConfirmPin(''); setShowSetup(false);
             setNotice('تم تأمين وربط محفظتك بنجاح.');
         } catch (error) {
