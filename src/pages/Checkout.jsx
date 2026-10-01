@@ -9,7 +9,7 @@ import { useSettings } from '../hooks/useSettings';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
-import { getCustomerWalletId, hashWalletPin, walletNumber } from '../lib/wallet';
+import { getCustomerWalletId, getPhoneWalletId, hashWalletPin, normalizePhone, walletNumber } from '../lib/wallet';
 
 const Checkout = () => {
     const { t, direction, language } = useLanguage();
@@ -50,7 +50,7 @@ const Checkout = () => {
     });
 
     const [loading, setLoading] = useState(true);
-    const walletId = getCustomerWalletId();
+    const deviceWalletId = getCustomerWalletId();
     const [customerWallet, setCustomerWallet] = useState(null);
     const [useWalletCredit, setUseWalletCredit] = useState(false);
     const [walletPin, setWalletPin] = useState('');
@@ -92,14 +92,6 @@ const Checkout = () => {
         fetchData();
     }, []);
 
-    useEffect(() => {
-        const walletRef = doc(db, 'customer_wallets', walletId);
-        const unsubscribe = onSnapshot(walletRef, snapshot => {
-            setCustomerWallet(snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null);
-        }, error => console.error('Checkout wallet listener:', error));
-        return () => unsubscribe();
-    }, [walletId]);
-
     // Fetch Cart Settings
     const [cartSettings, setCartSettings] = useState({});
     const [storeStatus, setStoreStatus] = useState({ isOpen: true }); // Default Open
@@ -128,6 +120,31 @@ const Checkout = () => {
     const [selectedCountry, setSelectedCountry] = useState({ code: 'ye', dial_code: '+967', name: language === 'ar' ? 'اليمن' : 'Yemen' });
     const [searchQuery, setSearchQuery] = useState('');
     const today = new Date().toISOString().split('T')[0]; // Define 'today' here
+    // Once the visitor enters a valid phone number, always use that phone-linked wallet.
+    // Before a phone is entered, the device wallet remains the safe default for the header flow.
+    const phoneWalletId = getPhoneWalletId(`${selectedCountry.dial_code}${normalizePhone(formData.phone)}`);
+    const activeWalletId = phoneWalletId || deviceWalletId;
+
+    useEffect(() => {
+        if (!activeWalletId) { setCustomerWallet(null); return undefined; }
+        const walletRef = doc(db, 'customer_wallets', activeWalletId);
+        const unsubscribe = onSnapshot(walletRef, snapshot => {
+            setCustomerWallet(snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null);
+        }, error => {
+            console.error('Checkout wallet listener:', error);
+            setCustomerWallet(null);
+        });
+        return () => unsubscribe();
+    }, [activeWalletId]);
+
+    useEffect(() => {
+        // Prevent a previously confirmed PIN from carrying over to a different phone number.
+        setUseWalletCredit(false);
+        setWalletPinVerified(false);
+        setWalletPin('');
+        setWalletPinOpen(false);
+        setWalletPinError('');
+    }, [activeWalletId]);
 
     const countries = [
         { name: language === 'ar' ? "اليمن" : "Yemen", dial_code: "+967", code: "ye" },
@@ -486,7 +503,7 @@ const Checkout = () => {
             deliveryCost,
             orderId: newOrderId,
             paymentMethod: amountDueAfterWallet === 0 && walletApplied > 0 ? 'wallet' : formData.paymentMethod,
-            customerWalletId: walletId,
+            customerWalletId: activeWalletId,
             walletApplied,
             amountDueAfterWallet,
             status: 'new',
@@ -552,7 +569,7 @@ const Checkout = () => {
 
             // Save the order and decrement inventory in one transaction.
             // This prevents two customers from buying the same last units at once.
-            const walletRef = walletApplied > 0 ? doc(db, 'customer_wallets', walletId) : null;
+            const walletRef = walletApplied > 0 ? doc(db, 'customer_wallets', activeWalletId) : null;
             await runTransaction(db, async (transaction) => {
                 const grouped = new Map();
                 cartItems.forEach(item => {
@@ -688,7 +705,7 @@ const Checkout = () => {
                 try {
                     await runTransaction(db, async transaction => {
                         if (walletApplied > 0) {
-                            const walletRef = doc(db, 'customer_wallets', walletId);
+                            const walletRef = doc(db, 'customer_wallets', activeWalletId);
                             const walletSnap = await transaction.get(walletRef);
                             if (!walletSnap.exists() || Number(walletSnap.data().balance || 0) < walletApplied) {
                                 throw new Error('WALLET_BALANCE_CHANGED');
@@ -797,6 +814,9 @@ const Checkout = () => {
                                 required
                             />
                         </div>
+                        {phoneWalletId && <div className={`mt-2 rounded-lg border px-3 py-2 text-right text-[10px] font-bold ${customerWallet?.pinConfigured ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200' : 'border-slate-200 bg-slate-50 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300'}`}>
+                            {customerWallet?.pinConfigured ? <>تم العثور على محفظة هذا الرقم — الرصيد المتاح: <span dir="ltr" className="font-mono font-black">$ {walletNumber(Math.max(0, Number(customerWallet.balance || 0)))}</span></> : 'لا توجد محفظة مؤمنة مرتبطة بهذا الرقم حتى الآن.'}
+                        </div>}
 
                         {/* Dropdown Overlay */}
                         {showCountryDropdown && (

@@ -1,18 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle2, Gift, KeyRound, Landmark, ReceiptText, ShieldCheck, Wallet, X } from 'lucide-react';
-import { collection, doc, onSnapshot, runTransaction, serverTimestamp } from 'firebase/firestore';
+import { Gift, KeyRound, Landmark, ShieldCheck, Wallet, X } from 'lucide-react';
+import { doc, onSnapshot, runTransaction, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { getCustomerWalletId, getPhoneWalletId, hashWalletPin, isValidWalletPin, normalizePhone, setCustomerPhoneWalletId, walletNumber } from '../lib/wallet';
 import { useLanguage } from '../context/LanguageContext';
-
-const toDate = (value) => {
-    if (!value) return null;
-    if (typeof value.toDate === 'function') return value.toDate();
-    if (value.seconds) return new Date(value.seconds * 1000);
-    const parsed = new Date(value);
-    return Number.isNaN(parsed.getTime()) ? null : parsed;
-};
 
 const CustomerWallet = () => {
     const { direction, language } = useLanguage();
@@ -21,7 +13,7 @@ const CustomerWallet = () => {
     const [wallet, setWallet] = useState(null);
     const [walletSettings, setWalletSettings] = useState({ defaultReward: 500, enabled: true });
     const [walletSettingsLoaded, setWalletSettingsLoaded] = useState(false);
-    const [transactions, setTransactions] = useState([]);
+    const [walletSettingsAvailable, setWalletSettingsAvailable] = useState(false);
     const [loading, setLoading] = useState(true);
     const [showSetup, setShowSetup] = useState(true);
     const [phone, setPhone] = useState('');
@@ -29,11 +21,11 @@ const CustomerWallet = () => {
     const [confirmPin, setConfirmPin] = useState('');
     const [saving, setSaving] = useState(false);
     const [notice, setNotice] = useState('');
+    const [noticeTone, setNoticeTone] = useState('success');
 
     useEffect(() => {
         const walletRef = doc(db, 'customer_wallets', walletId);
         const configRef = doc(db, 'settings', 'wallet');
-        const transactionQuery = collection(walletRef, 'transactions');
         const stopWallet = onSnapshot(walletRef, snapshot => {
             const nextWallet = snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null;
             setWallet(nextWallet);
@@ -43,60 +35,67 @@ const CustomerWallet = () => {
         }, () => setLoading(false));
         const stopConfig = onSnapshot(configRef, snapshot => {
             if (snapshot.exists()) setWalletSettings(previous => ({ ...previous, ...snapshot.data() }));
+            setWalletSettingsAvailable(snapshot.exists());
             setWalletSettingsLoaded(true);
-        }, () => setWalletSettingsLoaded(true));
-        const stopTransactions = onSnapshot(transactionQuery, snapshot => {
-            const next = snapshot.docs.map(item => ({ id: item.id, ...item.data() }));
-            next.sort((a, b) => Number(toDate(b.createdAt)?.getTime() || 0) - Number(toDate(a.createdAt)?.getTime() || 0));
-            setTransactions(next);
-        }, () => setTransactions([]));
-        return () => { stopWallet(); stopConfig(); stopTransactions(); };
+        }, () => {
+            setWalletSettingsAvailable(false);
+            setWalletSettingsLoaded(true);
+        });
+        return () => { stopWallet(); stopConfig(); };
     }, [walletId]);
 
     const configureWallet = async (event) => {
         event.preventDefault();
-        const normalizedPhone = normalizePhone(phone);
-        if (!normalizedPhone || normalizedPhone.length < 7) { setNotice('أدخل رقم هاتف صحيح لربط المحفظة.'); return; }
-        if (!isValidWalletPin(pin)) { setNotice('الرمز السري يجب أن يكون من 4 إلى 6 أرقام إنجليزية.'); return; }
-        if (pin !== confirmPin) { setNotice('تأكيد الرمز السري غير متطابق.'); return; }
-        if (!walletSettingsLoaded) { setNotice('جاري تحميل إعدادات مكافأة المتجر، حاول بعد لحظات.'); return; }
-        setSaving(true); setNotice('');
+        const normalizedInput = normalizePhone(phone);
+        const phoneWalletId = getPhoneWalletId(normalizedInput);
+        const localPhone = phoneWalletId.replace(/^phone-/, '');
+        if (!phoneWalletId || localPhone.length < 7) { setNoticeTone('error'); setNotice('أدخل رقم هاتف صحيح لربط المحفظة.'); return; }
+        if (!isValidWalletPin(pin)) { setNoticeTone('error'); setNotice('كلمة المرور يجب أن تكون من 4 إلى 6 أرقام إنجليزية.'); return; }
+        if (pin !== confirmPin) { setNoticeTone('error'); setNotice('تأكيد كلمة المرور غير متطابق.'); return; }
+        if (!walletSettingsLoaded) { setNoticeTone('error'); setNotice('جاري تحميل إعدادات مكافأة المتجر، حاول بعد لحظات.'); return; }
+        setSaving(true); setNotice(''); setNoticeTone('success');
         try {
             const pinHash = await hashWalletPin(pin);
-            const phoneWalletId = getPhoneWalletId(normalizedPhone) || walletId;
             const walletRef = doc(db, 'customer_wallets', phoneWalletId);
             await runTransaction(db, async transaction => {
                 const snapshot = await transaction.get(walletRef);
-                const isFirstPhoneLink = !snapshot.exists();
-                const previous = isFirstPhoneLink ? {} : snapshot.data();
-                const initialReward = walletSettings.enabled ? Math.max(0, Number(walletSettings.defaultReward || 0)) : 0;
+                const previous = snapshot.exists() ? snapshot.data() : {};
+                // A phone wallet secured on another device cannot be registered again.
+                if (snapshot.exists() && previous.pinConfigured && phoneWalletId !== walletId) throw new Error('PHONE_ALREADY_REGISTERED');
+                const isNewPhoneWallet = !snapshot.exists();
+                const initialReward = walletSettingsAvailable && walletSettings.enabled !== false
+                    ? Math.max(0, Number(walletSettings.defaultReward || 0))
+                    : 0;
                 const walletData = {
                     walletId: phoneWalletId,
-                    phone: normalizedPhone,
-                    // The configured reward is credited once only: when this phone wallet is first created.
-                    balance: isFirstPhoneLink ? initialReward : Number(previous.balance || 0),
+                    phone: localPhone,
+                    // The configured amount is deposited only once, at first phone-wallet creation.
+                    balance: isNewPhoneWallet ? initialReward : Number(previous.balance || 0),
                     pinHash,
                     pinConfigured: true,
                     deviceBound: true,
                     updatedAt: serverTimestamp()
                 };
-                // Do not touch createdAt when a saved phone is updating its PIN; Firestore rules permit only PIN metadata changes.
-                if (isFirstPhoneLink) walletData.createdAt = serverTimestamp();
+                // Existing wallet rewards can be claimed without changing their balance or creation date.
+                if (isNewPhoneWallet) walletData.createdAt = serverTimestamp();
                 transaction.set(walletRef, walletData, { merge: true });
             });
-            setCustomerPhoneWalletId(normalizedPhone);
+            setCustomerPhoneWalletId(localPhone);
             setWalletId(phoneWalletId);
             setPin(''); setConfirmPin(''); setShowSetup(false);
+            setNoticeTone('success');
             setNotice('تم تأمين وربط محفظتك بنجاح.');
         } catch (error) {
             console.error('Wallet setup error:', error);
-            setNotice('تعذّر حفظ إعدادات المحفظة. حاول مرة أخرى.');
+            setNoticeTone('error');
+            setNotice(error?.message === 'PHONE_ALREADY_REGISTERED'
+                ? 'رقم هاتفك هذا مسجل مسبقًا في محفظة ميلانو. استخدم الرقم المرتبط بمحفظتك.'
+                : 'تعذّر حفظ إعدادات المحفظة. حاول مرة أخرى.');
         } finally { setSaving(false); }
     };
 
     const balance = Number(wallet?.balance || 0);
     const canSpend = Boolean(wallet?.pinConfigured && wallet?.pinHash);
-    const transactionLabel = (item) => ({ reward: 'مكافأة طلب مكتمل', reward_reversal: 'استرجاع مكافأة بعد تصحيح الحالة', credit: 'إضافة رصيد', bonus: 'رصيد تشجيعي', debit: 'خصم رصيد', spend: 'استخدام الرصيد في طلب' }[item.type] || 'حركة محفظة');
 
     return <div dir={direction} className="min-h-screen bg-[#f6f7f8] px-3 py-5 font-['Cairo'] text-slate-900 dark:bg-[#0d1017] dark:text-white md:px-5">
         <main className="mx-auto w-full max-w-md space-y-4 pb-8">
@@ -107,7 +106,7 @@ const CustomerWallet = () => {
             {showSetup ? <section className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#171b26]"><div className="flex items-start gap-2 text-right"><div className="rounded-lg bg-emerald-50 p-2 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300"><KeyRound size={17}/></div><div className="flex-1"><h2 className="text-sm font-black">ربط وتأمين المحفظة برقم هاتفك</h2><p className="mt-1 text-[10px] font-bold leading-5 text-slate-500 dark:text-slate-300">عيّن رمزًا سريًا من 4 إلى 6 أرقام. لن يُسمح باستخدام رصيدك عند الشراء إلا بعد إدخال الرمز السري.</p></div></div><form onSubmit={configureWallet} className="mt-4"><input value={phone} onChange={event => setPhone(event.target.value)} type="tel" placeholder="رقم الهاتف" className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-right text-sm font-bold outline-none placeholder:text-slate-400 focus:border-emerald-400 dark:border-white/10 dark:bg-white/5" required/><div className="mt-3 grid grid-cols-2 gap-2"><input value={pin} onChange={event => setPin(event.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" type="password" placeholder="الرمز السري" className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-center font-mono text-sm font-black outline-none placeholder:font-['Cairo'] placeholder:text-slate-400 focus:border-emerald-400 dark:border-white/10 dark:bg-white/5" required/><input value={confirmPin} onChange={event => setConfirmPin(event.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" type="password" placeholder="تأكيد الرمز" className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-center font-mono text-sm font-black outline-none placeholder:font-['Cairo'] placeholder:text-slate-400 focus:border-emerald-400 dark:border-white/10 dark:bg-white/5" required/></div><div className="mt-3 flex items-center gap-3"><button disabled={saving || !walletSettingsLoaded} type="submit" className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-black text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-600 disabled:opacity-60">{saving ? 'جاري الحفظ...' : !walletSettingsLoaded ? 'جاري تحميل المكافأة...' : 'تأكيد'}</button><button type="button" onClick={() => { if (canSpend) setShowSetup(false); else navigate(-1); }} className="px-2 text-sm font-black text-slate-500">إلغاء</button></div></form></section> : <section className="rounded-[20px] border border-emerald-200 bg-white p-4 shadow-sm dark:border-emerald-400/25 dark:bg-[#171b26]"><div className="flex items-center gap-2"><ShieldCheck size={19} className="text-emerald-500"/><div><h2 className="text-sm font-black">محفظتك مؤمنة</h2><p className="mt-0.5 text-[10px] font-bold text-slate-400">رقم الهاتف مرتبط وآمن برمز PIN.</p></div></div><button onClick={() => setShowSetup(true)} className="mt-3 text-xs font-black text-emerald-600 dark:text-emerald-300">تغيير رمز PIN</button></section>}
 
             <section className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#171b26]"><div className="flex items-start gap-2"><div className="rounded-lg bg-emerald-50 p-2 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300"><Gift size={17}/></div><div><h2 className="text-sm font-black">كيف تكسب من محفظتك؟</h2><p className="mt-1 text-[10px] font-bold leading-5 text-slate-500 dark:text-slate-300">عند اكتمال وتسليم طلب مؤهل، تُضاف مكافأة المتجر تلقائيًا إلى محفظتك. قيمة المكافأة الحالية: <span dir="ltr" className="font-mono text-emerald-600 dark:text-emerald-300">$ {walletNumber(walletSettings.defaultReward)}</span>.</p></div></div></section>
-            {notice && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-[10px] font-bold text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200">{notice}</div>}
+            {notice && <div className={`rounded-xl border px-3 py-2 text-center text-[10px] font-bold ${noticeTone === 'error' ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200' : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200'}`}>{notice}</div>}
             <Link to="/profile" className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-sm font-black text-white dark:bg-white dark:text-slate-900"><Landmark size={16}/> طلباتك وفواتيرك السابقة</Link>
         </main>
     </div>;
