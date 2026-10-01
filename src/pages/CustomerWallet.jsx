@@ -89,7 +89,7 @@ const CustomerWallet = () => {
             console.error('Wallet setup error:', error);
             setNoticeTone('error');
             setNotice(error?.message === 'PHONE_ALREADY_REGISTERED'
-                ? 'رقم هاتفك هذا مسجل مسبقًا في محفظة ميلانو. استخدم الرقم المرتبط بمحفظتك.'
+                ? 'تعذر حفظ إعدادات المحفظة : لأن الرقم مسجل مسبقاً.'
                 : 'تعذّر حفظ إعدادات المحفظة. حاول مرة أخرى.');
         } finally { setSaving(false); }
     };
