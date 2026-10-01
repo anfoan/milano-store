@@ -211,9 +211,9 @@ const Navbar = () => {
                             <div className="flex flex-col items-center gap-1 translate-y-[3.5px]">
                                 <button
                                     onClick={() => setIsSearchOpen(true)}
-                                    className="bg-gray-100 dark:bg-[#1c1c1e] border border-gray-200 dark:border-white/10 rounded-2xl hover:bg-gray-200 dark:hover:bg-white/5 transition-all w-11 h-11 md:w-12 md:h-12 flex items-center justify-center text-gray-700 dark:text-gray-300 shadow-sm active:scale-95"
+                                    className="group flex h-11 w-11 items-center justify-center text-gray-700 transition-all active:scale-95 md:h-12 md:w-12 dark:text-gray-300"
                                 >
-                                    <Search className="h-5 w-5 md:h-5.5 md:w-5.5 text-gray-600 dark:text-gray-400" strokeWidth={2.5} />
+                                    <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-gray-100 shadow-sm transition-colors group-hover:bg-gray-200 dark:border-white/10 dark:bg-[#1c1c1e] dark:group-hover:bg-white/5 md:h-10 md:w-10"><Search className="h-5 w-5 text-gray-600 dark:text-gray-400 md:h-5.5 md:w-5.5" strokeWidth={2.5} /></span>
                                 </button>
                                 <span className="text-[9px] md:text-[10px] font-black opacity-0 leading-none select-none">.</span>
                             </div>
