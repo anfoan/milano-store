@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Gift, KeyRound, Landmark, ShieldCheck, Wallet, X } from 'lucide-react';
 import { doc, getDoc, onSnapshot, runTransaction, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { getCustomerWalletId, getPhoneWalletId, hashWalletPin, isValidWalletPin, normalizePhone, setCustomerPhoneWalletId, walletNumber } from '../lib/wallet';
+import { clearCustomerPhoneWalletId, getCustomerWalletId, getPhoneWalletId, hashWalletPin, isValidWalletPin, normalizePhone, setCustomerPhoneWalletId, walletNumber } from '../lib/wallet';
 import { useLanguage } from '../context/LanguageContext';
 import { useSettings } from '../hooks/useSettings';
 
@@ -17,7 +17,7 @@ const CustomerWallet = () => {
     const [walletSettingsLoaded, setWalletSettingsLoaded] = useState(false);
     const [walletSettingsAvailable, setWalletSettingsAvailable] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [screen, setScreen] = useState('login');
+    const [screen, setScreen] = useState(() => getCustomerWalletId().startsWith('phone-') ? 'wallet' : 'login');
     const [loginPhone, setLoginPhone] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
     const [loginSaving, setLoginSaving] = useState(false);
@@ -140,13 +140,25 @@ const CustomerWallet = () => {
         setScreen('create');
     };
 
+    const closeWallet = () => {
+        const deviceWalletId = clearCustomerPhoneWalletId();
+        setWalletId(deviceWalletId);
+        setWallet(null);
+        setLoginPhone('');
+        setLoginPassword('');
+        setNotice('');
+        setScreen('login');
+        navigate(-1);
+    };
+
+    const walletSessionOpen = walletId.startsWith('phone-');
     const balance = Number(wallet?.balance || 0);
     const noticeView = notice && <div className={`rounded-xl border px-3 py-2 text-center text-[10px] font-bold ${noticeTone === 'error' ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200' : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200'}`}>{notice}</div>;
 
     return <div dir={direction} className="min-h-screen bg-[#f6f7f8] px-3 py-5 font-['Cairo'] text-slate-900 dark:bg-[#0d1017] dark:text-white md:px-5">
         <main className="mx-auto w-full max-w-md space-y-4 pb-8">
             <header dir="ltr" className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-[#171b26]">
-                <button onClick={() => navigate(-1)} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10"><X size={18}/></button>
+                <div className="flex items-start gap-2">{walletSessionOpen && <button type="button" onClick={closeWallet} className="flex flex-col items-center gap-0.5 text-rose-500 transition hover:text-rose-600"><span className="flex h-8 w-8 items-center justify-center rounded-lg border border-rose-200 bg-rose-50/80 dark:border-rose-400/30 dark:bg-rose-400/10"><X size={16}/></span><span className="whitespace-nowrap text-[7px] font-black">إغلاق محفظتك</span></button>}<button onClick={() => navigate(-1)} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10"><X size={18}/></button></div>
                 <div dir="rtl" className="flex items-center gap-2"><div className="rounded-lg bg-emerald-50 p-2 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300"><Wallet size={18}/></div><div className="text-right"><h1 className="text-sm font-black">محفظة {storeName}</h1><p className="text-[9px] font-bold text-slate-400">رصيدك وتأمين استخدامه في الطلبات</p></div></div>
             </header>
 

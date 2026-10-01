@@ -29,8 +29,19 @@ export const getPhoneWalletId = (value = '') => {
 
 export const setCustomerPhoneWalletId = (value = '') => {
     const walletId = getPhoneWalletId(value);
-    if (walletId && typeof window !== 'undefined') localStorage.setItem(PHONE_WALLET_ID_KEY, walletId);
+    if (walletId && typeof window !== 'undefined') {
+        localStorage.setItem(PHONE_WALLET_ID_KEY, walletId);
+        window.dispatchEvent(new Event('milano-wallet-session-changed'));
+    }
     return walletId;
+};
+
+export const clearCustomerPhoneWalletId = () => {
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem(PHONE_WALLET_ID_KEY);
+        window.dispatchEvent(new Event('milano-wallet-session-changed'));
+    }
+    return getCustomerWalletId();
 };
 
 export const isValidWalletPin = (pin) => /^[0-9]{4,6}$/.test(String(pin || ''));

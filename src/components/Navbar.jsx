@@ -33,6 +33,7 @@ const Navbar = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [walletBalance, setWalletBalance] = useState(0);
+    const [walletId, setWalletId] = useState(() => getCustomerWalletId());
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -102,12 +103,17 @@ const Navbar = () => {
     }, []);
 
     useEffect(() => {
-        const walletId = getCustomerWalletId();
+        const refreshWalletSession = () => setWalletId(getCustomerWalletId());
+        window.addEventListener('milano-wallet-session-changed', refreshWalletSession);
+        return () => window.removeEventListener('milano-wallet-session-changed', refreshWalletSession);
+    }, []);
+
+    useEffect(() => {
         const unsubscribe = onSnapshot(doc(db, 'customer_wallets', walletId), snapshot => {
             setWalletBalance(snapshot.exists() ? Number(snapshot.data().balance || 0) : 0);
         }, error => console.error('Customer wallet listener:', error));
         return () => unsubscribe();
-    }, []);
+    }, [walletId]);
 
     // Search Handler
     const handleSearch = async (term) => {
