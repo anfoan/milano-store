@@ -52,6 +52,7 @@ const Checkout = () => {
     const [loading, setLoading] = useState(true);
     const deviceWalletId = getCustomerWalletId();
     const [customerWallet, setCustomerWallet] = useState(null);
+    const [walletSettings, setWalletSettings] = useState({ enabled: true });
     const [useWalletCredit, setUseWalletCredit] = useState(false);
     const [walletPin, setWalletPin] = useState('');
     const [walletPinVerified, setWalletPinVerified] = useState(false);
@@ -92,6 +93,13 @@ const Checkout = () => {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        const unsubscribe = onSnapshot(doc(db, 'settings', 'wallet'), snapshot => {
+            setWalletSettings(previous => ({ ...previous, ...(snapshot.exists() ? snapshot.data() : {}) }));
+        }, error => console.error('Checkout wallet availability listener:', error));
+        return () => unsubscribe();
+    }, []);
+
     // Fetch Cart Settings
     const [cartSettings, setCartSettings] = useState({});
     const [storeStatus, setStoreStatus] = useState({ isOpen: true }); // Default Open
@@ -124,9 +132,10 @@ const Checkout = () => {
     // Before a phone is entered, the device wallet remains the safe default for the header flow.
     const phoneWalletId = getPhoneWalletId(`${selectedCountry.dial_code}${normalizePhone(formData.phone)}`);
     const activeWalletId = phoneWalletId || deviceWalletId;
+    const walletEnabled = walletSettings.enabled !== false;
 
     useEffect(() => {
-        if (!activeWalletId) { setCustomerWallet(null); return undefined; }
+        if (!walletEnabled || !activeWalletId) { setCustomerWallet(null); return undefined; }
         const walletRef = doc(db, 'customer_wallets', activeWalletId);
         const unsubscribe = onSnapshot(walletRef, snapshot => {
             setCustomerWallet(snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null);
@@ -135,10 +144,10 @@ const Checkout = () => {
             setCustomerWallet(null);
         });
         return () => unsubscribe();
-    }, [activeWalletId]);
+    }, [activeWalletId, walletEnabled]);
 
     useEffect(() => {
-        // Prevent a previously confirmed PIN from carrying over to a different phone number.
+        // Prevent a previously confirmed PIN from carrying over to a different phone number or a disabled wallet.
         setUseWalletCredit(false);
         setWalletPinVerified(false);
         setWalletPin('');
@@ -331,11 +340,12 @@ const Checkout = () => {
 
     const discountAmount = (cartTotal - effectiveSubtotal) + couponDiscount;
     const total = cartTotal - discountAmount + deliveryCost;
-    const walletBalance = Math.max(0, Number(customerWallet?.balance || 0));
-    const walletApplied = useWalletCredit && walletPinVerified ? Math.min(walletBalance, total) : 0;
+    const walletBalance = walletEnabled ? Math.max(0, Number(customerWallet?.balance || 0)) : 0;
+    const walletApplied = walletEnabled && useWalletCredit && walletPinVerified ? Math.min(walletBalance, total) : 0;
     const amountDueAfterWallet = Math.max(0, total - walletApplied);
 
     const requestWalletCredit = () => {
+        if (!walletEnabled) return;
         if (useWalletCredit) {
             setUseWalletCredit(false);
             setWalletPinVerified(false);
@@ -503,7 +513,7 @@ const Checkout = () => {
             deliveryCost,
             orderId: newOrderId,
             paymentMethod: amountDueAfterWallet === 0 && walletApplied > 0 ? 'wallet' : formData.paymentMethod,
-            customerWalletId: activeWalletId,
+            customerWalletId: walletEnabled ? activeWalletId : null,
             walletApplied,
             amountDueAfterWallet,
             status: 'new',
@@ -814,7 +824,7 @@ const Checkout = () => {
                                 required
                             />
                         </div>
-                        {phoneWalletId && <div className={`mt-2 rounded-lg border px-3 py-2 text-right text-[10px] font-bold ${customerWallet?.pinConfigured ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200' : 'border-slate-200 bg-slate-50 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300'}`}>
+                        {walletEnabled && phoneWalletId && <div className={`mt-2 rounded-lg border px-3 py-2 text-right text-[10px] font-bold ${customerWallet?.pinConfigured ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200' : 'border-slate-200 bg-slate-50 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300'}`}>
                             {customerWallet?.pinConfigured ? <>تم العثور على محفظة هذا الرقم — الرصيد المتاح: <span dir="ltr" className="font-mono font-black">$ {walletNumber(Math.max(0, Number(customerWallet.balance || 0)))}</span></> : 'لا توجد محفظة مؤمنة مرتبطة بهذا الرقم حتى الآن.'}
                         </div>}
 
@@ -1012,10 +1022,10 @@ const Checkout = () => {
                                 <span className="text-blue-500">{formatPrice(total)}</span>
                                 <span className="text-gray-900 dark:text-white">{t('cart.total')}</span>
                             </div>
-                            <button type="button" onClick={requestWalletCredit} className={`mt-2 flex w-full items-center justify-between rounded-xl border p-3 text-right transition-all ${useWalletCredit ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-400/50 dark:bg-emerald-400/10' : 'border-slate-200 bg-slate-50 hover:border-emerald-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-emerald-400/40'}`}>
+                            {walletEnabled && <button type="button" onClick={requestWalletCredit} className={`mt-2 flex w-full items-center justify-between rounded-xl border p-3 text-right transition-all ${useWalletCredit ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-400/50 dark:bg-emerald-400/10' : 'border-slate-200 bg-slate-50 hover:border-emerald-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-emerald-400/40'}`}>
                                 <div className="flex items-center gap-2"><div className={`flex h-7 w-7 items-center justify-center rounded-lg ${useWalletCredit ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-300'}`}>{useWalletCredit ? <CheckCircle2 size={16}/> : <CheckCircle2 size={16}/>}</div><div><p className="text-xs font-black text-slate-800 dark:text-white">استخدام رصيد محفظتي</p><p className="mt-0.5 text-[9px] font-bold text-slate-400">رصيد متاح: <span dir="ltr" className="font-mono text-emerald-600 dark:text-emerald-300">$ {walletNumber(walletBalance)}</span></p></div></div>
                                 <span className={`h-5 w-5 rounded-full border-2 ${useWalletCredit ? 'border-emerald-500 bg-emerald-500' : 'border-slate-300 dark:border-slate-600'}`}>{useWalletCredit && <CheckCircle2 size={16} className="m-[-1px] text-white"/>}</span>
-                            </button>
+                            </button>}
                             {walletApplied > 0 && <><div className="flex justify-between items-center text-sm font-black text-emerald-600 dark:text-emerald-300"><span dir="ltr">- $ {walletNumber(walletApplied)}</span><span>خصم من المحفظة</span></div><div className="flex justify-between items-center text-base font-black text-emerald-600 dark:text-emerald-300"><span>{amountDueAfterWallet > 0 ? formatPrice(amountDueAfterWallet) : '0'}</span><span>المتبقي للدفع</span></div></>}
                         </div>
 
@@ -1140,7 +1150,7 @@ const Checkout = () => {
                         </button>
                     </div>
 
-                    {walletPinOpen && <div className="fixed inset-0 z-[220] flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-sm"><div className="w-full max-w-sm rounded-2xl border border-white/10 bg-white p-5 shadow-2xl dark:bg-[#171b26]"><div className="flex items-start justify-between gap-3"><div><h3 className="text-base font-black text-slate-900 dark:text-white">تأكيد استخدام رصيد المحفظة</h3><p className="mt-1 text-[10px] font-bold text-slate-400">أدخل رمز PIN لحماية رصيدك.</p></div><button type="button" onClick={() => { setWalletPinOpen(false); setWalletPin(''); setWalletPinError(''); }} className="text-slate-400">×</button></div><div className="mt-4 rounded-xl bg-emerald-50 px-3 py-2 text-center text-[11px] font-black text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-200">سيُستخدم حتى <span dir="ltr" className="font-mono">$ {walletNumber(Math.min(walletBalance, total))}</span> من رصيدك.</div><input autoFocus value={walletPin} onChange={event => setWalletPin(event.target.value.replace(/\D/g, '').slice(0, 6))} onKeyDown={event => event.key === 'Enter' && confirmWalletPin()} inputMode="numeric" type="password" placeholder="رمز PIN من 4 إلى 6 أرقام" className="mt-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-center font-mono text-sm font-black outline-none focus:border-emerald-400 dark:border-white/10 dark:bg-white/5"/><p className="mt-2 min-h-4 text-center text-[10px] font-bold text-rose-500">{walletPinError}</p><div className="mt-3 flex gap-2"><button type="button" onClick={confirmWalletPin} className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-black text-white">تأكيد الخصم</button><button type="button" onClick={() => setWalletPinOpen(false)} className="rounded-xl px-4 text-sm font-black text-slate-500">إلغاء</button></div></div></div>}
+                    {walletEnabled && walletPinOpen && <div className="fixed inset-0 z-[220] flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-sm"><div className="w-full max-w-sm rounded-2xl border border-white/10 bg-white p-5 shadow-2xl dark:bg-[#171b26]"><div className="flex items-start justify-between gap-3"><div><h3 className="text-base font-black text-slate-900 dark:text-white">تأكيد استخدام رصيد المحفظة</h3><p className="mt-1 text-[10px] font-bold text-slate-400">أدخل رمز PIN لحماية رصيدك.</p></div><button type="button" onClick={() => { setWalletPinOpen(false); setWalletPin(''); setWalletPinError(''); }} className="text-slate-400">×</button></div><div className="mt-4 rounded-xl bg-emerald-50 px-3 py-2 text-center text-[11px] font-black text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-200">سيُستخدم حتى <span dir="ltr" className="font-mono">$ {walletNumber(Math.min(walletBalance, total))}</span> من رصيدك.</div><input autoFocus value={walletPin} onChange={event => setWalletPin(event.target.value.replace(/\D/g, '').slice(0, 6))} onKeyDown={event => event.key === 'Enter' && confirmWalletPin()} inputMode="numeric" type="password" placeholder="رمز PIN من 4 إلى 6 أرقام" className="mt-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-center font-mono text-sm font-black outline-none focus:border-emerald-400 dark:border-white/10 dark:bg-white/5"/><p className="mt-2 min-h-4 text-center text-[10px] font-bold text-rose-500">{walletPinError}</p><div className="mt-3 flex gap-2"><button type="button" onClick={confirmWalletPin} className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-black text-white">تأكيد الخصم</button><button type="button" onClick={() => setWalletPinOpen(false)} className="rounded-xl px-4 text-sm font-black text-slate-500">إلغاء</button></div></div></div>}
 
                 </form>
 

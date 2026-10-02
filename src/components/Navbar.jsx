@@ -34,6 +34,7 @@ const Navbar = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [walletBalance, setWalletBalance] = useState(0);
     const [walletId, setWalletId] = useState(() => getCustomerWalletId());
+    const [walletEnabled, setWalletEnabled] = useState(true);
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -109,11 +110,22 @@ const Navbar = () => {
     }, []);
 
     useEffect(() => {
+        const unsubscribe = onSnapshot(doc(db, 'settings', 'wallet'), snapshot => {
+            setWalletEnabled(snapshot.data()?.enabled !== false);
+        }, error => console.error('Wallet availability listener:', error));
+        return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        if (!walletEnabled) {
+            setWalletBalance(0);
+            return undefined;
+        }
         const unsubscribe = onSnapshot(doc(db, 'customer_wallets', walletId), snapshot => {
             setWalletBalance(snapshot.exists() ? Number(snapshot.data().balance || 0) : 0);
         }, error => console.error('Customer wallet listener:', error));
         return () => unsubscribe();
-    }, [walletId]);
+    }, [walletId, walletEnabled]);
 
     // Search Handler
     const handleSearch = async (term) => {
@@ -199,14 +211,14 @@ const Navbar = () => {
                         {/* Left Section: Search & Theme & Categories (Reordered: Search Right, Theme Middle, Categories Left) */}
                         <div className="flex items-center gap-1.5 md:gap-2">
                             {/* Customer Wallet */}
-                            <Link
+                            {walletEnabled && <Link
                                 to="/wallet"
                                 className="flex h-9 -translate-x-1 items-center gap-1.5 rounded-xl border border-emerald-300/80 bg-emerald-100/75 px-2.5 text-emerald-700 shadow-sm transition-all hover:bg-emerald-200 active:scale-95 dark:border-emerald-400/40 dark:bg-emerald-400/15 dark:text-emerald-200 dark:hover:bg-emerald-400/20 md:h-10 md:-translate-x-1.5"
                                 aria-label="محفظة المتجر"
                             >
                                 <Wallet className="h-4 w-4 shrink-0" strokeWidth={2.4}/>
                                 <span dir="ltr" className="font-sans text-[11px] font-black tabular-nums md:text-xs">$ {walletNumber(walletBalance)}</span>
-                            </Link>
+                            </Link>}
                             {/* Search (Restored Frame + Centered) */}
                             <div className="flex -translate-x-1 flex-col items-center gap-1 translate-y-[5px] md:-translate-x-1.5">
                                 <button
