@@ -201,7 +201,7 @@ const Cart = () => {
                 </div>
 
                 {/* Cart Items List */}
-                <div className="space-y-4 mb-2">
+                <div className="mb-2 space-y-4 lg:ml-auto lg:max-w-[1120px]">
                     {items.map((item, index) => (
                         <div key={`${item.id}-${index}`} className="bg-white dark:bg-[#1c1c1e] rounded-[30px] border border-gray-100 dark:border-white/5 p-4 relative group overflow-hidden shadow-md dark:shadow-none transition-colors duration-300">
                             
