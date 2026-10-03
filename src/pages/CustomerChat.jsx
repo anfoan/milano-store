@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Send, Paperclip, Settings, X, ArrowRight, ArrowLeft } from 'lucide-react';
 import { db } from '../lib/firebase';
+import { uploadChatMedia } from '../services/uploadService';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -95,60 +96,46 @@ const CustomerChat = () => {
         }
     };
 
-    // Utility to Upload to Cloudinary (Matching ProductForm implementation)
-    const uploadToCloudinary = async (file) => {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", "milano_upload"); // Unsigned preset
-        formData.append("cloud_name", "dgknc2shk");
-
-        try {
-            const res = await fetch("https://api.cloudinary.com/v1_1/dgknc2shk/image/upload", {
-                method: "POST",
-                body: formData,
-            });
-            const data = await res.json();
-            if (data.secure_url) {
-                return data.secure_url;
-            } else {
-                throw new Error("Cloudinary Upload Failed");
-            }
-        } catch (error) {
-            console.error("Error uploading image:", error);
-            return null;
-        }
+    const chatMediaError = error => {
+        const code = error?.message || '';
+        if (code === 'CHAT_MEDIA_TYPE_NOT_ALLOWED') return direction === 'rtl'
+            ? 'يسمح بإرسال الصور (JPEG، PNG، GIF، WEBP) أو الفيديوهات (MP4، WEBM، MOV) فقط.'
+            : 'Only JPEG, PNG, GIF, WEBP images or MP4, WEBM, MOV videos can be sent.';
+        if (code === 'CHAT_VIDEO_TOO_LARGE') return direction === 'rtl'
+            ? 'حجم الفيديو كبير جداً. الحد الأقصى 30 ميجابايت.'
+            : 'The video is too large. Maximum size is 30 MB.';
+        if (code === 'CHAT_IMAGE_TOO_LARGE') return direction === 'rtl'
+            ? 'حجم الصورة كبير جداً. الحد الأقصى 10 ميجابايت.'
+            : 'The image is too large. Maximum size is 10 MB.';
+        return t('chat.upload_error');
     };
 
-    const handleFileUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file || !chatId) return;
-
-        if (!file.type.startsWith('image/')) {
-            alert(t('chat.image_error'));
-            return;
-        }
+    const handleFileUpload = async event => {
+        const input = event.target;
+        const file = input.files?.[0];
+        if (!file || !chatId) { input.value = ''; return; }
 
         try {
             setIsUploading(true);
-            const imageUrl = await uploadToCloudinary(file);
-
-            if (imageUrl) {
-                await addDoc(collection(db, "contact_messages", chatId, "messages"), {
-                    text: '',
-                    imageUrl: imageUrl,
-                    sender: 'user',
-                    createdAt: serverTimestamp(),
-                });
-                // Update parent doc status to new for admin notification
-                await updateDoc(doc(db, "contact_messages", chatId), { status: 'new' });
-            } else {
-                alert(t('chat.upload_error'));
-            }
+            const media = await uploadChatMedia(file);
+            await addDoc(collection(db, 'contact_messages', chatId, 'messages'), {
+                text: '',
+                mediaUrl: media.url,
+                mediaType: media.mediaType,
+                fileName: media.name,
+                fileSize: media.bytes,
+                // Compatibility for older image-only message readers.
+                imageUrl: media.mediaType === 'image' ? media.url : '',
+                sender: 'user',
+                createdAt: serverTimestamp(),
+            });
+            await updateDoc(doc(db, 'contact_messages', chatId), { status: 'new' });
         } catch (error) {
-            console.error("Error handling file upload:", error);
+            console.error('Customer chat media upload failed:', error);
+            alert(chatMediaError(error));
         } finally {
             setIsUploading(false);
-            if (fileInputRef.current) fileInputRef.current.value = '';
+            input.value = '';
         }
     };
 
@@ -232,8 +219,10 @@ const CustomerChat = () => {
                     </div>
                 </div>
 
-                {messages.map((msg) => (
-                    <div key={msg.id} className={`flex items-end gap-2 ${msg.sender === 'user' ? (direction === 'rtl' ? 'flex-row-reverse' : 'flex-row-reverse') : (direction === 'rtl' ? 'flex-row' : 'flex-row')}`}>
+                {messages.map((msg) => {
+                    const mediaUrl = msg.mediaUrl || msg.imageUrl;
+                    const isVideo = msg.mediaType === 'video' || (!msg.mediaType && /\.(mp4|webm|mov)(?:[?#]|$)/i.test(mediaUrl || ''));
+                    return <div key={msg.id} className={`flex items-end gap-2 ${msg.sender === 'user' ? (direction === 'rtl' ? 'flex-row-reverse' : 'flex-row-reverse') : (direction === 'rtl' ? 'flex-row' : 'flex-row')}`}>
                         {/* Avatar Column */}
                         <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 mb-1">
                             <img
@@ -245,20 +234,19 @@ const CustomerChat = () => {
                         </div>
 
                         {/* Message Bubble/Image */}
-                        <div className={`max-w-[75%] shadow-sm relative transition-all ${msg.imageUrl ? 'p-2 rounded-2xl' : 'px-5 py-3 rounded-2xl text-sm font-bold'
+                        <div className={`max-w-[75%] shadow-sm relative transition-all ${mediaUrl ? 'p-2 rounded-2xl' : 'px-5 py-3 rounded-2xl text-sm font-bold'
                             } ${msg.sender === 'user'
                                 ? 'bg-white text-gray-800 rounded-bl-sm border border-gray-100'
                                 : 'bg-[#3b82f6] text-white rounded-br-sm'
                             }`}>
-                            {msg.imageUrl ? (
+                            {mediaUrl ? (
                                 <div className="space-y-1">
                                     <div className="max-w-[250px] overflow-hidden rounded-xl border border-black/5 bg-gray-50/10">
-                                        <img
-                                            src={msg.imageUrl}
-                                            alt="attached"
-                                            className="w-full h-auto cursor-zoom-in hover:brightness-95 transition-all"
-                                            onClick={() => setSelectedImage(msg.imageUrl)}
-                                        />
+                                        {isVideo ? (
+                                            <video src={mediaUrl} controls preload="metadata" className="block max-h-[280px] w-full bg-black" />
+                                        ) : (
+                                            <img src={mediaUrl} alt="attached" className="w-full h-auto cursor-zoom-in hover:brightness-95 transition-all" onClick={() => setSelectedImage(mediaUrl)} />
+                                        )}
                                     </div>
                                     <span className={`text-[9px] block text-left ${msg.sender === 'user' ? 'text-gray-400' : 'text-blue-100'}`}>
                                         {msg.createdAt?.toDate ? msg.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : t('chat.just_now')}
@@ -273,15 +261,15 @@ const CustomerChat = () => {
                                 </>
                             )}
 
-                            {!msg.imageUrl && (
+                            {!mediaUrl && (
                                 <div className={`absolute bottom-3 w-3 h-3 transform rotate-45 ${msg.sender === 'user'
                                     ? 'bg-white border-b border-l border-gray-100 -left-1'
                                     : 'bg-[#3b82f6] -right-1'
                                     }`} style={{ zIndex: 0 }}></div>
                             )}
                         </div>
-                    </div>
-                ))}
+                    </div>;
+                })}
 
                 {isUploading && (
                     <div className="flex justify-center animate-pulse py-2">
@@ -300,7 +288,7 @@ const CustomerChat = () => {
                         ref={fileInputRef}
                         className="hidden"
                         onChange={handleFileUpload}
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime"
                     />
 
                     <button
