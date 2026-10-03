@@ -335,8 +335,13 @@ const Checkout = () => {
 
 
     const effectiveSubtotal = cartItems.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
-    const couponDiscountRaw = appliedCoupon ? (effectiveSubtotal * (appliedCoupon.discountPercent / 100)) : 0;
-    const couponDiscount = Math.round(couponDiscountRaw);
+    const isFixedCoupon = coupon => coupon?.discountType === 'fixed' || Number(coupon?.discountAmount || 0) > 0;
+    const calculateCouponDiscount = (coupon, subtotal) => {
+        if (!coupon) return 0;
+        if (isFixedCoupon(coupon)) return Math.min(Math.max(0, Number(subtotal || 0)), Math.max(0, Math.round(Number(coupon.discountAmount || 0))));
+        return Math.round(Math.max(0, Number(subtotal || 0)) * (Math.max(0, Number(coupon.discountPercent || 0)) / 100));
+    };
+    const couponDiscount = calculateCouponDiscount(appliedCoupon, effectiveSubtotal);
 
     const discountAmount = (cartTotal - effectiveSubtotal) + couponDiscount;
     const total = cartTotal - discountAmount + deliveryCost;
@@ -506,8 +511,10 @@ const Checkout = () => {
             cartItems: cartItemsWithDetails,
             total,
             subTotal: cartTotal, // Store the original price subtotal
-            discount: productSavings, // Store product-level savings
-            discountPercentage: appliedCoupon ? appliedCoupon.discountPercent : 0, // Store coupon percentage
+            discount: productSavings + couponDiscount, // Product savings plus the exact coupon discount
+            discountPercentage: appliedCoupon && !isFixedCoupon(appliedCoupon) ? Number(appliedCoupon.discountPercent || 0) : 0,
+            couponDiscount: appliedCoupon ? couponDiscount : 0,
+            couponDiscountType: appliedCoupon ? (isFixedCoupon(appliedCoupon) ? 'fixed' : 'percentage') : null,
             couponCode: appliedCoupon ? appliedCoupon.code : null,
             couponId: appliedCoupon ? appliedCoupon.id : null,
             deliveryCost,

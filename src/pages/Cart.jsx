@@ -61,9 +61,19 @@ const Cart = () => {
         if (storedCoupon) {
             setAppliedCoupon(storedCoupon);
             setCouponCode(storedCoupon.code);
-            setCouponSuccess(t('cart.coupon_success').replace('{percent}', storedCoupon.discountPercent));
+            setCouponSuccess(couponSuccessText(storedCoupon));
         }
     }, [t]);
+
+    const isFixedCoupon = coupon => coupon?.discountType === 'fixed' || Number(coupon?.discountAmount || 0) > 0;
+    const calculateCouponDiscount = (coupon, subtotal) => {
+        if (!coupon) return 0;
+        if (isFixedCoupon(coupon)) return Math.min(Math.max(0, Number(subtotal || 0)), Math.max(0, Math.round(Number(coupon.discountAmount || 0))));
+        return Math.round(Math.max(0, Number(subtotal || 0)) * (Math.max(0, Number(coupon.discountPercent || 0)) / 100));
+    };
+    const couponSuccessText = (coupon, subtotal = 0) => isFixedCoupon(coupon)
+        ? (language === 'ar' ? `تم تطبيق خصم ثابت بقيمة ${formatPrice(calculateCouponDiscount(coupon, subtotal || Number(coupon.discountAmount || 0)))}` : `Fixed discount applied: ${formatPrice(calculateCouponDiscount(coupon, subtotal || Number(coupon.discountAmount || 0)))}`)
+        : t('cart.coupon_success').replace('{percent}', coupon.discountPercent);
 
     const updateCart = (newItems) => {
         setItems(newItems);
@@ -151,7 +161,7 @@ const Cart = () => {
 
             const couponObj = { id: couponId, ...couponData };
             setAppliedCoupon(couponObj);
-            setCouponSuccess(t('cart.coupon_success').replace('{percent}', couponData.discountPercent));
+            setCouponSuccess(couponSuccessText(couponObj, currentTotal));
             localStorage.setItem('cart_coupon', JSON.stringify(couponObj));
         } catch (error) {
             console.error("Error applying coupon:", error);
@@ -169,9 +179,8 @@ const Cart = () => {
     const displaySubtotal = items.reduce((acc, item) => acc + ((item.originalPrice || item.price) * item.quantity), 0);
     const totalPrice = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     
-    // Coupon applies on the price AFTER product sales
-    const couponDiscountRaw = appliedCoupon ? (totalPrice * (appliedCoupon.discountPercent / 100)) : 0;
-    const couponDiscount = Math.round(couponDiscountRaw);
+    // The configured fixed coupon amount is applied after product sales and never exceeds the subtotal.
+    const couponDiscount = calculateCouponDiscount(appliedCoupon, totalPrice);
 
     const totalDiscount = (displaySubtotal - totalPrice) + couponDiscount;
     const finalTotal = displaySubtotal - totalDiscount;
