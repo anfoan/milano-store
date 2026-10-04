@@ -81,6 +81,7 @@ export const useSettings = () => {
             if (doc.exists()) {
                 const data = doc.data();
                 setImageSettings(prev => ({ ...prev, ...data }));
+                setGeneralSettings(prev => ({ ...prev, invoiceLogo: data.invoiceLogo || prev.invoiceLogo || '' }));
                 localStorage.setItem(CACHE_KEYS.IMAGES, JSON.stringify(data));
             }
         }, (error) => console.error("Image settings error:", error));
