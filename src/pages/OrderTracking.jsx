@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { doc, getDoc, collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Check, ShoppingBag, Download, Star, Truck, MapPin, Package, FileText, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
 import html2canvas from 'html2canvas';
@@ -10,6 +10,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import { useSettings } from '../hooks/useSettings';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import InvoiceTemplate from '../components/InvoiceTemplate';
+import { getCustomerWalletId } from '../lib/wallet';
 
 const OrderTracking = () => {
     const { orderId } = useParams();
@@ -24,18 +25,20 @@ const OrderTracking = () => {
     const { generalSettings, storeUrl, socialLinks } = useSettings();
 
     useEffect(() => {
-        let unsubscribe = () => { };
+        let unsubscribe = () => {};
+        let localOrder = null;
 
         const setupRealtimeListener = async () => {
             try {
-                // Clean orderId from any whitespaces, newlines, or tabs accidentally passed in URL
-                let rawId = decodeURIComponent(orderId).replace(/\s+/g, '').trim();
+                const rawId = decodeURIComponent(orderId || '').replace(/\s+/g, '').trim();
                 const possibleIds = [rawId, `#${rawId.replace(/^#/, '')}`, rawId.replace(/^#/, '')];
-                const uniqueIds = [...new Set(possibleIds)];
-                let localOrder = null;
+                const uniqueIds = [...new Set(possibleIds.filter(Boolean))];
+
                 try {
                     const deviceOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
-                    localOrder = Array.isArray(deviceOrders) ? deviceOrders.find(item => uniqueIds.includes(String(item.orderId || item.id || '').trim())) : null;
+                    localOrder = Array.isArray(deviceOrders)
+                        ? deviceOrders.find(item => uniqueIds.includes(String(item.orderId || item.id || '').trim()))
+                        : null;
                     if (localOrder) {
                         setOrder(localOrder);
                         setLoading(false);
@@ -44,43 +47,34 @@ const OrderTracking = () => {
                     console.warn('Unable to read local order history:', localError);
                 }
 
-                let targetDocRef = null;
-                const ordersRef = collection(db, "orders");
-
-                try {
-                    const q = query(ordersRef, where("orderId", "in", uniqueIds));
-                    const querySnapshot = await getDocs(q);
-                    if (!querySnapshot.empty) {
-                        targetDocRef = querySnapshot.docs[0].ref;
+                const walletId = getCustomerWalletId();
+                if (!walletId || uniqueIds.length === 0) {
+                    if (!localOrder) {
+                        setError(`${t('tracking.order_not_found')}: ${rawId}`);
+                        setLoading(false);
                     }
-                } catch (e) { }
-
-                if (!targetDocRef) {
-                    for (const id of uniqueIds) {
-                        try {
-                            const docRef = doc(db, "orders", id);
-                            const docSnap = await getDoc(docRef);
-                            if (docSnap.exists()) {
-                                targetDocRef = docRef;
-                                break;
-                            }
-                        } catch (e) { }
-                    }
+                    return;
                 }
 
+                // Only query this customer's own durable invoice history. The global
+                // orders collection stays private to the administrator.
+                const historyRef = collection(db, 'customer_wallets', walletId, 'orders');
+                const historyQuery = query(historyRef, where('orderId', 'in', uniqueIds));
+                const historySnapshot = await getDocs(historyQuery);
+                const targetDocRef = historySnapshot.docs[0]?.ref || null;
+
                 if (targetDocRef) {
-                    unsubscribe = onSnapshot(targetDocRef, (doc) => {
-                        if (doc.exists()) {
-                            setOrder(doc.data());
+                    unsubscribe = onSnapshot(targetDocRef, snapshot => {
+                        if (snapshot.exists()) {
+                            setOrder({ id: snapshot.id, ...snapshot.data() });
+                            setError(null);
                             setLoading(false);
-                        } else {
-                            if (!localOrder) {
-                                setError(`تم حذف الطلب أو غير موجود.`);
-                                setLoading(false);
-                            }
+                        } else if (!localOrder) {
+                            setError('تم حذف الطلب أو غير موجود.');
+                            setLoading(false);
                         }
-                    }, (err) => {
-                        console.error("Realtime error:", err);
+                    }, err => {
+                        console.error('Customer order history listener:', err);
                         if (!localOrder) {
                             setError(t('checkout.error_message'));
                             setLoading(false);
@@ -90,9 +84,8 @@ const OrderTracking = () => {
                     setError(`${t('tracking.order_not_found')}: ${rawId}`);
                     setLoading(false);
                 }
-
             } catch (err) {
-                console.error("Setup error:", err);
+                console.error('Customer order tracking setup error:', err);
                 if (!localOrder) {
                     setError(t('checkout.error_message'));
                     setLoading(false);
@@ -101,9 +94,10 @@ const OrderTracking = () => {
         };
 
         if (orderId) setupRealtimeListener();
+        else { setError(t('tracking.order_not_found')); setLoading(false); }
 
         return () => unsubscribe();
-    }, [orderId]);
+    }, [orderId, t]);
 
     const handleDownloadInvoice = async () => {
         if (!invoiceRef.current) return;

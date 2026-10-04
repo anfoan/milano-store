@@ -10,6 +10,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import { getCustomerWalletId, getPhoneWalletId, hashWalletPin, normalizePhone, walletNumber } from '../lib/wallet';
+import { buildCustomerOrderHistory, customerOrderHistoryRef } from '../lib/customerOrderHistory';
 
 const Checkout = () => {
     const { t, direction, language } = useLanguage();
@@ -520,7 +521,10 @@ const Checkout = () => {
             deliveryCost,
             orderId: newOrderId,
             paymentMethod: amountDueAfterWallet === 0 && walletApplied > 0 ? 'wallet' : formData.paymentMethod,
-            customerWalletId: walletEnabled ? activeWalletId : null,
+            // Keep every store invoice tied to the customer's phone/device wallet, even
+            // while wallet payments are temporarily disabled. This is the permanent
+            // identity used by «طلباتك» and is independent of the payment method.
+            customerWalletId: activeWalletId || null,
             walletApplied,
             amountDueAfterWallet,
             status: 'new',
@@ -533,6 +537,9 @@ const Checkout = () => {
         };
 
         const orderRef = doc(collection(db, "orders"));
+        const customerHistoryRef = activeWalletId
+            ? customerOrderHistoryRef(activeWalletId, orderRef.id)
+            : null;
         try {
             // Re-validate Coupon Logic (kept as is)
             if (appliedCoupon) {
@@ -642,6 +649,8 @@ const Checkout = () => {
                     transaction.update(productRefs[idx], updates);
                 });
                 transaction.set(orderRef, orderData);
+                const history = buildCustomerOrderHistory(orderData, orderRef.id);
+                if (customerHistoryRef && history) transaction.set(customerHistoryRef, history);
                 if (couponRef && couponSnap?.exists() && !couponSnap.data().isUnlimited) {
                     transaction.update(couponRef, { usedCount: increment(1) });
                 }
@@ -684,6 +693,8 @@ const Checkout = () => {
             const existingOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
             const orderForStorage = {
                 ...orderData,
+                sourceOrderId: orderRef.id,
+                historyVersion: 1,
                 createdAt: new Date().toISOString(),
                 timestamp: Date.now()
             };
@@ -732,16 +743,19 @@ const Checkout = () => {
                                 updatedAt: serverTimestamp()
                             });
                         }
-                        transaction.set(orderRef, {
+                        const pendingOrder = {
                             ...orderData,
                             inventorySyncPending: true,
                             inventorySyncStatus: 'pending-admin-sync',
                             walletDebitPending: walletApplied > 0,
                             createdWithoutPublicInventoryWrite: true
-                        });
+                        };
+                        transaction.set(orderRef, pendingOrder);
+                        const history = buildCustomerOrderHistory(pendingOrder, orderRef.id);
+                        if (customerHistoryRef && history) transaction.set(customerHistoryRef, history);
                     });
                     const existingOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
-                    existingOrders.unshift({ ...orderData, inventorySyncPending: true, walletDebitPending: walletApplied > 0, createdAt: new Date().toISOString(), timestamp: Date.now() });
+                    existingOrders.unshift({ ...orderData, sourceOrderId: orderRef.id, historyVersion: 1, inventorySyncPending: true, walletDebitPending: walletApplied > 0, createdAt: new Date().toISOString(), timestamp: Date.now() });
                     localStorage.setItem('myOrders', JSON.stringify(existingOrders));
                     localStorage.removeItem('cart');
                     localStorage.removeItem('cart_coupon');

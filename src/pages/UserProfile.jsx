@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { Check, Clock3, Copy, FileText, Package, Printer, Search, Truck, X } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
-import { walletNumber } from '../lib/wallet';
+import { getCustomerWalletId, walletNumber } from '../lib/wallet';
 
 const toMillis = (value) => {
     if (!value) return 0;
@@ -25,22 +25,60 @@ const UserProfile = () => {
     const [copied, setCopied] = useState('');
 
     useEffect(() => {
-        let stored = [];
-        try { stored = JSON.parse(localStorage.getItem('myOrders') || '[]'); } catch { stored = []; }
-        if (!Array.isArray(stored)) stored = [];
-        const savedOrders = stored;
-        setOrders([...savedOrders].sort((a, b) => toMillis(b.timestamp || b.createdAt || b.date) - toMillis(a.timestamp || a.createdAt || a.date)));
+        const walletId = getCustomerWalletId();
+        let savedOrders = [];
+        try {
+            const stored = JSON.parse(localStorage.getItem('myOrders') || '[]');
+            savedOrders = Array.isArray(stored)
+                ? stored.filter(order => !order?.customerWalletId || order.customerWalletId === walletId)
+                : [];
+        } catch {
+            savedOrders = [];
+        }
 
-        const unsubscribe = onSnapshot(collection(db, 'orders'), snapshot => {
-            const remote = new Map(snapshot.docs.map(item => {
-                const data = item.data();
-                return [data.orderId || item.id, { id: item.id, ...data }];
-            }));
-            const merged = savedOrders.map(local => ({ ...local, ...(remote.get(local.orderId) || {}) }));
-            const sorted = merged.sort((a, b) => toMillis(b.createdAt || b.timestamp || b.date) - toMillis(a.createdAt || a.timestamp || a.date));
-            setOrders(sorted);
-            localStorage.setItem('myOrders', JSON.stringify(sorted.map(order => ({ ...order, createdAt: typeof order.createdAt?.toDate === 'function' ? order.createdAt.toDate().toISOString() : order.createdAt }))));
-        }, error => console.error('Customer orders listener:', error));
+        const orderKey = order => String(order?.orderId || order?.sourceOrderId || order?.id || '');
+        const sortOrders = list => [...list].sort((a, b) => toMillis(b.createdAt || b.timestamp || b.date) - toMillis(a.createdAt || a.timestamp || a.date));
+        const mergeOrders = remoteOrders => {
+            const merged = new Map();
+            savedOrders.forEach(order => {
+                const key = orderKey(order);
+                if (key) merged.set(key, order);
+            });
+            remoteOrders.forEach(order => {
+                const key = orderKey(order);
+                if (key) merged.set(key, { ...(merged.get(key) || {}), ...order });
+            });
+            return sortOrders([...merged.values()].filter(order => !order?.deleted));
+        };
+
+        setOrders(sortOrders(savedOrders));
+        if (!walletId) return undefined;
+
+        // Orders are permanently mirrored under the customer phone/device wallet.
+        // The list is never removed locally by the storefront; only an administrator
+        // deleting the original invoice removes its durable record.
+        const historyQuery = query(
+            collection(db, 'customer_wallets', walletId, 'orders'),
+            orderBy('createdAt', 'desc')
+        );
+        const unsubscribe = onSnapshot(historyQuery, snapshot => {
+            const remoteOrders = snapshot.docs.map(item => ({ id: item.id, ...item.data() }));
+            const merged = mergeOrders(remoteOrders);
+            setOrders(merged);
+            try {
+                localStorage.setItem('myOrders', JSON.stringify(merged.map(order => ({
+                    ...order,
+                    createdAt: typeof order.createdAt?.toDate === 'function' ? order.createdAt.toDate().toISOString() : order.createdAt,
+                    updatedAt: typeof order.updatedAt?.toDate === 'function' ? order.updatedAt.toDate().toISOString() : order.updatedAt,
+                }))));
+            } catch (error) {
+                console.warn('Unable to cache customer order history:', error);
+            }
+        }, error => {
+            // Keep already cached invoices visible during a network interruption.
+            console.error('Customer order history listener:', error);
+        });
+
         return () => unsubscribe();
     }, []);
 
