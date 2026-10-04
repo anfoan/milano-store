@@ -30,7 +30,7 @@ const UserProfile = () => {
         try {
             const stored = JSON.parse(localStorage.getItem('myOrders') || '[]');
             savedOrders = Array.isArray(stored)
-                ? stored.filter(order => !order?.customerWalletId || order.customerWalletId === walletId)
+                ? stored.filter(order => Boolean(walletId) && order?.customerWalletId === walletId)
                 : [];
         } catch {
             savedOrders = [];

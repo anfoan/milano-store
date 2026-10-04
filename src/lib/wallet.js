@@ -30,6 +30,15 @@ export const getPhoneWalletId = (value = '') => {
 export const setCustomerPhoneWalletId = (value = '') => {
     const walletId = getPhoneWalletId(value);
     if (walletId && typeof window !== 'undefined') {
+        const previousWalletId = localStorage.getItem(PHONE_WALLET_ID_KEY);
+        // Never carry a previous customer's local workspace into another phone account.
+        // Durable invoices remain in Firebase and are reloaded for the new phone below.
+        if (previousWalletId !== walletId) {
+            localStorage.removeItem('cart');
+            localStorage.removeItem('cart_coupon');
+            localStorage.removeItem('myOrders');
+            window.dispatchEvent(new CustomEvent('cart-updated'));
+        }
         localStorage.setItem(PHONE_WALLET_ID_KEY, walletId);
         window.dispatchEvent(new Event('milano-wallet-session-changed'));
     }
