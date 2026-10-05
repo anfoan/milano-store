@@ -36,6 +36,33 @@
   direction: ltr;
 }
 
+/* External promotional videos: keep iPhone/iPad from painting native controls. */
+.promotional-video-external {
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  pointer-events: none;
+}
+
+.promotional-video-external::-webkit-media-controls,
+.promotional-video-external::-webkit-media-controls-container,
+.promotional-video-external::-webkit-media-controls-enclosure,
+.promotional-video-external::-webkit-media-controls-panel,
+.promotional-video-external::-webkit-media-controls-overlay-play-button,
+.promotional-video-external::-webkit-media-controls-start-playback-button,
+.promotional-video-external::-webkit-media-controls-overlay-enclosure,
+.promotional-video-external::-webkit-media-controls-play-button,
+.promotional-video-external::-webkit-media-controls-timeline,
+.promotional-video-external::-webkit-media-controls-current-time-display,
+.promotional-video-external::-webkit-media-controls-time-remaining-display,
+.promotional-video-external::-webkit-media-controls-fullscreen-button {
+  display: none !important;
+  opacity: 0 !important;
+  -webkit-appearance: none !important;
+}
+
 /* Hide number input spinners */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
@@ -69,6 +96,10 @@ input[type=number] {
 }
 
 @media print {
+  .whatsapp-floating-button {
+    display: none !important;
+  }
+
   @page {
     size: auto;
     margin: 15mm;

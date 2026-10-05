@@ -160,7 +160,7 @@ export const translations = {
         'tracking.status_label.shipping': 'قيد التوصيل',
         'tracking.status_label.completed': 'مكتمل',
         'tracking.whatsapp_button': 'اضغط هنا لإكمال عملية الدفع عبر واتساب',
-        'checkout.whatsapp_default': 'تواصل لإكمال عملية الدفع عبر واتساب',
+        'checkout.whatsapp_default': 'تواصل معنا عبر واتساب لإكمال عملية الدفع',
         'checkout.order_unavailable_amount': 'عذراً، الطلب غير متاح حالياً لقيمة سلة التسوق هذه ({amount} ر.ي).',
         // Rate Order
         'rate.very_bad': 'سيء جداً',

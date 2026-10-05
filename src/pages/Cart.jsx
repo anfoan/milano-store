@@ -282,7 +282,7 @@ const Cart = () => {
                             <span className="text-gray-500 dark:text-gray-400">{t('cart.subtotal')}</span>
                         </div>
                         <div className="flex justify-between items-center text-sm font-bold">
-                            <span className="text-[#16a34a] dark:text-[#4ade80]">
+                            <span className={totalDiscount === 0 ? 'text-red-500 dark:text-red-400' : 'text-[#16a34a] dark:text-[#4ade80]'}>
                                 - {formatPrice(totalDiscount)}
                             </span>
                             <div className="flex items-center gap-2">

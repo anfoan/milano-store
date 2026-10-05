@@ -132,33 +132,40 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, genera
                             {/* 3. Products Table */}
                             <div className="mb-8">
                                 <h3 className={`font-black text-xl mb-4 text-gray-800 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'تفاصيل الفاتورة' : 'Invoice Details'}</h3>
-                                <table className={`w-full ${lang === 'ar' ? 'text-right' : 'text-left'} border-collapse border border-gray-400`}>
+                                <table className={`w-full table-fixed ${lang === 'ar' ? 'text-right' : 'text-left'} border-collapse border border-gray-400`} style={{ tableLayout: 'fixed' }}>
+                                    <colgroup>
+                                        <col style={{ width: '48%' }} />
+                                        <col style={{ width: '9%' }} />
+                                        <col style={{ width: '17%' }} />
+                                        <col style={{ width: '8%' }} />
+                                        <col style={{ width: '18%' }} />
+                                    </colgroup>
                                     <thead style={{ backgroundColor: '#111317', color: '#ffffff' }} className="bg-[#111317] text-white print:bg-[#111317] print:text-white">
                                         <tr>
-                                            <th style={{ padding: '10px 16px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className={`text-sm font-bold border-l border-gray-500 w-[56%] \${lang === 'ar' ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'اسم المنتج' : 'Item'}</th>
-                                            <th style={{ padding: '10px 16px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-sm font-bold text-center border-l border-gray-500 w-[7%]">{lang === 'ar' ? 'المقاس' : 'Size'}</th>
-                                            <th style={{ padding: '10px 16px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-sm font-bold text-center border-l border-gray-500 w-[15%]">{lang === 'ar' ? 'السعر' : 'Price'}</th>
-                                            <th style={{ padding: '10px 16px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-sm font-bold text-center border-l border-gray-500 w-[7%]">{lang === 'ar' ? 'الكمية' : 'Qty'}</th>
-                                            <th style={{ padding: '10px 16px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-sm font-bold text-center w-[15%]">{lang === 'ar' ? 'الإجمالي' : 'Total'}</th>
+                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317', border: '1px solid #6b7280' }} className={`text-sm font-bold \${lang === 'ar' ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'اسم المنتج' : 'Item'}</th>
+                                            <th style={{ padding: '10px 4px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317', border: '1px solid #6b7280' }} className="text-sm font-bold text-center">{lang === 'ar' ? 'المقاس' : 'Size'}</th>
+                                            <th style={{ padding: '10px 4px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317', border: '1px solid #6b7280' }} className="text-sm font-bold text-center">{lang === 'ar' ? 'السعر' : 'Price'}</th>
+                                            <th style={{ padding: '10px 4px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317', border: '1px solid #6b7280' }} className="text-sm font-bold text-center">{lang === 'ar' ? 'الكمية' : 'Qty'}</th>
+                                            <th style={{ padding: '10px 4px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317', border: '1px solid #6b7280' }} className="text-sm font-bold text-center">{lang === 'ar' ? 'الإجمالي' : 'Total'}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-400 bg-white">
                                         {order.cartItems?.map((item, idx) => (
                                             <tr key={idx}>
-                                                <td style={{ padding: '8px 16px', verticalAlign: 'middle' }} className="border-l border-gray-400">
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <td style={{ padding: '8px', verticalAlign: 'middle', border: '1px solid #9ca3af', overflow: 'hidden' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                                                         <img
                                                             src={item.image}
-                                                            style={{ width: '55px', height: '55px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #9ca3af', verticalAlign: 'middle', flexShrink: 0 }}
+                                                            style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #9ca3af', verticalAlign: 'middle', flexShrink: 0 }}
                                                             onError={(e) => {
                                                                 e.target.onerror = null;
                                                                 e.target.src = '/nav-logo.png';
                                                             }}
                                                         />
-                                                        <span style={{ fontWeight: 'bold', color: '#1f2937', fontSize: '12px', lineHeight: '1.4', verticalAlign: 'middle' }}>{item.title}</span>
+                                                        <span style={{ fontWeight: 'bold', color: '#1f2937', fontSize: '11px', lineHeight: '1.3', verticalAlign: 'middle', minWidth: 0, overflowWrap: 'anywhere' }}>{item.title}</span>
                                                     </div>
                                                 </td>
-                                                <td style={{ padding: '8px 16px', verticalAlign: 'middle' }} className="text-center text-xs font-bold text-gray-800 border-l border-gray-400">
+                                                <td style={{ padding: '8px 4px', verticalAlign: 'middle', border: '1px solid #9ca3af' }} className="text-center text-xs font-bold text-gray-800">
                                                     <span>
                                                         {(item.selectedSize || item.size || '---')
                                                             .toString()
@@ -166,7 +173,7 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, genera
                                                             .trim()}
                                                     </span>
                                                 </td>
-                                                <td style={{ padding: '8px 16px', verticalAlign: 'middle' }} className="text-center text-xs font-bold text-gray-600 border-l border-gray-400 whitespace-nowrap">
+                                                <td style={{ padding: '8px 4px', verticalAlign: 'middle', border: '1px solid #9ca3af', whiteSpace: 'nowrap' }} className="text-center text-xs font-bold text-gray-600">
                                                     {item.originalPrice && item.originalPrice > item.price ? (
                                                         <div className="flex flex-col items-center">
                                                             <span style={{ textDecoration: 'line-through', opacity: 0.6 }}>{formatPrice(item.originalPrice, order.currency)}</span>
@@ -176,10 +183,10 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, genera
                                                         <span>{formatPrice(item.price, order.currency)}</span>
                                                     )}
                                                 </td>
-                                                <td style={{ padding: '8px 16px', verticalAlign: 'middle' }} className="text-center text-xs font-bold text-gray-600 border-l border-gray-400">
+                                                <td style={{ padding: '8px 4px', verticalAlign: 'middle', border: '1px solid #9ca3af' }} className="text-center text-xs font-bold text-gray-600">
                                                     <span>{item.quantity || 1}</span>
                                                 </td>
-                                                <td style={{ padding: '8px 16px', verticalAlign: 'middle' }} className="text-center text-xs font-black text-[#111317] whitespace-nowrap">
+                                                <td style={{ padding: '8px 4px', verticalAlign: 'middle', border: '1px solid #9ca3af', whiteSpace: 'nowrap' }} className="text-center text-xs font-black text-[#111317]">
                                                     <span>{formatPrice((item.price || 0) * (item.quantity || 1), order.currency)}</span>
                                                 </td>
                                             </tr>

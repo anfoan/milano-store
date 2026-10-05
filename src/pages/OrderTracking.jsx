@@ -366,7 +366,7 @@ const OrderTracking = () => {
 
                     {/* WhatsApp Payment Prompt - Simplified */}
                     {formData?.paymentMethod === 'whatsapp' && (
-                        <div className="max-w-3xl mx-auto px-0">
+                        <div className="max-w-3xl mx-auto px-0 print:hidden">
                             <button
                                 onClick={handleWhatsAppClick}
                                 disabled={downloading}

@@ -34,7 +34,7 @@ const Checkout = () => {
         cod_enabled: true,
         whatsapp_enabled: true,
         whatsapp_number: '',
-        whatsapp_label: 'تواصل لإكمال عملية الدفع عبر واتساب'
+        whatsapp_label: 'تواصل معنا عبر واتساب لإكمال عملية الدفع.'
     });
     const [deliverySettings, setDeliverySettings] = useState({
         freeDeliveryAll: false,
@@ -68,8 +68,8 @@ const Checkout = () => {
                 if (paymentDoc.exists()) {
                     const data = paymentDoc.data();
                     // Normalize old label to new one if they match legacy versions
-                    if (data.whatsapp_label === 'تواصل لإكمال عملية الدفع' || data.whatsapp_label === 'تواصل معنا لإكمال عملية الدفع') {
-                        data.whatsapp_label = 'تواصل لإكمال عملية الدفع عبر واتساب';
+                    if (data.whatsapp_label === 'تواصل لإكمال عملية الدفع عبر واتساب' || data.whatsapp_label === 'تواصل لإكمال عملية الدفع' || data.whatsapp_label === 'تواصل معنا لإكمال عملية الدفع') {
+                        data.whatsapp_label = 'تواصل معنا عبر واتساب لإكمال عملية الدفع.';
                     }
                     setPaymentSettings(prev => ({ ...prev, ...data }));
                 }

@@ -1,7 +1,15 @@
+import { useEffect, useState } from 'react';
 import { useSettings } from '../hooks/useSettings';
 
 const WhatsAppButton = () => {
     const { socialLinks } = useSettings();
+    const [videoPreviewOpen, setVideoPreviewOpen] = useState(false);
+
+    useEffect(() => {
+        const handlePreviewState = (event) => setVideoPreviewOpen(Boolean(event.detail?.open));
+        window.addEventListener('milano-video-preview', handlePreviewState);
+        return () => window.removeEventListener('milano-video-preview', handlePreviewState);
+    }, []);
 
     // Extract number from link (e.g., https://wa.me/967...) or use raw number
     const getPhoneNumber = () => {
@@ -37,7 +45,7 @@ const WhatsAppButton = () => {
     return (
         <button
             onClick={handleClick}
-            className="fixed bottom-[100px] md:bottom-[86px] left-4 md:left-6 z-[9999] group flex items-center justify-center transition-all duration-300 hover:scale-110"
+            className={`whatsapp-floating-button ${videoPreviewOpen ? 'hidden' : 'fixed'} print:hidden bottom-[100px] md:bottom-[86px] left-4 md:left-6 z-[9999] group flex items-center justify-center transition-all duration-300 hover:scale-110`}
             aria-label="Contact on WhatsApp"
         >
             {/* Pulse Effect Background */}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ShoppingBag, Star, MapPin, Search, Clock, ShieldCheck, Info, Facebook, Instagram, Music2, Share2, Map as MapIcon, Package, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Star, MapPin, Search, Clock, ShieldCheck, Info, Facebook, Instagram, Music2, Share2, Map as MapIcon, Package, ArrowRight, VolumeX, X, Maximize2, ArrowLeftRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { collection, query, doc, onSnapshot, setDoc, increment, serverTimestamp } from 'firebase/firestore';
@@ -52,9 +52,15 @@ const optimizeImageUrl = (url, width) => {
     return url;
 };
 
+const optimizeVideoUrl = (url) => {
+    if (!url || typeof url !== 'string') return url;
+    if (!url.includes('res.cloudinary.com') || !url.includes('/upload/')) return url;
+    return url.replace('/upload/', '/upload/f_auto,q_auto:good,vc_auto,h_720,c_limit/');
+};
+
 const Home = () => {
     // SECURITY & DATA FIX: Clear old cache if project has changed
-    const currentProjectId = "milano-store-53d33"; // New Project ID
+    const currentProjectId = "milano-anfoan-store-2026";
     const storedProjectId = localStorage.getItem('active_project_id');
 
     if (storedProjectId !== currentProjectId) {
@@ -74,6 +80,12 @@ const Home = () => {
         }
     });
     const [loading, setLoading] = useState(!products.length);
+    const [promotionalVideos, setPromotionalVideos] = useState([]);
+    const [selectedPromotionalVideo, setSelectedPromotionalVideo] = useState(null);
+    const [selectedVideoMuted, setSelectedVideoMuted] = useState(true);
+    const [isVideoFullscreen, setIsVideoFullscreen] = useState(false);
+    const selectedVideoElementRef = useRef(null);
+    const selectedVideoContainerRef = useRef(null);
     const [categories, setCategories] = useState(() => {
         try {
             const cached = localStorage.getItem('cached_categories');
@@ -118,6 +130,11 @@ const Home = () => {
     const categoryPositionRef = useRef(0);
     const categoryDirectionRef = useRef(1);
     const categoryDragRef = useRef({ active: false, startX: 0, startPosition: 0 });
+    const videoScrollRef = useRef(null);
+    const videoTrackRef = useRef(null);
+    const videoPositionRef = useRef(0);
+    const videoDirectionRef = useRef(1);
+    const videoTouchStartRef = useRef(null);
     const categoryDragTargetRef = useRef(0);
     const [isDesktopView, setIsDesktopView] = useState(window.innerWidth >= 768);
 
@@ -316,12 +333,165 @@ const Home = () => {
             setLoading(false);
         });
 
+        const unsubPromotionalVideos = onSnapshot(collection(db, 'promotional_videos'), (snapshot) => {
+            const active = snapshot.docs.map(item => ({ id: item.id, ...item.data() }))
+                .filter(video => video.active !== false)
+                .sort((a, b) => {
+                    const aTime = a.createdAt?.seconds || a.createdAt?._seconds || 0;
+                    const bTime = b.createdAt?.seconds || b.createdAt?._seconds || 0;
+                    if (aTime && bTime && aTime !== bTime) return aTime - bTime;
+                    return Number(a.order ?? 0) - Number(b.order ?? 0);
+                });
+            setPromotionalVideos(active.filter(video => video.active !== false));
+        }, err => console.error('Error fetching promotional videos:', err));
+
         return () => {
             unsubscribeStatus();
             unsubCategories();
             unsubProducts();
+            unsubPromotionalVideos();
         };
     }, []);
+
+    useEffect(() => {
+        const viewport = videoScrollRef.current;
+        const track = videoTrackRef.current;
+        if (!viewport || !track || promotionalVideos.length <= 1) return undefined;
+        let frameId;
+        let lastTime = performance.now();
+        const speed = 22;
+        const motionStartAt = performance.now() + 900;
+        const entryOffset = 0;
+        const getDistance = () => Math.max(0, track.scrollWidth - viewport.clientWidth);
+        // Begin slightly outside the right edge, then let cards enter naturally.
+        const initialDistance = 0;
+        videoPositionRef.current = initialDistance;
+        videoDirectionRef.current = 1;
+        track.style.transform = `translate3d(${entryOffset - initialDistance}px, 0, 0)`;
+        const tick = (now) => {
+            if (now < motionStartAt) {
+                frameId = requestAnimationFrame(tick);
+                return;
+            }
+            const delta = Math.min((now - lastTime) / 1000, 0.05);
+            lastTime = now;
+            const distance = getDistance() + entryOffset;
+            if (distance > 0) {
+                let position = videoPositionRef.current + videoDirectionRef.current * speed * delta;
+                if (position >= distance) {
+                    position = distance;
+                    videoDirectionRef.current = -1;
+                } else if (position <= 0) {
+                    position = 0;
+                    videoDirectionRef.current = 1;
+                }
+                videoPositionRef.current = position;
+                track.style.transform = `translate3d(${entryOffset - position}px, 0, 0)`;
+            }
+            frameId = requestAnimationFrame(tick);
+        };
+        frameId = requestAnimationFrame(tick);
+        const resizeObserver = new ResizeObserver(() => {
+            const distance = getDistance() + entryOffset;
+            videoPositionRef.current = Math.min(videoPositionRef.current, distance);
+            track.style.transform = `translate3d(${entryOffset - videoPositionRef.current}px, 0, 0)`;
+        });
+        resizeObserver.observe(viewport);
+        resizeObserver.observe(track);
+        return () => {
+            cancelAnimationFrame(frameId);
+            resizeObserver.disconnect();
+            track.style.transform = '';
+            videoPositionRef.current = 0;
+        };
+    }, [promotionalVideos.length]);
+
+    useEffect(() => {
+        if (!promotionalVideos.length || selectedPromotionalVideo) return undefined;
+        const keepVideosPlaying = () => {
+            document.querySelectorAll('.promotional-video-external').forEach((video) => {
+                video.muted = true;
+                video.defaultMuted = true;
+                if (video.paused && !video.ended) video.play().catch(() => {});
+            });
+        };
+        keepVideosPlaying();
+        const timer = window.setInterval(keepVideosPlaying, 1200);
+        return () => window.clearInterval(timer);
+    }, [promotionalVideos.length, selectedPromotionalVideo]);
+
+    useEffect(() => {
+        window.dispatchEvent(new CustomEvent('milano-video-preview', { detail: { open: Boolean(selectedPromotionalVideo) } }));
+        return () => window.dispatchEvent(new CustomEvent('milano-video-preview', { detail: { open: false } }));
+    }, [selectedPromotionalVideo]);
+
+    useEffect(() => {
+        if (!selectedPromotionalVideo) return undefined;
+        document.querySelectorAll('.promotional-video-external').forEach(video => video.pause());
+        const timer = window.setTimeout(() => selectedVideoElementRef.current?.play().catch(() => {}), 80);
+        return () => window.clearTimeout(timer);
+    }, [selectedPromotionalVideo, selectedVideoMuted]);
+
+    useEffect(() => {
+        const handleFullscreenChange = () => setIsVideoFullscreen(Boolean(document.fullscreenElement));
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, []);
+
+    useEffect(() => {
+        document.body.style.overflow = isVideoFullscreen ? 'hidden' : '';
+        return () => { document.body.style.overflow = ''; };
+    }, [isVideoFullscreen]);
+
+    const toggleVideoFullscreen = async () => {
+        const isTouchDevice = navigator.maxTouchPoints > 0 || window.matchMedia('(pointer: coarse)').matches;
+        const isMobile = isTouchDevice || window.innerWidth <= 767;
+        if (isMobile) {
+            const videoElement = selectedVideoElementRef.current;
+            // Safari on iPhone/iPad exposes the native fullscreen player through this API.
+            if (typeof videoElement?.webkitEnterFullscreen === 'function') {
+                try {
+                    videoElement.muted = selectedVideoMuted;
+                    videoElement.playsInline = false;
+                    videoElement.setAttribute('webkit-playsinline', 'false');
+                    await videoElement.play().catch(() => {});
+                    videoElement.webkitEnterFullscreen();
+                    return;
+                } catch (error) {
+                    console.warn('Native iOS fullscreen unavailable, using in-page fullscreen:', error);
+                }
+            }
+            if (typeof videoElement?.requestFullscreen === 'function') {
+                try {
+                    await videoElement.requestFullscreen();
+                    return;
+                } catch (error) {
+                    console.warn('Touch fullscreen unavailable, using in-page fullscreen:', error);
+                }
+            }
+            setIsVideoFullscreen(true);
+            return;
+        }
+
+        if (document.fullscreenElement) {
+            try { await document.exitFullscreen(); } catch (error) { console.warn('Unable to exit fullscreen:', error); }
+            setIsVideoFullscreen(false);
+            return;
+        }
+
+        const videoContainer = selectedVideoContainerRef.current;
+        try {
+            if (videoContainer?.requestFullscreen) {
+                await videoContainer.requestFullscreen();
+            } else {
+                setIsVideoFullscreen(true);
+            }
+        } catch (error) {
+            // iOS Safari may reject the native API; use the reliable in-page fallback.
+            console.warn('Native fullscreen unavailable, using in-page fullscreen:', error);
+            setIsVideoFullscreen(true);
+        }
+    };
 
     const isClosed = storeStatus === 'closed';
 
@@ -610,7 +780,7 @@ const Home = () => {
             {/* Main Content: Categories & Products */}
             {
                 showProductSections && (
-                    <div className="w-full px-0 space-y-4 md:space-y-6 mt-4 md:mt-6 pt-1">
+                    <div className="w-full px-0 space-y-0 md:space-y-2 mt-2 md:mt-4 pt-1">
                         {categories.map((cat, catIdx) => {
                             const categoryProducts = products.filter(p => {
                                 const matchesCategory = p.category === cat;
@@ -622,7 +792,7 @@ const Home = () => {
                             if (categoryProducts.length === 0 && !loading) return null;
 
                             return (
-                                <section key={catIdx} id={`cat-${cat}`} className="mt-2 md:mt-4">
+                                <section key={catIdx} id={`cat-${cat}`} className="-mt-2 md:-mt-2">
                                     <div className="flex items-center justify-between mb-2 px-3">
                                         <div className="flex items-center gap-2"> {/* Distinct gap */}
                                             <div className="h-4 w-1 bg-[#ce2b37] rounded-full"></div>
@@ -631,7 +801,7 @@ const Home = () => {
                                     </div>
 
 
-                                    <DraggableScrollContainer className="flex gap-1 overflow-x-auto pb-6 pt-2 scrollbar-hide">
+                                    <DraggableScrollContainer className="relative top-1 flex gap-1 overflow-x-auto pb-6 pt-5 scrollbar-hide">
                                         {loading ? (
                                             [1, 2, 3, 4].map(i => (
                                                 <div key={i} className="min-w-[200px] md:min-w-[260px] snap-start aspect-[4/5] bg-zinc-900/50 rounded-3xl animate-pulse" />
@@ -641,7 +811,7 @@ const Home = () => {
                                                 <Link
                                                     to={`/product/${product.id}`}
                                                     key={product.id}
-                                                    className={`w-[170px] md:w-[240px] shrink-0 relative flex flex-col justify-between h-full bg-white dark:bg-[#0f1114] rounded-[24px] md:rounded-[32px] border-2 border-gray-100 dark:border-white/10 group transition-transform duration-300 hover:scale-[1.02] shadow-md dark:shadow-none Select-none`}
+                                                    className={`w-[180px] md:w-[250px] shrink-0 relative flex flex-col justify-between h-full bg-white dark:bg-[#0f1114] rounded-[24px] md:rounded-[32px] border-2 border-gray-100 dark:border-white/10 group transition-transform duration-300 hover:scale-[1.02] shadow-md dark:shadow-none Select-none`}
                                                     draggable="false"
                                                     onDragStart={(e) => e.preventDefault()}
                                                 >
@@ -699,6 +869,40 @@ const Home = () => {
                 </div>
             )
         }
+
+        {promotionalVideos.length > 0 && (
+            <section className="w-full px-2 md:px-3 mt-4 mb-0 pb-0" dir="rtl">
+                    <div className="relative -top-4 left-2 flex items-center justify-between mb-1 px-2">
+                    <div className="flex items-center gap-2"><div className="h-6 w-1 rounded-full bg-gradient-to-b from-purple-500 to-blue-500" /><h2 className="text-lg md:text-xl font-black text-gray-900 dark:text-white">فيديوهات المتجر</h2></div>
+                    <span className="text-xs md:text-sm font-black text-gray-500 dark:text-gray-300">إعلانات ميلانو</span>
+                </div>
+                <div className="relative -mx-2 w-[calc(100%+1rem)] overflow-hidden rounded-none border-0 bg-transparent px-0 shadow-none md:-mx-3 md:w-[calc(100%+1.5rem)]" style={{ marginLeft: 'auto' }}>
+                    <div ref={videoScrollRef} dir="ltr" onTouchStart={(event) => { document.querySelectorAll('.promotional-video-external').forEach((video) => { video.muted = true; video.play().catch(() => {}); }); videoTouchStartRef.current = event.touches[0]?.clientX ?? null; }} onPointerDown={() => { document.querySelectorAll('.promotional-video-external').forEach((video) => { video.muted = true; video.play().catch(() => {}); }); }} onTouchEnd={(event) => { const start = videoTouchStartRef.current; const end = event.changedTouches[0]?.clientX; videoTouchStartRef.current = null; if (start == null || end == null || Math.abs(end - start) < 24) return; videoDirectionRef.current = end > start ? -1 : 1; }} className="relative w-full overflow-hidden py-0">
+                        <div ref={videoTrackRef} className="promotional-video-track ml-auto flex w-max gap-2 md:gap-3 will-change-transform">
+                        {[...promotionalVideos].reverse().map((video, index) => (
+                            <div data-promotional-card key={video.id} onClick={() => { setSelectedPromotionalVideo(video); setSelectedVideoMuted(false); setIsVideoFullscreen(false); }} className="relative shrink-0 w-[190px] min-w-[190px] md:w-[250px] md:min-w-[250px] lg:w-[270px] lg:min-w-[270px] aspect-[9/14] snap-center overflow-hidden rounded-[20px] bg-transparent shadow-md ring-1 ring-black/10 dark:ring-white/10 cursor-pointer">
+                                <video ref={(node) => { if (node) { node.muted = true; node.defaultMuted = true; node.controls = false; node.setAttribute('playsinline', ''); node.setAttribute('webkit-playsinline', ''); node.play().catch(() => {}); } }} src={optimizeVideoUrl(video.url)} muted autoPlay loop playsInline controls={false} controlsList="nodownload noplaybackrate" disablePictureInPicture disableRemotePlayback preload="auto" onCanPlay={(event) => event.currentTarget.play().catch(() => {})} onLoadedData={(event) => event.currentTarget.play().catch(() => {})} onPause={(event) => { if (!event.currentTarget.ended) event.currentTarget.play().catch(() => {}); }} onEnded={(event) => { event.currentTarget.currentTime = 0; event.currentTarget.play().catch(() => {}); }} className="promotional-video-external w-full h-full object-cover rounded-[20px]" aria-label={video.title || `فيديو المتجر ${index + 1}`} />
+                                <button type="button" aria-label="الفيديو صامت" onClick={(event) => { event.stopPropagation(); setSelectedPromotionalVideo(video); setSelectedVideoMuted(false); setIsVideoFullscreen(false); }} className="absolute left-1.5 bottom-3 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm"><VolumeX size={14} strokeWidth={2.5} /></button>
+                            </div>
+                        ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+        )}
+
+        {selectedPromotionalVideo && (
+            <div className={`fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm ${isVideoFullscreen ? 'p-0' : 'p-3 md:p-6'}`} onClick={() => { setSelectedPromotionalVideo(null); setIsVideoFullscreen(false); }} dir="rtl">
+                <div ref={selectedVideoContainerRef} style={isVideoFullscreen ? { height: '100dvh', minHeight: '100vh', width: '100vw', maxWidth: 'none', borderRadius: 0 } : undefined} className={`relative overflow-hidden bg-transparent shadow-2xl ring-1 ring-white/20 ${isVideoFullscreen ? 'h-[100dvh] min-h-screen w-screen rounded-none' : 'h-[min(86vh,720px)] w-[min(92vw,460px)] rounded-[24px]'}`} onClick={(event) => event.stopPropagation()}>
+                        <video ref={selectedVideoElementRef} src={optimizeVideoUrl(selectedPromotionalVideo.url)} autoPlay loop playsInline preload="auto" muted={selectedVideoMuted} onLoadedData={(event) => event.currentTarget.play().catch(() => {})} onCanPlay={(event) => event.currentTarget.play().catch(() => {})} onWebkitEndFullscreen={(event) => { event.currentTarget.playsInline = true; event.currentTarget.setAttribute('webkit-playsinline', ''); setIsVideoFullscreen(false); }} className="h-full w-full object-contain will-change-transform" />
+                    <div dir="ltr" className="absolute right-3 top-3 flex items-center gap-1.5">
+                        <button type="button" onClick={() => { const index = promotionalVideos.findIndex(video => video.id === selectedPromotionalVideo.id); const next = promotionalVideos[(index - 1 + promotionalVideos.length) % promotionalVideos.length]; setSelectedPromotionalVideo(next); setSelectedVideoMuted(false); }} className="flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm"><ArrowLeftRight size={17} /></button>
+                        <button type="button" aria-label="تكبير الفيديو" onClick={toggleVideoFullscreen} className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm"><Maximize2 size={17} /></button>
+                        <button type="button" onClick={() => { setSelectedPromotionalVideo(null); setIsVideoFullscreen(false); }} className="flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm"><X size={20} /></button>
+                    </div>
+                </div>
+            </div>
+        )}
 
 
 
