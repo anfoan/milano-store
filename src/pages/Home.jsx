@@ -55,7 +55,7 @@ const optimizeImageUrl = (url, width) => {
 const optimizeVideoUrl = (url) => {
     if (!url || typeof url !== 'string') return url;
     if (!url.includes('res.cloudinary.com') || !url.includes('/upload/')) return url;
-    return url.replace('/upload/', '/upload/f_auto,q_auto:good,vc_auto,h_720,c_limit/');
+    return url.replace('/upload/', '/upload/q_90,vc_auto,h_720,c_limit/');
 };
 
 const Home = () => {
