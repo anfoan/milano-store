@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { Check, Clock3, Copy, FileText, MapPin, Package, Printer, Search, Truck, X } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { db } from '../lib/firebase';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -27,6 +29,7 @@ const UserProfile = () => {
     const [queryText, setQueryText] = useState('');
     const [copied, setCopied] = useState('');
     const [printOrder, setPrintOrder] = useState(null);
+    const [downloadingInvoice, setDownloadingInvoice] = useState(false);
 
     useEffect(() => {
         const walletId = getCustomerWalletId();
@@ -116,6 +119,63 @@ const UserProfile = () => {
         setTimeout(() => setCopied(''), 1600);
     };
 
+    const downloadInvoicePdf = async () => {
+        if (downloadingInvoice) return;
+        const element = document.querySelector('[data-customer-invoice-preview] .invoice-preview-page');
+        if (!element) return;
+        setDownloadingInvoice(true);
+        const parent = element.parentElement;
+        const original = {
+            display: parent.style.display,
+            position: parent.style.position,
+            visibility: parent.style.visibility,
+            top: parent.style.top,
+            left: parent.style.left,
+            zIndex: parent.style.zIndex,
+            pointerEvents: parent.style.pointerEvents,
+        };
+        try {
+            await document.fonts.ready;
+            parent.style.display = 'block';
+            parent.style.position = 'fixed';
+            parent.style.visibility = 'visible';
+            parent.style.top = '0';
+            parent.style.left = '0';
+            parent.style.zIndex = '-9999';
+            parent.style.pointerEvents = 'none';
+            const canvas = await html2canvas(element, {
+                scale: 2.5,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                onclone: clonedDocument => {
+                    const clonedPage = clonedDocument.querySelector('.invoice-preview-page');
+                    if (clonedPage) {
+                        clonedPage.style.width = '794px';
+                        clonedPage.style.maxWidth = '794px';
+                        clonedPage.style.margin = '0 auto';
+                    }
+                },
+            });
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const imageHeight = (canvas.height * pageWidth) / canvas.width;
+            const scale = Math.min(1, (pageHeight - 8) / imageHeight);
+            const width = pageWidth * scale;
+            const height = imageHeight * scale;
+            pdf.addImage(canvas.toDataURL('image/png', 1), 'PNG', (pageWidth - width) / 2, 4, width, height, '', 'FAST');
+            pdf.save(`Milano-Invoice-${String(printOrder?.orderId || printOrder?.id || 'Order').replace('#', '')}.pdf`);
+        } catch (error) {
+            console.error('Invoice PDF download failed:', error);
+            alert('حدث خطأ أثناء تنزيل الفاتورة، يرجى المحاولة مرة أخرى.');
+        } finally {
+            Object.entries(original).forEach(([key, value]) => { parent.style[key] = value; });
+            setDownloadingInvoice(false);
+        }
+    };
+
     const timeline = [
         { key: 'new', label: 'قيد المراجعة', Icon: Clock3, tone: 'border-orange-400 bg-orange-100 text-orange-600 dark:bg-orange-400/15 dark:text-orange-300' },
         { key: 'processing', label: 'قيد التجهيز', Icon: Package, tone: 'border-violet-400 bg-violet-100 text-violet-600 dark:bg-violet-400/15 dark:text-violet-300' },
@@ -125,8 +185,8 @@ const UserProfile = () => {
 
     return (
         <div className="min-h-screen bg-[#f6f7f8] px-3 py-5 font-['Cairo'] text-slate-900 dark:bg-[#0d1017] dark:text-white md:px-5" dir={direction}>
-            {printOrder && <div className="fixed inset-0 z-[100] overflow-y-auto bg-slate-100 p-3 dark:bg-[#0d1017]"><div className="mx-auto min-h-full max-w-5xl"><InvoiceTemplate orders={[printOrder]} lang={language} generalSettings={generalSettings} onClose={() => setPrintOrder(null)} /></div></div>}
-            <main className="mx-auto w-full max-w-2xl rounded-[26px] border border-slate-200 bg-white shadow-xl dark:border-white/10 dark:bg-[#171b26]">
+            {printOrder && <div className="fixed inset-0 z-[100] overflow-y-auto bg-slate-100 p-4 sm:p-6 md:p-8 dark:bg-[#0d1017]"><div data-customer-invoice-preview className="mx-auto min-h-full w-full max-w-4xl"><InvoiceTemplate orders={[printOrder]} lang={language} generalSettings={generalSettings} onClose={() => setPrintOrder(null)} onDownload={downloadInvoicePdf} /></div></div>}
+            <main className={printOrder ? 'hidden' : 'mx-auto w-full max-w-2xl rounded-[26px] border border-slate-200 bg-white shadow-xl dark:border-white/10 dark:bg-[#171b26]'}>
                 <header className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 dark:border-white/10 md:px-6"><button onClick={() => navigate(-1)} className="flex h-8 w-8 items-center justify-center rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-400/10"><X size={18}/></button><div className="flex flex-1 items-center justify-end gap-2 text-right"><div className="flex-1 text-right"><h1 className="text-base font-black md:text-lg">طلباتك وفواتيرك السابقة</h1><p className="text-[10px] font-bold text-slate-400"><span className="block">استعرض تفاصيل فواتيرك لتتبع شحناتك.</span><span className="block">واربح مكافآت عند اكتمال طلباتك.</span><span className="block">لن تظهر فواتيرك الجديدة والسابقة إلا عند تسجيل.</span></p></div><div className="rounded-full bg-violet-100 px-2.5 py-1 text-[10px] font-black text-violet-700 dark:bg-violet-400/15 dark:text-violet-200">{orders.length} فواتير</div><Package size={20} className="text-emerald-500"/></div></header>
                 <div className="border-b border-slate-100 px-4 py-3 dark:border-white/10 md:px-6"><div className="relative"><Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"/><input value={queryText} onChange={event => setQueryText(event.target.value)} placeholder="ابحث برقم الفاتورة، كود التتبع أو رقم الهاتف..." className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pr-9 pl-3 text-right text-[10px] font-bold outline-none focus:border-emerald-400 dark:border-white/10 dark:bg-white/5"/></div></div>
                 <section className="max-h-[72vh] space-y-3 overflow-y-auto p-3 md:p-5">{filteredOrders.length === 0 ? <div className="py-14 text-center text-sm font-bold text-slate-400">لا توجد فواتير مطابقة على هذا الجهاز يرجى تسجيل رقم هاتفك وكلمة المرور داخل المحفظة.</div> : filteredOrders.map(order => {
