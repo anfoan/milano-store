@@ -453,8 +453,11 @@ const Home = () => {
                 try {
                     videoElement.muted = selectedVideoMuted;
                     videoElement.playsInline = false;
-                    videoElement.setAttribute('webkit-playsinline', 'false');
-                    await videoElement.play().catch(() => {});
+                    videoElement.removeAttribute('playsinline');
+                    videoElement.removeAttribute('webkit-playsinline');
+                    // Do not await play(): Safari requires the fullscreen call to remain
+                    // inside the original button gesture/user-activation event.
+                    videoElement.play().catch(() => {});
                     videoElement.webkitEnterFullscreen();
                     return;
                 } catch (error) {
