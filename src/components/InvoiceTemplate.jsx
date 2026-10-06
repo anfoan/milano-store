@@ -47,7 +47,7 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                 <div className="flex justify-center px-1 pb-20 sm:px-2 print:p-0 print:block">
                 <div ref={ref} className="print-container w-full max-w-[210mm]">
                     <style type="text/css" media="screen">
-                        {`.invoice-preview-page { width: min(170mm, calc(100vw - 2rem)) !important; max-width: min(170mm, calc(100vw - 2rem)) !important; min-height: 0 !important; height: auto !important; aspect-ratio: auto !important; box-sizing: border-box; overflow: visible !important; } .invoice-preview-page table col:nth-child(1) { width: 39% !important; } .invoice-preview-page table col:nth-child(2) { width: 11% !important; } .invoice-preview-page table col:nth-child(3) { width: 22% !important; } .invoice-preview-page table col:nth-child(4) { width: 9% !important; } .invoice-preview-page table col:nth-child(5) { width: 19% !important; } .invoice-preview-page table th { white-space: nowrap !important; } @media (max-width: 639px) { .invoice-preview-page { width: calc(100vw - 2rem) !important; max-width: calc(100vw - 2rem) !important; } .invoice-preview-page table { font-size: 9px; } }`}
+                        {`.invoice-preview-page { width: min(170mm, calc(100vw - 2rem)) !important; max-width: min(170mm, calc(100vw - 2rem)) !important; min-height: 0 !important; height: auto !important; aspect-ratio: auto !important; box-sizing: border-box; overflow: visible !important; } .invoice-preview-page table col:nth-child(1) { width: 43% !important; } .invoice-preview-page table col:nth-child(2) { width: 10% !important; } .invoice-preview-page table col:nth-child(3) { width: 20% !important; } .invoice-preview-page table col:nth-child(4) { width: 9% !important; } .invoice-preview-page table col:nth-child(5) { width: 18% !important; } .invoice-preview-page table th { white-space: nowrap !important; font-size: 11px !important; } .invoice-preview-page table td { font-size: 11px !important; line-height: 1.25 !important; } @media (max-width: 639px) { .invoice-preview-page { width: calc(100vw - 2rem) !important; max-width: calc(100vw - 2rem) !important; } .invoice-preview-page table { font-size: 9px; } .invoice-preview-page table th { font-size: 9px !important; } .invoice-preview-page table td { font-size: 9px !important; } }`}
                     </style>
                     <style type="text/css" media="print">
                         {`
@@ -106,35 +106,35 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                             <div className="mb-5 bg-gray-50 rounded-lg p-4 border border-gray-400 print:bg-gray-50 print:border-gray-400">
                                 <h3 className={`font-black text-lg text-gray-800 border-b border-gray-400 pb-3 mb-4 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'بيانات العميل' : 'Customer Details'}</h3>
                                     <div className={`grid grid-cols-2 gap-y-3 gap-x-4 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
-                                    <div className="flex min-w-0 items-center justify-between gap-1 whitespace-nowrap">
+                                    <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
                                         <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'اسم المشتري:' : 'Name:'}</span>
-                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-xs sm:text-sm text-[#111317] leading-none">{order.formData?.name || '---'}</span>
+                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-sm text-[#111317] leading-none">{order.formData?.name || '---'}</span>
                                     </div>
-                                    <div className="flex min-w-0 items-center justify-between gap-1 whitespace-nowrap">
+                                    <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
                                         <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'الدولة:' : 'Country:'}</span>
-                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-xs sm:text-sm text-[#111317] leading-none">
+                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-sm text-[#111317] leading-none">
                                             {order.formData?.country === 'Yemen' && lang === 'ar' ? 'اليمن' : (order.formData?.country || 'Yemen')}
                                         </span>
                                     </div>
 
                                     {/* Row 2: Address - Country */}
-                                    <div className="flex min-w-0 items-center justify-between gap-1 whitespace-nowrap">
+                                    <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
                                         <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'العنوان:' : 'Address:'}</span>
-                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-xs sm:text-sm text-[#111317] leading-none">{order.formData?.address || '---'}</span>
+                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-sm text-[#111317] leading-none">{order.formData?.address || '---'}</span>
                                     </div>
-                                    <div className="flex min-w-0 items-center justify-between gap-1 whitespace-nowrap">
+                                    <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
                                         <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'رقم الهاتف:' : 'Phone:'}</span>
-                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-xs sm:text-sm text-[#111317] leading-none">{order.formData?.phone || '---'}</span>
+                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-sm text-[#111317] leading-none">{order.formData?.phone || '---'}</span>
                                     </div>
 
                                     {/* Row 3: City - Payment Method */}
-                                    <div className="flex min-w-0 items-center justify-between gap-1 whitespace-nowrap">
+                                    <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
                                         <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'المدينة:' : 'City:'}</span>
-                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-xs sm:text-sm text-[#111317] leading-none">{order.formData?.city || order.formData?.governorate || '---'}</span>
+                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-sm text-[#111317] leading-none">{order.formData?.city || order.formData?.governorate || '---'}</span>
                                     </div>
-                                    <div className="flex min-w-0 items-center justify-between gap-1 whitespace-nowrap">
+                                    <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
                                         <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'طريقة الدفع:' : 'Payment Method:'}</span>
-                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-xs sm:text-sm text-[#111317] leading-none">
+                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-sm text-[#111317] leading-none">
                                             {(() => {
                                                 const method = order.paymentMethod || order.formData?.paymentMethod;
                                                 if (method === 'whatsapp') return (lang === 'ar' ? 'واتساب' : 'WhatsApp');
@@ -151,10 +151,10 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                                 <h3 className={`font-black text-lg sm:text-xl mb-3 text-gray-800 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'تفاصيل الفاتورة' : 'Invoice Details'}</h3>
                                 <table className={`w-full table-fixed ${lang === 'ar' ? 'text-right' : 'text-left'} border-collapse border border-gray-400`} style={{ tableLayout: 'fixed' }}>
                                     <colgroup>
-                                        <col style={{ width: '48%' }} />
+                                        <col style={{ width: '43%' }} />
+                                        <col style={{ width: '10%' }} />
+                                        <col style={{ width: '20%' }} />
                                         <col style={{ width: '9%' }} />
-                                        <col style={{ width: '17%' }} />
-                                        <col style={{ width: '8%' }} />
                                         <col style={{ width: '18%' }} />
                                     </colgroup>
                                     <thead style={{ backgroundColor: '#111317', color: '#ffffff' }} className="bg-[#111317] text-white print:bg-[#111317] print:text-white">
