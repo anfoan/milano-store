@@ -202,10 +202,13 @@ const UserProfile = () => {
                 },
             });
             const pdf = new jsPDF('p', 'mm', 'a4');
+            const desktopPdf = window.innerWidth >= 1025;
+            if (desktopPdf) {
+                pdf.setDisplayMode(0.5, 'continuous', 'UseThumbs');
+            }
             const pageWidth = pdf.internal.pageSize.getWidth();
             const pageHeight = pdf.internal.pageSize.getHeight();
             const imageHeight = (canvas.height * pageWidth) / canvas.width;
-            const desktopPdf = window.innerWidth >= 1025;
             const verticalMargin = desktopPdf ? 8 : 4;
             const scale = Math.min(1, (pageHeight - (verticalMargin * 2)) / imageHeight);
             const width = pageWidth * scale;
