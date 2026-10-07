@@ -53,7 +53,7 @@ const AdminDashboard = () => {
 
     // Worker Check
     const isWorker = sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true'
-        && String(auth.currentUser?.email || '').toLowerCase() !== 'afoan7370@gmail.com';
+        && !new Set(['anfoan730@gmail.com', 'afoan7370@gmail.com']).has(String(auth.currentUser?.email || '').toLowerCase());
     const workerPerms = isWorker ? JSON.parse(sessionStorage.getItem('posWorkerPermissions') || '{}') : {};
 
     // Define allowed tabs for workers

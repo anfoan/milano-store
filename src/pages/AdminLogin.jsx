@@ -67,8 +67,20 @@ const AdminLogin = () => {
                 }
             } else {
                 // === ADMIN LOGIN (Firebase Auth) ===
-                const adminEmail = isOwnerUsername(input) ? 'afoan7370@gmail.com' : input;
-                const userCredential = await signInWithEmailAndPassword(auth, adminEmail, password);
+                const adminEmails = isOwnerUsername(input)
+                    ? ['anfoan730@gmail.com', 'afoan7370@gmail.com']
+                    : [input];
+                let userCredential;
+                let lastLoginError;
+                for (const adminEmail of adminEmails) {
+                    try {
+                        userCredential = await signInWithEmailAndPassword(auth, adminEmail, password);
+                        break;
+                    } catch (loginErr) {
+                        lastLoginError = loginErr;
+                    }
+                }
+                if (!userCredential) throw lastLoginError;
 
                 // Log Session
                 try {
