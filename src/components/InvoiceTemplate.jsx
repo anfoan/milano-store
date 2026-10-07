@@ -75,6 +75,10 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                         .print-page tr { page-break-inside: avoid !important; break-inside: avoid !important; }
                         .print-page th, .print-page td { overflow: visible !important; vertical-align: middle !important; }
                         .print-page .bg-gray-50 span { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; overflow-wrap: anywhere !important; line-height: 1.35 !important; }
+                        .print-page [data-invoice-customer-card] > div { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; column-gap: 10mm !important; row-gap: 4mm !important; }
+                        .print-page [data-invoice-customer-card] > div > div { display: flex !important; min-width: 0 !important; align-items: baseline !important; flex-wrap: nowrap !important; gap: 3mm !important; white-space: nowrap !important; overflow: visible !important; }
+                        .print-page [data-invoice-customer-card] > div > div > span:first-child { flex: 0 0 auto !important; font-size: 10px !important; white-space: nowrap !important; }
+                        .print-page [data-invoice-customer-card] > div > div > span:last-child { flex: 0 1 auto !important; min-width: 0 !important; font-size: 12px !important; white-space: nowrap !important; overflow: visible !important; text-overflow: clip !important; overflow-wrap: normal !important; }
                         .print-page img { max-width: 100% !important; }
                         .print-page:last-child { page-break-after: auto !important; }
                         * { box-sizing: border-box; }
