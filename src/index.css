@@ -112,6 +112,11 @@
     line-height: 1.35 !important;
   }
 
+  .invoice-preview-page [data-invoice-customer-card] > div > div > span:last-child {
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+  }
+
   .invoice-preview-page [data-invoice-product-title] {
     display: block !important;
     min-width: 0 !important;
