@@ -121,7 +121,7 @@
   .invoice-preview-page [data-invoice-customer-card] > div > div:nth-child(2) > span:last-child,
   .invoice-preview-page [data-invoice-customer-card] > div > div:nth-child(5) > span:last-child,
   .invoice-preview-page [data-invoice-customer-card] > div > div:nth-child(6) > span:last-child {
-    transform: translateY(-4px) !important;
+    transform: translateY(0) !important;
   }
 
   .invoice-preview-page [data-invoice-product-title] {
@@ -144,7 +144,7 @@
   .invoice-preview-page table td { padding: 6px 2px !important; font-size: 8px !important; }
   .invoice-preview-page table th:nth-child(n+2),
   .invoice-preview-page table td:nth-child(n+2) {
-    transform: translateX(8px) !important;
+    transform: none !important;
   }
   .invoice-preview-page table td:first-child > div { gap: 3px !important; }
   .invoice-preview-page table td:first-child img { width: 34px !important; height: 34px !important; border-radius: 6px !important; }
