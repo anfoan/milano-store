@@ -12,19 +12,20 @@ import { useSettings } from '../hooks/useSettings';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
-import { getCustomerWalletId, walletNumber } from '../lib/wallet';
+import { getCustomerWalletId } from '../lib/wallet';
 
 const Navbar = () => {
     const { theme } = useTheme();
     const { t, language, direction } = useLanguage();
     const { generalSettings, imageSettings, interfaceSettings } = useSettings();
-    const { activeCurrency, toggleCurrency, currencySymbol, formatPrice } = useCurrency();
+    const { activeCurrency, toggleCurrency, currencySymbol, convertPrice } = useCurrency();
     const currency = currencySymbol;
     const [isOpen, setIsOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [cartCount, setCartCount] = useState(0);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
+    const [walletDisplayCurrency, setWalletDisplayCurrency] = useState(activeCurrency);
     const cartRef = useRef(null);
     const currencyRef = useRef(null);
     const [categories, setCategories] = useState([]);
@@ -46,6 +47,10 @@ const Navbar = () => {
         setIsSearchOpen(false);
         setIsCartOpen(false);
     }, [location]);
+
+    useEffect(() => {
+        setWalletDisplayCurrency(activeCurrency);
+    }, [activeCurrency]);
 
     // Fetch categories from Firestore
     useEffect(() => {
@@ -217,7 +222,7 @@ const Navbar = () => {
                                 aria-label="محفظة المتجر"
                             >
                                 <Wallet className="h-4 w-4 shrink-0" strokeWidth={2.4}/>
-                                <span dir="ltr" className="font-sans text-[11px] font-black tabular-nums md:text-xs">$ {walletNumber(walletBalance)}</span>
+                                <span dir="ltr" className="font-sans text-[11px] font-black tabular-nums md:text-xs">$ {Math.round(convertPrice(walletBalance, walletDisplayCurrency)).toLocaleString('en-US')}</span>
                             </Link>}
                             {/* Search (Restored Frame + Centered) */}
                             <div className="flex -translate-x-1 flex-col items-center gap-1 translate-y-[5px] md:-translate-x-1.5">
@@ -473,13 +478,13 @@ const Navbar = () => {
                                 >
                                     <div className="flex flex-col gap-1">
                                         <button 
-                                            onClick={() => { toggleCurrency('YER'); setIsCurrencyOpen(false); }}
+                                            onClick={() => { toggleCurrency('YER'); setWalletDisplayCurrency('YER'); setIsCurrencyOpen(false); }}
                                             className={`p-2 rounded-xl text-xs font-black transition-all ${activeCurrency === 'YER' ? 'bg-blue-600 text-white' : 'hover:bg-gray-100 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300'}`}
                                         >
                                             ريال يمني
                                         </button>
                                         <button 
-                                            onClick={() => { toggleCurrency('SAR'); setIsCurrencyOpen(false); }}
+                                            onClick={() => { toggleCurrency('SAR'); setWalletDisplayCurrency('SAR'); setIsCurrencyOpen(false); }}
                                             className={`p-2 rounded-xl text-xs font-black transition-all ${activeCurrency === 'SAR' ? 'bg-blue-600 text-white' : 'hover:bg-gray-100 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300'}`}
                                         >
                                             ريال سعودي

@@ -3,12 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Gift, KeyRound, Landmark, Power, ShieldCheck, Wallet, X } from 'lucide-react';
 import { doc, getDoc, onSnapshot, runTransaction, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { clearCustomerPhoneWalletId, getCustomerWalletId, getPhoneWalletId, hashWalletPin, isValidWalletPin, normalizePhone, setCustomerPhoneWalletId, walletNumber } from '../lib/wallet';
+import { clearCustomerPhoneWalletId, getCustomerWalletId, getPhoneWalletId, hashWalletPin, isValidWalletPin, normalizePhone, setCustomerPhoneWalletId } from '../lib/wallet';
 import { useLanguage } from '../context/LanguageContext';
+import { useCurrency } from '../context/CurrencyContext';
 import { useSettings } from '../hooks/useSettings';
 
 const CustomerWallet = () => {
     const { direction } = useLanguage();
+    const { activeCurrency, convertPrice } = useCurrency();
     const { generalSettings } = useSettings();
     const navigate = useNavigate();
     const [walletId, setWalletId] = useState(() => getCustomerWalletId());
@@ -27,11 +29,17 @@ const CustomerWallet = () => {
     const [saving, setSaving] = useState(false);
     const [notice, setNotice] = useState('');
     const [noticeTone, setNoticeTone] = useState('success');
-    const storeName = generalSettings?.storeName?.trim() || 'ميلانو';
+    const storeName = String(generalSettings?.storeName || '').trim() || 'ميلانو';
 
     useEffect(() => {
         setLoading(true);
-        const walletRef = doc(db, 'customer_wallets', walletId);
+        const safeWalletId = String(walletId || '').trim() || getCustomerWalletId();
+        if (!safeWalletId) {
+            setWallet(null);
+            setLoading(false);
+            return undefined;
+        }
+        const walletRef = doc(db, 'customer_wallets', safeWalletId);
         const configRef = doc(db, 'settings', 'wallet');
         const stopWallet = onSnapshot(walletRef, snapshot => {
             setWallet(snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null);
@@ -157,8 +165,10 @@ const CustomerWallet = () => {
         navigate(-1);
     };
 
-    const walletSessionOpen = walletId.startsWith('phone-');
+    const walletSessionOpen = String(walletId || '').startsWith('phone-');
     const balance = Number(wallet?.balance || 0);
+    const displayedBalance = Math.round(convertPrice(balance, activeCurrency)).toLocaleString('en-US');
+    const displayedCurrency = activeCurrency === 'SAR' ? 'ريال سعودي' : 'ريال يمني';
     const noticeView = notice && <div className={`rounded-xl border px-3 py-2 text-center text-[10px] font-bold ${noticeTone === 'error' ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200' : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200'}`}>{notice}</div>;
 
     if (walletSettingsLoaded && walletSettings.enabled === false) return null;
@@ -177,7 +187,7 @@ const CustomerWallet = () => {
                 <div className="flex items-start gap-2 text-right"><div className="rounded-lg bg-emerald-50 p-2 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300"><KeyRound size={17}/></div><div className="flex-1"><h2 className="text-sm font-black">ربط وتأمين المحفظة برقم هاتفك</h2><p className="mt-1 text-[10px] font-bold leading-5 text-slate-500 dark:text-slate-300">عيّن رمزًا سريًا من 4 إلى 6 أرقام. لن يُسمح باستخدام رصيدك عند الشراء إلا بعد إدخال الرمز السري.</p></div></div><form onSubmit={configureWallet} className="mt-4"><input value={registrationPhone} onChange={event => setRegistrationPhone(event.target.value)} type="tel" inputMode="tel" placeholder="رقم الهاتف" className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-right text-sm font-bold outline-none placeholder:text-slate-400 focus:border-emerald-400 dark:border-white/10 dark:bg-white/5" required/><div className="mt-3 grid grid-cols-2 gap-2"><input value={pin} onChange={event => setPin(event.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" type="password" placeholder="الرمز السري" className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-center font-mono text-sm font-black outline-none placeholder:font-['Cairo'] placeholder:text-slate-400 focus:border-emerald-400 dark:border-white/10 dark:bg-white/5" required/><input value={confirmPin} onChange={event => setConfirmPin(event.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" type="password" placeholder="تأكيد الرمز" className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-center font-mono text-sm font-black outline-none placeholder:font-['Cairo'] placeholder:text-slate-400 focus:border-emerald-400 dark:border-white/10 dark:bg-white/5" required/></div><div className="mt-3 flex items-center gap-3"><button disabled={saving || !walletSettingsLoaded} type="submit" className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-black text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-600 disabled:opacity-60">{saving ? 'جاري الحفظ...' : !walletSettingsLoaded ? 'جاري تحميل المحفظة...' : 'تأكيد'}</button><button type="button" onClick={() => setScreen('login')} className="px-2 text-sm font-black text-slate-500">إلغاء</button></div></form></section>}
 
             {screen === 'wallet' && <>
-                <section className="rounded-[20px] border border-emerald-300 bg-gradient-to-br from-emerald-100 to-emerald-50 p-4 text-center shadow-sm dark:border-emerald-400/40 dark:from-emerald-400/15 dark:to-emerald-400/5"><p className="text-[10px] font-black text-emerald-800 dark:text-emerald-200">رصيد المحفظة الحالي</p><p dir="ltr" className="mt-1 font-mono text-4xl font-black text-emerald-600 dark:text-emerald-300">$ {loading ? '...' : walletNumber(balance)}</p><p className="mt-1 text-[9px] font-bold text-emerald-700/75 dark:text-emerald-200/75">رصيد نقدي متاح لك في المتجر</p></section>
+                <section className="rounded-[20px] border border-emerald-300 bg-gradient-to-br from-emerald-100 to-emerald-50 p-4 text-center shadow-sm dark:border-emerald-400/40 dark:from-emerald-400/15 dark:to-emerald-400/5"><p className="text-[10px] font-black text-emerald-800 dark:text-emerald-200">رصيد المحفظة الحالي</p><p dir="ltr" className="mt-1 font-mono text-4xl font-black text-emerald-600 dark:text-emerald-300">{loading ? '...' : displayedBalance}</p><p className="mt-1 text-[10px] font-black text-emerald-700/75 dark:text-emerald-200/75">{displayedCurrency}</p><p className="mt-1 text-[9px] font-bold text-emerald-700/75 dark:text-emerald-200/75">رصيد نقدي متاح لك في المتجر</p></section>
                 <section className="rounded-[20px] border border-emerald-200 bg-white p-4 shadow-sm dark:border-emerald-400/25 dark:bg-[#171b26]"><div className="flex items-center gap-2"><ShieldCheck size={19} className="text-emerald-500"/><div><h2 className="text-sm font-black">محفظتك مؤمنة</h2><p className="mt-0.5 text-[10px] font-bold text-slate-400">رقم الهاتف مرتبط وآمن بكلمة المرور.</p></div></div><button onClick={openPasswordChange} className="mt-3 text-xs font-black text-emerald-600 dark:text-emerald-300">تغيير كلمة المرور</button></section>
                 <section className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#171b26]"><div className="flex items-start gap-2"><div className="rounded-lg bg-emerald-50 p-2 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300"><Gift size={17}/></div><div><h2 className="text-sm font-black">كيف تكسب مبلغاً مالياً إضافياً الى محفظتك؟</h2><p className="mt-1 text-[10px] font-bold leading-5 text-slate-500 dark:text-slate-300">عند شراء أي منتج بقيمة 4,000 ريال يمني أو 28 ريال سعودي او أكثر، واكتمال طلبك وتسليمه بنجاح، تُضاف مكافأة المتجر تلقائياً إلى محفظتك.<br />قيمة المكافأة الحالية: 300 ريال يمني</p></div></div></section>
                 <Link to="/profile" className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-sm font-black text-white dark:bg-white dark:text-slate-900"><Landmark size={16}/> طلباتك وفواتيرك السابقة</Link>
