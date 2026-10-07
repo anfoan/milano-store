@@ -63,6 +63,14 @@
   -webkit-appearance: none !important;
 }
 
+/* On phones and tablets, open the main invoice page directly without the
+   separate preview toolbar page. Desktop keeps the toolbar unchanged. */
+@media screen and (max-width: 1024px) {
+  .invoice-preview-toolbar {
+    display: none !important;
+  }
+}
+
 /* Hide number input spinners */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {

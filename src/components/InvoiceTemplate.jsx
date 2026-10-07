@@ -22,7 +22,7 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
 
             {/* Preview Header - Hidden when printing or capturing or if hideHeader is true */}
             {!hideHeader && (
-                <div className="bg-[#111827] text-white py-4 px-6 mb-8 flex justify-between items-center shadow-md print:hidden" data-html2canvas-ignore="true">
+                <div className="invoice-preview-toolbar bg-[#111827] text-white py-4 px-6 mb-8 flex justify-between items-center shadow-md print:hidden" data-html2canvas-ignore="true">
                     <div className="flex gap-3">
                         <button
                             onClick={() => onDownload ? onDownload() : window.print()}
