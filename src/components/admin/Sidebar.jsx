@@ -174,7 +174,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, setIsOpen, lang, t
                     </button>
                 </div>
 
-                <nav className={`${restrictedTabs ? 'flex-1' : 'flex-none'} px-4 space-y-1`}>
+                <nav className="flex-none px-4 space-y-1">
                     {menuItems.map((item) => (
                         <div key={item.id} className="space-y-1">
                             <button
@@ -234,7 +234,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogout, isOpen, setIsOpen, lang, t
                     ))}
                 </nav>
 
-                <div className={`p-4 ${restrictedTabs ? 'mt-10 mb-6' : 'mt-6 mb-6'} border-t border-gray-50 dark:border-white/5`}>
+                <div className="p-4 mt-6 mb-6 border-t border-gray-50 dark:border-white/5">
                     <button
                         onClick={onLogout}
                         className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors font-black text-sm"
