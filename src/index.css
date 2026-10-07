@@ -229,6 +229,7 @@
     padding: 0 0 10px !important;
     margin-bottom: 0 !important;
     justify-content: flex-start !important;
+    transform: translateY(8px) !important;
   }
   .invoice-preview-toolbar > div:first-child {
     margin-left: auto !important;
@@ -250,7 +251,7 @@
     height: auto !important;
     overflow: visible !important;
     box-sizing: border-box !important;
-    transform: translateY(-3px) !important;
+    transform: translateY(-8px) !important;
   }
 }
 
