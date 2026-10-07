@@ -54,6 +54,9 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                         @page { size: A4 portrait; margin: 0; }
                         html, body { width: 210mm !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; background: #ffffff !important; }
                         body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                        .invoice-orders-page { display: none !important; }
+                        .invoice-print-overlay { display: block !important; position: static !important; inset: auto !important; width: 100% !important; min-height: 0 !important; height: auto !important; overflow: visible !important; padding: 0 !important; background: #ffffff !important; }
+                        .invoice-print-overlay > div { display: block !important; width: 100% !important; max-width: none !important; min-height: 0 !important; height: auto !important; }
                         body * { visibility: hidden !important; }
                         .print-page, .print-page * { visibility: visible !important; }
                         .print-container { display: block !important; width: 210mm !important; margin: 0 !important; padding: 0 !important; }
