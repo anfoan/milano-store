@@ -235,10 +235,12 @@
   }
   .invoice-print-overlay {
     overflow-x: visible !important;
+    padding-top: 0 !important;
   }
   .invoice-print-overlay [data-customer-invoice-preview] {
     width: 100% !important;
     max-width: none !important;
+    margin-top: 0 !important;
   }
   .invoice-preview-page {
     width: min(210mm, calc(100vw - 3rem)) !important;
