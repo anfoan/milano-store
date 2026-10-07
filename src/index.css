@@ -223,6 +223,16 @@
 
 /* Desktop only: keep the whole invoice page visible inside the preview. */
 @media screen and (min-width: 1025px) {
+  .invoice-preview-toolbar {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 0 10px !important;
+    margin-bottom: 0 !important;
+    justify-content: flex-start !important;
+  }
+  .invoice-preview-toolbar > div:first-child {
+    margin-left: auto !important;
+  }
   .invoice-print-overlay {
     overflow-x: visible !important;
   }
