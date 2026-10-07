@@ -194,7 +194,7 @@ const UserProfile = () => {
                             const productContent = productCell?.firstElementChild;
                             if (productContent) {
                                 productContent.style.setProperty('align-items', 'center', 'important');
-                                productContent.style.setProperty('justify-content', 'center', 'important');
+                                productContent.style.setProperty('justify-content', 'flex-start', 'important');
                                 productContent.style.setProperty('height', '100%', 'important');
                             }
                         }
