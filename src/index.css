@@ -70,6 +70,24 @@
     display: none !important;
   }
 
+  .invoice-print-overlay {
+    padding: 8px !important;
+  }
+
+  .invoice-print-overlay [data-customer-invoice-preview] {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .invoice-preview-page {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
   .invoice-preview-page [data-invoice-customer-card] > div {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
     gap: 10px 8px !important;
@@ -97,11 +115,12 @@
   .invoice-preview-page [data-invoice-product-title] {
     display: block !important;
     min-width: 0 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
     font-size: 9px !important;
-    line-height: 1.25 !important;
+    line-height: 1.3 !important;
   }
 
   .invoice-preview-page [data-invoice-totals] {
@@ -122,6 +141,7 @@
     min-width: 0 !important;
     max-width: 100% !important;
     overflow-wrap: anywhere !important;
+    white-space: normal !important;
   }
 }
 
