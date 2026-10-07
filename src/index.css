@@ -151,6 +151,12 @@
   }
   .invoice-preview-page table td:nth-child(n+2) { background-color: #ffffff !important; }
   .invoice-preview-page table th:nth-child(n+2) { background-color: #111317 !important; }
+  .invoice-preview-page table th:nth-child(n+2),
+  .invoice-preview-page table td:nth-child(n+2) {
+    overflow: hidden !important;
+    isolation: isolate !important;
+    background-clip: padding-box !important;
+  }
   .invoice-preview-page table td:first-child > div { gap: 3px !important; }
   .invoice-preview-page table td:first-child img { width: 34px !important; height: 34px !important; border-radius: 6px !important; }
 
