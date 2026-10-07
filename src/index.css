@@ -156,6 +156,18 @@
     overflow: hidden !important;
     isolation: isolate !important;
     background-clip: padding-box !important;
+    border-left: 1px solid #9ca3af !important;
+    border-right: 1px solid #9ca3af !important;
+  }
+  .invoice-preview-page table td:nth-child(2),
+  .invoice-preview-page table td:nth-child(3),
+  .invoice-preview-page table td:nth-child(4),
+  .invoice-preview-page table td:nth-child(5) {
+    overflow: visible !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.1 !important;
+    font-size: 7px !important;
   }
   .invoice-preview-page table td:first-child > div { gap: 3px !important; }
   .invoice-preview-page table td:first-child img { width: 34px !important; height: 34px !important; border-radius: 6px !important; }
