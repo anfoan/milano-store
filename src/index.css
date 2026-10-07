@@ -115,12 +115,12 @@
   .invoice-preview-page [data-invoice-product-title] {
     display: block !important;
     min-width: 0 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    overflow-wrap: normal !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
     font-size: 8px !important;
-    line-height: 1.15 !important;
+    line-height: 1.25 !important;
   }
 
   .invoice-preview-page table col:nth-child(1) { width: 48% !important; }
@@ -155,18 +155,18 @@
   }
 
   .invoice-preview-page [data-invoice-totals] > div > div {
-    font-size: 11px !important;
-    line-height: 1.2 !important;
+    font-size: 10px !important;
+    line-height: 1.15 !important;
     gap: 6px !important;
   }
 
   .invoice-preview-page [data-invoice-totals] > div > div:last-child {
-    font-size: 14px !important;
-    line-height: 1.2 !important;
+    font-size: 12px !important;
+    line-height: 1.15 !important;
   }
 
   .invoice-preview-page [data-invoice-totals] > div > div:last-child span {
-    font-size: 14px !important;
+    font-size: 12px !important;
     white-space: nowrap !important;
     overflow-wrap: normal !important;
   }
