@@ -172,6 +172,32 @@ const UserProfile = () => {
                             span.style.setProperty('overflow', 'visible', 'important');
                         });
                     }
+                    if (window.innerWidth >= 1025) {
+                        const table = clonedDocument.querySelector('.invoice-preview-page table');
+                        if (table) {
+                            table.querySelectorAll('th, td').forEach(cell => {
+                                cell.style.setProperty('vertical-align', 'middle', 'important');
+                                cell.style.setProperty('line-height', '1.25', 'important');
+                                cell.style.setProperty('padding-top', '8px', 'important');
+                                cell.style.setProperty('padding-bottom', '8px', 'important');
+                            });
+                            table.querySelectorAll('th').forEach(cell => {
+                                cell.style.setProperty('text-align', 'center', 'important');
+                                cell.style.setProperty('height', '42px', 'important');
+                            });
+                            table.querySelectorAll('tbody td').forEach(cell => {
+                                cell.style.setProperty('text-align', 'center', 'important');
+                                cell.style.setProperty('height', '58px', 'important');
+                            });
+                            const productCell = table.querySelector('tbody td:first-child');
+                            const productContent = productCell?.firstElementChild;
+                            if (productContent) {
+                                productContent.style.setProperty('align-items', 'center', 'important');
+                                productContent.style.setProperty('justify-content', 'center', 'important');
+                                productContent.style.setProperty('height', '100%', 'important');
+                            }
+                        }
+                    }
                 },
             });
             const pdf = new jsPDF('p', 'mm', 'a4');
