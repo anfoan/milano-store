@@ -51,10 +51,11 @@ const AdminDashboard = () => {
     const [isSearchFocused, setIsSearchFocused] = useState(false); // Search Focus State
     const [searchIndex, setSearchIndex] = useState({ products: [], orders: [] }); // Data Index
 
-    // Worker Check
-    const isWorker = sessionStorage.getItem('isOwnerAdmin') !== 'true'
-        && sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true'
-        && !new Set(['anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']).has(String(auth.currentUser?.email || '').toLowerCase());
+    // Worker Check: a Firebase owner session always overrides stale worker flags.
+    const ownerEmails = new Set(['anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']);
+    const isOwnerSession = sessionStorage.getItem('isOwnerAdmin') === 'true'
+        || ownerEmails.has(String(auth.currentUser?.email || '').toLowerCase());
+    const isWorker = !isOwnerSession && sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
     const workerPerms = isWorker ? JSON.parse(sessionStorage.getItem('posWorkerPermissions') || '{}') : {};
 
     // Define allowed tabs for workers
@@ -246,7 +247,7 @@ const AdminDashboard = () => {
 
     // Strict Access Control
     useEffect(() => {
-        const isWorker = sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
+        const isWorker = !isOwnerSession && sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
         if (isWorker) return; // Allow workers through session
 
         const unsubscribe = auth.onAuthStateChanged(user => {
@@ -261,7 +262,7 @@ const AdminDashboard = () => {
     // ... (existing imports, but make sure to include auth and signOut if not just relying on local storage)
 
     const handleLogout = async () => {
-        const isWorker = sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
+        const isWorker = !isOwnerSession && sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
         
         if (isWorker) {
             sessionStorage.removeItem('isPOSWorkerAuthenticated');
