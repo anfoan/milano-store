@@ -273,18 +273,19 @@ const POSSettings = ({ lang = 'ar', onBack }) => {
 
             {/* Add/Edit Form */}
             {showForm && (
-                <div className="bg-white dark:bg-[#1c1c1e] p-4 md:p-5 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm mb-4">
-                    <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-sm font-black text-gray-800 dark:text-white flex items-center gap-2">
-                            <User size={16} />
-                            {editingId ? t.edit_user : t.add_user}
-                        </h4>
-                        <button onClick={resetForm} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">
-                            <X size={16} />
-                        </button>
-                    </div>
+                <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/35 p-4 pt-8 backdrop-blur-[2px] md:pt-12" role="dialog" aria-modal="true" aria-label={editingId ? t.edit_user : t.add_user}>
+                    <div className="w-full max-w-2xl bg-white dark:bg-[#1c1c1e] p-4 md:p-5 rounded-2xl border border-gray-100 dark:border-white/5 shadow-2xl">
+                        <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-sm font-black text-gray-800 dark:text-white flex items-center gap-2">
+                                <User size={16} />
+                                {editingId ? t.edit_user : t.add_user}
+                            </h4>
+                            <button onClick={resetForm} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors" aria-label={t.btn_cancel}>
+                                <X size={16} />
+                            </button>
+                        </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div className="space-y-1.5">
                                 <label className="text-xs font-black text-gray-700 dark:text-gray-300 block">{t.username}</label>
@@ -390,7 +391,8 @@ const POSSettings = ({ lang = 'ar', onBack }) => {
                                 <span>{editingId ? t.btn_save : t.btn_add}</span>
                             </button>
                         </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             )}
 
