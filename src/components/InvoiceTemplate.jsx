@@ -117,11 +117,11 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                                     <div className={`grid grid-cols-2 gap-y-3 gap-x-4 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
                                     <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
                                         <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'اسم المشتري:' : 'Name:'}</span>
-                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-sm text-[#111317] leading-none">{order.formData?.name || '---'}</span>
+                                        <span className="min-w-0 overflow-visible whitespace-nowrap font-black text-sm text-[#111317] leading-normal" style={{ lineHeight: '1.35', paddingBottom: '2px' }}>{order.formData?.name || '---'}</span>
                                     </div>
                                     <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
                                         <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'الدولة:' : 'Country:'}</span>
-                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-sm text-[#111317] leading-none">
+                                        <span className="min-w-0 overflow-visible whitespace-nowrap font-black text-sm text-[#111317] leading-normal" style={{ lineHeight: '1.35', paddingBottom: '2px' }}>
                                             {order.formData?.country === 'Yemen' && lang === 'ar' ? 'اليمن' : (order.formData?.country || 'Yemen')}
                                         </span>
                                     </div>
@@ -129,21 +129,21 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                                     {/* Row 2: Address - Country */}
                                     <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
                                         <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'العنوان:' : 'Address:'}</span>
-                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-sm text-[#111317] leading-none">{order.formData?.address || '---'}</span>
+                                        <span className="min-w-0 overflow-visible whitespace-nowrap font-black text-sm text-[#111317] leading-normal" style={{ lineHeight: '1.35', paddingBottom: '2px' }}>{order.formData?.address || '---'}</span>
                                     </div>
                                     <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
                                         <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'رقم الهاتف:' : 'Phone:'}</span>
-                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-sm text-[#111317] leading-none">{order.formData?.phone || '---'}</span>
+                                        <span className="min-w-0 overflow-visible whitespace-nowrap font-black text-sm text-[#111317] leading-normal" style={{ lineHeight: '1.35', paddingBottom: '2px' }}>{order.formData?.phone || '---'}</span>
                                     </div>
 
                                     {/* Row 3: City - Payment Method */}
                                     <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
                                         <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'المدينة:' : 'City:'}</span>
-                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-sm text-[#111317] leading-none">{order.formData?.city || order.formData?.governorate || '---'}</span>
+                                        <span className="min-w-0 overflow-visible whitespace-nowrap font-black text-sm text-[#111317] leading-normal" style={{ lineHeight: '1.35', paddingBottom: '2px' }}>{order.formData?.city || order.formData?.governorate || '---'}</span>
                                     </div>
                                     <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
                                         <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'طريقة الدفع:' : 'Payment Method:'}</span>
-                                        <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-black text-sm text-[#111317] leading-none">
+                                        <span className="min-w-0 overflow-visible whitespace-nowrap font-black text-sm text-[#111317] leading-normal" style={{ lineHeight: '1.35', paddingBottom: '2px' }}>
                                             {(() => {
                                                 const method = order.paymentMethod || order.formData?.paymentMethod;
                                                 if (method === 'whatsapp') return (lang === 'ar' ? 'واتساب' : 'WhatsApp');
