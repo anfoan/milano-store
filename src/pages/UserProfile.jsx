@@ -205,10 +205,12 @@ const UserProfile = () => {
             const pageWidth = pdf.internal.pageSize.getWidth();
             const pageHeight = pdf.internal.pageSize.getHeight();
             const imageHeight = (canvas.height * pageWidth) / canvas.width;
-            const scale = Math.min(1, (pageHeight - 8) / imageHeight);
+            const desktopPdf = window.innerWidth >= 1025;
+            const verticalMargin = desktopPdf ? 8 : 4;
+            const scale = Math.min(1, (pageHeight - (verticalMargin * 2)) / imageHeight);
             const width = pageWidth * scale;
             const height = imageHeight * scale;
-            pdf.addImage(canvas.toDataURL('image/png', 1), 'PNG', (pageWidth - width) / 2, 4, width, height, '', 'FAST');
+            pdf.addImage(canvas.toDataURL('image/png', 1), 'PNG', (pageWidth - width) / 2, verticalMargin, width, height, '', 'FAST');
             pdf.save(`Milano-Invoice-${String(printOrder?.orderId || printOrder?.id || 'Order').replace('#', '')}.pdf`);
         } catch (error) {
             console.error('Invoice PDF download failed:', error);
