@@ -133,6 +133,7 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
             general: {
                 display_name: "اسم المستخدم",
                 email: "البريد الإلكتروني",
+                email_change_hint: "عند الضغط على تغيير، سيتم إرسال رابط تأكيد إلى البريد الجديد. سيبقى البريد الحالي فعالاً حتى تفتح الرسالة وتضغط على رابط التأكيد، وبعدها يمكنك تسجيل الدخول بالبريد الجديد.",
                 verified: "موثق",
                 save: "حفظ",
                 change: "تغيير"
@@ -208,6 +209,7 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
             general: {
                 display_name: "Username",
                 email: "Email Address",
+                email_change_hint: "When you click Change, a confirmation link will be sent to the new email. Your current email stays active until you open the message and confirm the link; then you can log in with the new email.",
                 verified: "Verified",
                 save: "Save",
                 change: "Change"
@@ -441,6 +443,9 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
                                         <button onClick={handleSaveGeneral} disabled={loading} className="bg-[#3b82f6] text-white px-6 py-2.5 rounded-lg font-bold text-sm h-[48px]">{txt.general.change}</button>
                                         <input type="email" name="email" value={formData.email} onChange={handleChange} className={`flex-1 bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl px-4 outline-none font-bold text-gray-600 dark:text-gray-300 dir-ltr ${isRTL ? 'text-right' : 'text-left'} h-[48px]`} />
                                     </div>
+                                    <p className={`mt-2 text-[11px] leading-5 text-gray-400 font-bold ${isRTL ? 'text-right' : 'text-left'}`}>
+                                        {txt.general.email_change_hint}
+                                    </p>
                                 </div>
                             </div>
                         </div>
