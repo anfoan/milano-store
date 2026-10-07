@@ -188,7 +188,7 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                                                                 e.target.src = '/nav-logo.png';
                                                             }}
                                                         />
-                                                        <span style={{ fontWeight: 'bold', color: '#1f2937', fontSize: '11px', lineHeight: '1.3', verticalAlign: 'middle', minWidth: 0, overflowWrap: 'anywhere' }}>{item.title}</span>
+                                                        <span data-invoice-product-title style={{ fontWeight: 'bold', color: '#1f2937', fontSize: '11px', lineHeight: '1.3', verticalAlign: 'middle', minWidth: 0, overflowWrap: 'anywhere' }}>{item.title}</span>
                                                     </div>
                                                 </td>
                                                 <td style={{ padding: '8px 4px', verticalAlign: 'middle', border: '1px solid #9ca3af' }} className="text-center text-xs font-bold text-gray-800">
@@ -224,7 +224,7 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
 
                             {/* 4. Totals & Footer */}
                             <div className={`flex ${lang === 'ar' ? 'justify-start' : 'justify-end'} mt-1 px-0`}>
-                                <div className="w-full max-w-[360px] bg-gray-50 rounded-lg p-3 border border-gray-200 print:bg-gray-50 print:border-gray-200">
+                                <div data-invoice-totals className="w-full max-w-[360px] bg-gray-50 rounded-lg p-3 border border-gray-200 print:bg-gray-50 print:border-gray-200">
                                     <div className="space-y-1.5">
                                         <div className={`flex justify-between items-center text-gray-600 text-sm font-bold`}>
                                             <span>{lang === 'ar' ? 'المجموع الفرعي:' : 'Subtotal:'}</span>

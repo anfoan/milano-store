@@ -69,6 +69,60 @@
   .invoice-preview-toolbar {
     display: none !important;
   }
+
+  .invoice-preview-page [data-invoice-customer-card] > div {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 10px 8px !important;
+  }
+
+  .invoice-preview-page [data-invoice-customer-card] > div > div {
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    flex-wrap: wrap !important;
+    gap: 3px 5px !important;
+    white-space: normal !important;
+    line-height: 1.35 !important;
+  }
+
+  .invoice-preview-page [data-invoice-customer-card] > div > div > span {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.35 !important;
+  }
+
+  .invoice-preview-page [data-invoice-product-title] {
+    display: block !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 9px !important;
+    line-height: 1.25 !important;
+  }
+
+  .invoice-preview-page [data-invoice-totals] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .invoice-preview-page [data-invoice-totals] > div,
+  .invoice-preview-page [data-invoice-totals] > div > div {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .invoice-preview-page [data-invoice-totals] span {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+  }
 }
 
 /* Hide number input spinners */
