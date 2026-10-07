@@ -38,7 +38,7 @@ const AdminLogin = () => {
                     let foundWorker = null;
                     snap.forEach(doc => {
                         const data = doc.data();
-                        if (data.username === workerUsername && data.password === password.trim()) {
+                        if (workerUsername.toLowerCase() !== 'milano' && data.username === workerUsername && data.password === password.trim()) {
                             foundWorker = { id: doc.id, ...data };
                         }
                     });

@@ -181,7 +181,7 @@ const POSView = ({ lang = 'ar', generalSettings, standalone = false }) => {
             let foundWorker = null;
             snap.forEach(doc => {
                 const data = doc.data();
-                if (data.username === loginUsername.trim() && data.password === loginPassword.trim()) {
+                if (loginUsername.trim().toLowerCase() !== 'milano' && data.username === loginUsername.trim() && data.password === loginPassword.trim()) {
                     foundWorker = { id: doc.id, ...data };
                 }
             });

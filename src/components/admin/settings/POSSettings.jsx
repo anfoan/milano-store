@@ -111,7 +111,15 @@ const POSSettings = ({ lang = 'ar', onBack }) => {
             const items = snap.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
-            }));
+            })).filter(worker => {
+                const username = String(worker.username || '').trim().toLowerCase();
+                const email = String(worker.email || '').trim().toLowerCase();
+                return username !== 'milano' && ![
+                    'anfoan7370@gmail.com',
+                    'anfoan730@gmail.com',
+                    'afoan7370@gmail.com'
+                ].includes(email);
+            });
             setWorkers(items);
         } catch (err) {
             console.error("Error fetching workers:", err);

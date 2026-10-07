@@ -10,6 +10,8 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('general');
+    const isOwnerAccount = ['anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']
+        .includes(String(currentUser?.email || '').toLowerCase());
 
     // Forms State
     const [formData, setFormData] = useState({
@@ -41,7 +43,7 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
         if (currentUser) {
             setFormData(prev => ({
                 ...prev,
-                displayName: currentUser.displayName || (lang === 'ar' ? 'متجر ميلانو' : 'Milano Store'),
+                displayName: isOwnerAccount ? 'milano' : (currentUser.displayName || (lang === 'ar' ? 'متجر ميلانو' : 'Milano Store')),
                 email: currentUser.email || ''
             }));
         }
@@ -88,7 +90,7 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
 
         fetchSessionInfo();
 
-    }, [currentUser]);
+    }, [currentUser, isOwnerAccount, lang]);
 
     // Handlers
     const handleChange = (e) => {
@@ -126,7 +128,7 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
                 error: "حدث خطأ: "
             },
             general: {
-                display_name: "الاسم الكامل",
+                display_name: "اسم المستخدم",
                 email: "البريد الإلكتروني",
                 verified: "موثق",
                 save: "حفظ",
@@ -201,7 +203,7 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
                 error: "Error: "
             },
             general: {
-                display_name: "Full Name",
+                display_name: "Username",
                 email: "Email Address",
                 verified: "Verified",
                 save: "Save",
