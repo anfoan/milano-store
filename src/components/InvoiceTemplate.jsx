@@ -52,26 +52,29 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                     <style type="text/css" media="print">
                         {`
                         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-                        @page { size: A4; margin: 0; }
-                        body { margin: 0; padding: 0; background: white; -webkit-print-color-adjust: exact; }
-                        .print-container { width: 100%; }
+                        @page { size: A4 portrait; margin: 0; }
+                        html, body { width: 210mm !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; background: #ffffff !important; }
+                        body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                        body * { visibility: hidden !important; }
+                        .print-page, .print-page * { visibility: visible !important; }
+                        .print-container { display: block !important; width: 210mm !important; margin: 0 !important; padding: 0 !important; }
                         .print-page {
-                            width: 210mm !important;
-                            max-width: none !important;
-                            min-height: 148mm;
-                            padding: 20px 40px !important;
-                            margin: 0 auto;
-                            page-break-after: always;
-                            break-after: page;
-                            background: white;
-                            font-family: 'Cairo', sans-serif;
-                            position: relative;
-                            direction: rtl;
-                            border-radius: 0;
-                            box-shadow: none;
-                            overflow: hidden;
+                            display: flex !important; flex-direction: column !important;
+                            width: 210mm !important; max-width: 210mm !important;
+                            min-height: 0 !important; height: auto !important; padding: 10mm !important;
+                            margin: 0 !important; page-break-after: auto !important; break-after: auto !important;
+                            page-break-inside: avoid !important; break-inside: avoid !important;
+                            background: #ffffff !important; font-family: 'Cairo', sans-serif !important;
+                            position: relative !important; direction: rtl !important;
+                            border-radius: 0 !important; box-shadow: none !important; overflow: visible !important;
                         }
-                        .print-page:last-child { page-break-after: auto; }
+                        .print-page > * { max-width: 100% !important; }
+                        .print-page table { width: 100% !important; table-layout: fixed !important; border-collapse: collapse !important; page-break-inside: avoid !important; }
+                        .print-page tr { page-break-inside: avoid !important; break-inside: avoid !important; }
+                        .print-page th, .print-page td { overflow: visible !important; vertical-align: middle !important; }
+                        .print-page .bg-gray-50 span { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; overflow-wrap: anywhere !important; line-height: 1.35 !important; }
+                        .print-page img { max-width: 100% !important; }
+                        .print-page:last-child { page-break-after: auto !important; }
                         * { box-sizing: border-box; }
                         `}
                     </style>
