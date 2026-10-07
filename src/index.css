@@ -117,6 +117,13 @@
     line-height: 1.25 !important;
   }
 
+  .invoice-preview-page [data-invoice-customer-card] > div > div:nth-child(1) > span:last-child,
+  .invoice-preview-page [data-invoice-customer-card] > div > div:nth-child(2) > span:last-child,
+  .invoice-preview-page [data-invoice-customer-card] > div > div:nth-child(5) > span:last-child,
+  .invoice-preview-page [data-invoice-customer-card] > div > div:nth-child(6) > span:last-child {
+    transform: translateY(-4px) !important;
+  }
+
   .invoice-preview-page [data-invoice-product-title] {
     display: block !important;
     min-width: 0 !important;
