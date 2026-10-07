@@ -169,6 +169,16 @@
     line-height: 1.1 !important;
     font-size: 7px !important;
   }
+  .invoice-preview-page table td:nth-child(5) > span {
+    display: block !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    line-height: 1.15 !important;
+    text-align: center !important;
+  }
   .invoice-preview-page table td:first-child > div { gap: 3px !important; }
   .invoice-preview-page table td:first-child img { width: 34px !important; height: 34px !important; border-radius: 6px !important; }
 
