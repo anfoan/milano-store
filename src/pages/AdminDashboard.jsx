@@ -52,7 +52,8 @@ const AdminDashboard = () => {
     const [searchIndex, setSearchIndex] = useState({ products: [], orders: [] }); // Data Index
 
     // Worker Check
-    const isWorker = sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
+    const isWorker = sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true'
+        && String(auth.currentUser?.email || '').toLowerCase() !== 'afoan7370@gmail.com';
     const workerPerms = isWorker ? JSON.parse(sessionStorage.getItem('posWorkerPermissions') || '{}') : {};
 
     // Define allowed tabs for workers

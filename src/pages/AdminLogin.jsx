@@ -14,6 +14,7 @@ const AdminLogin = () => {
 
     const isEmail = (val) => val.includes('@');
     const isWorkerEmail = (val) => val.trim().toLowerCase().endsWith('@milano-store.com');
+    const isOwnerUsername = (val) => val.trim().toLowerCase() === 'milano';
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -23,8 +24,9 @@ const AdminLogin = () => {
         try {
             const input = username.trim();
             
-            // Check if it's a worker login (either no @, or ends with @milano-store.com)
-            if (!isEmail(input) || isWorkerEmail(input)) {
+            // The owner username must always use the manager Firebase account,
+            // never the worker permissions collection.
+            if (!isOwnerUsername(input) && (!isEmail(input) || isWorkerEmail(input))) {
                 // === WORKER LOGIN ===
                 const workerUsername = isWorkerEmail(input) 
                     ? input.replace(/@milano-store\.com$/i, '') 
@@ -65,7 +67,8 @@ const AdminLogin = () => {
                 }
             } else {
                 // === ADMIN LOGIN (Firebase Auth) ===
-                const userCredential = await signInWithEmailAndPassword(auth, username, password);
+                const adminEmail = isOwnerUsername(input) ? 'afoan7370@gmail.com' : input;
+                const userCredential = await signInWithEmailAndPassword(auth, adminEmail, password);
 
                 // Log Session
                 try {

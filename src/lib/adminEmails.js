@@ -4,6 +4,7 @@ import { db } from './firebase';
 // Fallback list — keeps the original admins working even if Firestore is unreachable,
 // and is used to seed the Firestore doc on first use.
 export const FALLBACK_ADMIN_EMAILS = [
+    'afoan7370@gmail.com',
     'ah3992222@gmail.com',
     'milanoyemen@gmail.com',
     'milanostore@gmail.com',

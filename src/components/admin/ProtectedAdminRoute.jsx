@@ -8,8 +8,9 @@ const ProtectedAdminRoute = ({ children }) => {
     const { currentUser, loading } = useAuth();
     const [adminEmails, setAdminEmails] = useState(null); // null = still loading
 
-    // Allow workers through session storage (no Firebase Auth needed)
-    const isWorker = sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
+    // A manager Firebase session always takes precedence over any stale worker flag.
+    const isOwnerSession = String(currentUser?.email || '').toLowerCase() === 'afoan7370@gmail.com';
+    const isWorker = !isOwnerSession && sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
 
     useEffect(() => {
         let mounted = true;
