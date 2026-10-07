@@ -36,12 +36,43 @@ const OrderConfirmation = () => {
     const handleDownloadInvoice = async () => {
         if (!invoiceRef.current) return;
         try {
-            const canvas = await html2canvas(invoiceRef.current, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+            const canvas = await html2canvas(invoiceRef.current, {
+                scale: 2.5,
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                allowTaint: true,
+                windowWidth: 1200,
+                windowHeight: 1600,
+                onclone: clonedDocument => {
+                    const page = clonedDocument.querySelector('.invoice-preview-page');
+                    if (page) {
+                        page.style.width = '794px';
+                        page.style.maxWidth = '794px';
+                        page.style.margin = '0 auto';
+                        page.style.height = 'auto';
+                        page.style.minHeight = '0';
+                    }
+                    const card = clonedDocument.querySelector('[data-invoice-customer-card]');
+                    if (card) {
+                        card.style.fontSize = '16px';
+                        card.querySelector('h3')?.style.setProperty('font-size', '20px', 'important');
+                        card.querySelectorAll('span').forEach(span => {
+                            span.style.setProperty('font-size', span.classList.contains('text-gray-500') ? '13px' : '16px', 'important');
+                            span.style.setProperty('white-space', 'normal', 'important');
+                            span.style.setProperty('overflow', 'visible', 'important');
+                        });
+                    }
+                }
+            });
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const imageHeight = (canvas.height * pdfWidth) / canvas.width;
+            const fit = Math.min(1, (pdfHeight - 8) / imageHeight);
+            const width = pdfWidth * fit;
+            const height = imageHeight * fit;
+            pdf.addImage(imgData, 'PNG', (pdfWidth - width) / 2, 4, width, height);
             pdf.save(`Milano-Invoice-${orderId.replace('#', '')}.pdf`);
         } catch (error) {
             console.error("Error generating PDF:", error);

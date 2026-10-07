@@ -105,7 +105,7 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                             </div>
 
                             {/* 2. Customer Info Card */}
-                            <div className="mb-5 bg-gray-50 rounded-lg p-4 border border-gray-400 print:bg-gray-50 print:border-gray-400">
+                            <div data-invoice-customer-card className="mb-5 bg-gray-50 rounded-lg p-4 border border-gray-400 print:bg-gray-50 print:border-gray-400">
                                 <h3 className={`font-black text-lg text-gray-800 border-b border-gray-400 pb-3 mb-4 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'بيانات العميل' : 'Customer Details'}</h3>
                                     <div className={`grid grid-cols-2 gap-y-3 gap-x-4 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
                                     <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">

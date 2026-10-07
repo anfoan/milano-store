@@ -149,12 +149,28 @@ const UserProfile = () => {
                 allowTaint: true,
                 backgroundColor: '#ffffff',
                 logging: false,
+                windowWidth: 1200,
+                windowHeight: 1600,
                 onclone: clonedDocument => {
                     const clonedPage = clonedDocument.querySelector('.invoice-preview-page');
                     if (clonedPage) {
                         clonedPage.style.width = '794px';
                         clonedPage.style.maxWidth = '794px';
                         clonedPage.style.margin = '0 auto';
+                        clonedPage.style.minHeight = '0';
+                        clonedPage.style.height = 'auto';
+                    }
+                    const customerCard = clonedDocument.querySelector('[data-invoice-customer-card]');
+                    if (customerCard) {
+                        customerCard.style.fontSize = '16px';
+                        customerCard.style.lineHeight = '1.4';
+                        customerCard.querySelector('h3')?.style.setProperty('font-size', '20px', 'important');
+                        customerCard.querySelectorAll('span').forEach(span => {
+                            span.style.setProperty('font-size', span.classList.contains('text-gray-500') ? '13px' : '16px', 'important');
+                            span.style.setProperty('line-height', '1.4', 'important');
+                            span.style.setProperty('white-space', 'normal', 'important');
+                            span.style.setProperty('overflow', 'visible', 'important');
+                        });
                     }
                 },
             });
