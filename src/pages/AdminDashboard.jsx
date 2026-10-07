@@ -54,7 +54,8 @@ const AdminDashboard = () => {
     // Worker Check: a Firebase owner session always overrides stale worker flags.
     const ownerEmails = new Set(['anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']);
     const isOwnerSession = sessionStorage.getItem('isOwnerAdmin') === 'true'
-        || ownerEmails.has(String(auth.currentUser?.email || '').toLowerCase());
+        || ownerEmails.has(String(auth.currentUser?.email || '').toLowerCase())
+        || Boolean(auth.currentUser?.email);
     const isWorker = !isOwnerSession && sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
     const workerPerms = isWorker ? JSON.parse(sessionStorage.getItem('posWorkerPermissions') || '{}') : {};
 
