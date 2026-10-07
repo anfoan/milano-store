@@ -1,5 +1,4 @@
 import React from 'react';
-import { getLocalizedCurrency } from "../lib/currencyUtils";
 import { useCurrency } from "../context/CurrencyContext";
 
 const getInvoiceItemPrices = (item) => {
