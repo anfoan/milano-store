@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Settings, Lock, Shield, Clock, Trash2, Loader2, Check, AlertTriangle, Monitor, Smartphone, Globe } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { updateProfile, verifyBeforeUpdateEmail, updatePassword, deleteUser, sendEmailVerification, signOut, reauthenticateWithCredential, EmailAuthProvider, sendPasswordResetEmail } from 'firebase/auth';
-import { addAdminEmail } from '../../lib/adminEmails';
+import { addAdminEmail, getOwnerProfile, saveOwnerProfile } from '../../lib/adminEmails';
 import { auth } from '../../lib/firebase';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,7 +10,7 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('general');
-    const isOwnerAccount = ['anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']
+    const isOwnerAccount = sessionStorage.getItem('isOwnerAdmin') === 'true' || ['anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']
         .includes(String(currentUser?.email || '').toLowerCase());
 
     // Forms State
@@ -40,13 +40,16 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
 
     // Initial Load & IP Fetch
     useEffect(() => {
-        if (currentUser) {
+        const loadAccountIdentity = async () => {
+            if (!currentUser) return;
+            const owner = isOwnerAccount ? await getOwnerProfile() : null;
             setFormData(prev => ({
                 ...prev,
-                displayName: isOwnerAccount ? 'milano' : (currentUser.displayName || (lang === 'ar' ? 'متجر ميلانو' : 'Milano Store')),
-                email: currentUser.email || ''
+                displayName: owner?.username || (currentUser.displayName || (lang === 'ar' ? 'متجر ميلانو' : 'Milano Store')),
+                email: owner?.email || currentUser.email || ''
             }));
-        }
+        };
+        loadAccountIdentity();
 
         // Fetch IP and Session Info
         const fetchSessionInfo = async () => {
@@ -264,11 +267,20 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
         setLoading(true);
         setMessage({ type: '', text: '' });
         try {
-            if (currentUser && formData.displayName !== currentUser.displayName) {
+            if (!formData.displayName.trim() || !formData.email.trim()) {
+                throw new Error('missing-owner-identity');
+            }
+            const emailChanged = currentUser && formData.email.trim().toLowerCase() !== String(currentUser.email || '').toLowerCase();
+            if (isOwnerAccount && !emailChanged) {
+                await saveOwnerProfile({ username: formData.displayName, email: formData.email });
+            } else if (!isOwnerAccount && currentUser && formData.displayName !== currentUser.displayName) {
                 await updateProfile(currentUser, { displayName: formData.displayName });
             }
-            if (currentUser && formData.email !== currentUser.email) {
+            if (emailChanged) {
                 await verifyBeforeUpdateEmail(currentUser, formData.email);
+                if (isOwnerAccount) {
+                    await saveOwnerProfile({ username: formData.displayName, email: formData.email });
+                }
                 // Auto-add the new email to the admin list so the client can log in immediately
                 // after confirming — no code change or redeploy needed.
                 addAdminEmail(formData.email);

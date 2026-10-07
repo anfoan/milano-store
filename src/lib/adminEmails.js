@@ -15,6 +15,27 @@ export const FALLBACK_ADMIN_EMAILS = [
 ];
 
 const ADMINS_DOC = doc(db, 'admins', 'list');
+const OWNER_PROFILE_DOC = doc(db, 'admins', 'owner');
+
+export async function getOwnerProfile() {
+    try {
+        const snap = await getDoc(OWNER_PROFILE_DOC);
+        const data = snap.exists() ? snap.data() : {};
+        return {
+            username: String(data.username || 'milano').trim(),
+            email: String(data.email || 'anfoan7370@gmail.com').trim().toLowerCase()
+        };
+    } catch (e) {
+        return { username: 'milano', email: 'anfoan7370@gmail.com' };
+    }
+}
+
+export async function saveOwnerProfile(profile) {
+    const username = String(profile?.username || '').trim();
+    const email = String(profile?.email || '').trim().toLowerCase();
+    if (!username || !email) return;
+    await setDoc(OWNER_PROFILE_DOC, { username, email, updatedAt: new Date() }, { merge: true });
+}
 
 // Read admin emails from Firestore. If the doc is missing, seed it with the fallback list.
 // Returns null only if Firestore is unreachable/denied (gate then falls back to the code list).

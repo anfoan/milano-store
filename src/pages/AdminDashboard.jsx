@@ -52,7 +52,8 @@ const AdminDashboard = () => {
     const [searchIndex, setSearchIndex] = useState({ products: [], orders: [] }); // Data Index
 
     // Worker Check
-    const isWorker = sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true'
+    const isWorker = sessionStorage.getItem('isOwnerAdmin') !== 'true'
+        && sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true'
         && !new Set(['anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']).has(String(auth.currentUser?.email || '').toLowerCase());
     const workerPerms = isWorker ? JSON.parse(sessionStorage.getItem('posWorkerPermissions') || '{}') : {};
 

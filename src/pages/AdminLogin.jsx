@@ -4,6 +4,7 @@ import { Lock, Mail, User, ShieldCheck, Loader2 } from 'lucide-react';
 import { auth, db } from '../lib/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { collection, query, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getOwnerProfile } from '../lib/adminEmails';
 
 const AdminLogin = () => {
     const [username, setUsername] = useState('');
@@ -23,10 +24,12 @@ const AdminLogin = () => {
 
         try {
             const input = username.trim();
+            const ownerProfile = await getOwnerProfile();
+            const isConfiguredOwnerUsername = ownerProfile.username.toLowerCase() === input.toLowerCase();
             
             // The owner username must always use the manager Firebase account,
             // never the worker permissions collection.
-            if (!isOwnerUsername(input) && (!isEmail(input) || isWorkerEmail(input))) {
+            if (!isConfiguredOwnerUsername && !isOwnerUsername(input) && (!isEmail(input) || isWorkerEmail(input))) {
                 // === WORKER LOGIN ===
                 const workerUsername = isWorkerEmail(input) 
                     ? input.replace(/@milano-store\.com$/i, '') 
@@ -57,6 +60,7 @@ const AdminLogin = () => {
                             allowBonds: foundWorker.allowBonds || false
                         };
                         sessionStorage.setItem('posWorkerPermissions', JSON.stringify(perms));
+                        sessionStorage.removeItem('isOwnerAdmin');
                         navigate('/milano-dashboard-vault-77');
                     } else {
                         setError('اسم المستخدم أو كلمة المرور غير صحيحة');
@@ -67,8 +71,8 @@ const AdminLogin = () => {
                 }
             } else {
                 // === ADMIN LOGIN (Firebase Auth) ===
-                const adminEmails = isOwnerUsername(input)
-                    ? ['anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']
+                const adminEmails = (isConfiguredOwnerUsername || isOwnerUsername(input))
+                    ? [ownerProfile.email, 'anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']
                     : [input];
                 let userCredential;
                 let lastLoginError;
@@ -118,6 +122,7 @@ const AdminLogin = () => {
                 sessionStorage.removeItem('posWorkerId');
                 sessionStorage.removeItem('posWorkerName');
                 sessionStorage.removeItem('posWorkerPermissions');
+                sessionStorage.setItem('isOwnerAdmin', 'true');
 
                 navigate('/milano-dashboard-vault-77');
             }
