@@ -221,6 +221,26 @@
   }
 }
 
+/* Desktop only: keep the whole invoice page visible inside the preview. */
+@media screen and (min-width: 1025px) {
+  .invoice-print-overlay {
+    overflow-x: visible !important;
+  }
+  .invoice-print-overlay [data-customer-invoice-preview] {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  .invoice-preview-page {
+    width: min(210mm, calc(100vw - 3rem)) !important;
+    max-width: min(210mm, calc(100vw - 3rem)) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+  }
+}
+
 /* Hide number input spinners */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
