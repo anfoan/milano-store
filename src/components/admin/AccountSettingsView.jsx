@@ -133,7 +133,8 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
             general: {
                 display_name: "اسم المستخدم",
                 email: "البريد الإلكتروني",
-                email_change_hint: "عند الضغط على تغيير، سيتم إرسال رابط تأكيد إلى البريد الجديد. سيبقى البريد الحالي فعالاً حتى تفتح الرسالة وتضغط على رابط التأكيد، وبعدها يمكنك تسجيل الدخول بالبريد الجديد.",
+                email_change_hint_first: "عند الضغط على تغيير، سيتم إرسال رابط تأكيد إلى البريد الجديد. سيبقى البريد الحالي فعالاً حتى تفتح الرسالة",
+                email_change_hint_second: "وتضغط على رابط التأكيد، وبعدها يمكنك تسجيل الدخول بالبريد الجديد.",
                 verified: "موثق",
                 save: "حفظ",
                 change: "تغيير"
@@ -209,7 +210,8 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
             general: {
                 display_name: "Username",
                 email: "Email Address",
-                email_change_hint: "When you click Change, a confirmation link will be sent to the new email. Your current email stays active until you open the message and confirm the link; then you can log in with the new email.",
+                email_change_hint_first: "When you click Change, a confirmation link will be sent to the new email. Your current email stays active until you open the message",
+                email_change_hint_second: "and click the confirmation link; then you can log in with the new email.",
                 verified: "Verified",
                 save: "Save",
                 change: "Change"
@@ -444,7 +446,8 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
                                         <input type="email" name="email" value={formData.email} onChange={handleChange} className={`flex-1 bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl px-4 outline-none font-bold text-gray-600 dark:text-gray-300 dir-ltr ${isRTL ? 'text-right' : 'text-left'} h-[48px]`} />
                                     </div>
                                     <p className={`mt-2 text-[11px] leading-5 text-gray-400 font-bold ${isRTL ? 'text-right' : 'text-left'}`}>
-                                        {txt.general.email_change_hint}
+                                        <span className="block">{txt.general.email_change_hint_first}</span>
+                                        <span className="block">{txt.general.email_change_hint_second}</span>
                                     </p>
                                 </div>
                             </div>
