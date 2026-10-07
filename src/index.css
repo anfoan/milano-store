@@ -130,6 +130,10 @@
   .invoice-preview-page table col:nth-child(5) { width: 16% !important; }
   .invoice-preview-page table th { text-align: center !important; font-size: 8px !important; padding: 6px 2px !important; }
   .invoice-preview-page table td { padding: 6px 2px !important; font-size: 8px !important; }
+  .invoice-preview-page table th:nth-child(n+2),
+  .invoice-preview-page table td:nth-child(n+2) {
+    transform: translateX(8px) !important;
+  }
   .invoice-preview-page table td:first-child > div { gap: 3px !important; }
   .invoice-preview-page table td:first-child img { width: 34px !important; height: 34px !important; border-radius: 6px !important; }
 
