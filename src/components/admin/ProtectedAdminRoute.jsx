@@ -9,7 +9,7 @@ const ProtectedAdminRoute = ({ children }) => {
     const [adminEmails, setAdminEmails] = useState(null); // null = still loading
 
     // A manager Firebase session always takes precedence over any stale worker flag.
-    const ownerEmails = new Set(['anfoan730@gmail.com', 'afoan7370@gmail.com']);
+    const ownerEmails = new Set(['anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']);
     const isOwnerSession = ownerEmails.has(String(currentUser?.email || '').toLowerCase());
     const isWorker = !isOwnerSession && sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
 

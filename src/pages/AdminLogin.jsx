@@ -68,7 +68,7 @@ const AdminLogin = () => {
             } else {
                 // === ADMIN LOGIN (Firebase Auth) ===
                 const adminEmails = isOwnerUsername(input)
-                    ? ['anfoan730@gmail.com', 'afoan7370@gmail.com']
+                    ? ['anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']
                     : [input];
                 let userCredential;
                 let lastLoginError;
