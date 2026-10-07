@@ -178,8 +178,9 @@ const UserProfile = () => {
                             table.querySelectorAll('th, td').forEach(cell => {
                                 cell.style.setProperty('vertical-align', 'middle', 'important');
                                 cell.style.setProperty('line-height', '1.25', 'important');
-                                cell.style.setProperty('padding-top', '8px', 'important');
-                                cell.style.setProperty('padding-bottom', '8px', 'important');
+                                // Keep the cell height and borders fixed while lifting its content 2px.
+                                cell.style.setProperty('padding-top', '6px', 'important');
+                                cell.style.setProperty('padding-bottom', '10px', 'important');
                             });
                             table.querySelectorAll('th').forEach(cell => {
                                 cell.style.setProperty('text-align', 'center', 'important');
