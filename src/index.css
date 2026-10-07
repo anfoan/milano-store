@@ -253,6 +253,9 @@
     box-sizing: border-box !important;
     transform: translateY(-8px) !important;
   }
+  .invoice-preview-page table th:first-child {
+    text-align: center !important;
+  }
 }
 
 /* Hide number input spinners */
