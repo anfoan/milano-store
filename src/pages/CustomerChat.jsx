@@ -158,8 +158,7 @@ const CustomerChat = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#f0f2f5] dark:bg-[#0a0a0b] flex flex-col font-['Cairo'] relative" dir={direction}
-            style={{ backgroundImage: 'radial-gradient(#444 0.5px, transparent 0.5px)', backgroundSize: '20px 20px', backgroundOpacity: 0.1 }}>
+        <div className="min-h-screen bg-[#f0f2f5] dark:bg-[#0a0a0b] flex flex-col font-['Cairo'] relative" dir={direction}>
 
 
             {/* Header */}
@@ -210,7 +209,7 @@ const CustomerChat = () => {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 z-10">
+            <div className="chat-dot-pattern flex-1 overflow-y-auto p-4 space-y-4 z-10">
 
                 {/* Center Status Bubble */}
                 <div className="flex justify-center mt-4 mb-8">

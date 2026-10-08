@@ -756,3 +756,10 @@ input[type=number] {
 .animate-modal-in {
   animation: modal-content-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
+.chat-dot-pattern {
+  background-image: radial-gradient(rgba(71, 85, 105, 0.24) 1px, transparent 1px) !important;
+  background-size: 20px 20px !important;
+}
+.dark .chat-dot-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px) !important;
+}
