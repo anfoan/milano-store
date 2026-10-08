@@ -112,7 +112,7 @@ const Contact = () => {
                 </div>
 
                 <div className="flex-1 flex items-center justify-center">
-                    <div className="max-w-5xl w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 px-4">
+                    <div className="max-w-5xl w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 px-4 -translate-y-8 md:-translate-y-10">
 
                         {/* Text Section (Right Side) */}
                         <div className="flex-1 text-center md:text-start z-10">
