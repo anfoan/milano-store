@@ -100,7 +100,7 @@ const Contact = () => {
 
     if (submitted) {
         return (
-            <div className="min-h-screen bg-gray-50 dark:bg-[#111317] flex flex-col p-4 font-['Cairo'] relative overflow-hidden transition-colors duration-300" dir={direction}>
+            <div className="min-h-[calc(100vh-3rem)] bg-gray-50 dark:bg-[#111317] flex flex-col p-4 font-['Cairo'] relative overflow-hidden transition-colors duration-300" dir={direction}>
                 {/* Back Button Header */}
                 <div className="w-full max-w-7xl mx-auto px-4 py-4 flex justify-start z-20">
                     <button
@@ -112,7 +112,7 @@ const Contact = () => {
                 </div>
 
                 <div className="flex-1 flex items-center justify-center">
-                    <div className="max-w-5xl w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 px-4 -translate-y-8 md:-translate-y-10">
+                    <div className="max-w-5xl w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 px-4 -translate-y-12 md:-translate-y-14">
 
                         {/* Text Section (Right Side) */}
                         <div className="flex-1 text-center md:text-start z-10">
