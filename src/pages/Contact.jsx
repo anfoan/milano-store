@@ -116,8 +116,8 @@ const Contact = () => {
 
                         {/* Text Section (Right Side) */}
                         <div className="flex-1 text-center md:text-start z-10">
-                            <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white mb-6 leading-tight tracking-wide">
-                                {t('contact.success_title')} <span className="text-[#06b6d4]">{t('contact.success_chat')}</span> {t('contact.success_already')}
+                            <h1 className="text-2xl md:text-4xl font-black text-gray-900 dark:text-white mb-6 leading-tight tracking-wide">
+                                {t('contact.success_line')}
                                 <br />
                                 {t('contact.success_click')}
                             </h1>
