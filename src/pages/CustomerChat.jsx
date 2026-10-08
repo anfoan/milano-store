@@ -19,13 +19,11 @@ const CustomerChat = () => {
     const fileInputRef = useRef(null); // Fix: Added missing ref
 
     const [showMenu, setShowMenu] = useState(false); // Menu State
+    const [chatAccess, setChatAccess] = useState('checking');
 
-    // Update Page Title and persist chatId to localStorage
+    // Keep the chat available on this device without claiming shared links.
     useEffect(() => {
         document.title = t('chat.page_title');
-        if (chatId) {
-            localStorage.setItem('milano_active_chat', chatId);
-        }
         return () => {
             document.title = t('rate.store_title');
         };
@@ -39,18 +37,37 @@ const CustomerChat = () => {
                 const docRef = doc(db, "contact_messages", chatId);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
-                    setChatDetails(docSnap.data());
+                    const data = docSnap.data();
+                    const deviceKey = localStorage.getItem('milano_chat_device_key');
+                    const activeChatId = localStorage.getItem('milano_active_chat');
+                    const ownsChat = data.deviceKey === deviceKey || (!data.deviceKey && activeChatId === chatId);
+                    const isClosed = data.status === 'closed' || data.status === 'closed_by_buyer';
+                    if (!ownsChat || isClosed) {
+                        setChatAccess('denied');
+                        if (activeChatId === chatId) localStorage.removeItem('milano_active_chat');
+                        navigate('/contact', { replace: true });
+                        return;
+                    }
+                    if (!data.deviceKey && deviceKey) await updateDoc(docRef, { deviceKey });
+                    localStorage.setItem('milano_active_chat', chatId);
+                    setChatDetails(data);
+                    setChatAccess('allowed');
+                } else {
+                    setChatAccess('denied');
+                    navigate('/contact', { replace: true });
                 }
             } catch (error) {
                 console.error("Error fetching chat details:", error);
+                setChatAccess('denied');
+                navigate('/contact', { replace: true });
             }
         };
         fetchChatDetails();
-    }, [chatId]);
+    }, [chatId, navigate]);
 
     // Real-time Messages
     useEffect(() => {
-        if (!chatId) return;
+        if (!chatId || chatAccess !== 'allowed') return;
 
         // Subcollection 'messages' within the contact_message document
         const q = query(
@@ -70,7 +87,7 @@ const CustomerChat = () => {
         });
 
         return () => unsubscribe();
-    }, [chatId]);
+    }, [chatId, chatAccess]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -156,6 +173,8 @@ const CustomerChat = () => {
             console.error("Error sending message:", error);
         }
     };
+
+    if (chatAccess !== 'allowed') return null;
 
     return (
         <div className="min-h-screen bg-[#f0f2f5] dark:bg-[#0a0a0b] flex flex-col font-['Cairo'] relative" dir={direction}>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ChevronDown, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { collection, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -18,6 +18,14 @@ const Contact = () => {
     const [submitted, setSubmitted] = useState(false);
     const [messageId, setMessageId] = useState(null);
     const [socialLinks, setSocialLinks] = useState({});
+
+    const getChatDeviceKey = () => {
+        const existingKey = localStorage.getItem('milano_chat_device_key');
+        if (existingKey) return existingKey;
+        const newKey = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        localStorage.setItem('milano_chat_device_key', newKey);
+        return newKey;
+    };
 
     useEffect(() => {
         const fetchLinks = async () => {
@@ -42,14 +50,17 @@ const Contact = () => {
             const activeChatId = localStorage.getItem('milano_active_chat');
             if (activeChatId) {
                 try {
+                    const deviceKey = getChatDeviceKey();
                     const docRef = doc(db, "contact_messages", activeChatId);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
                         const data = docSnap.data();
-                        // Only redirect if the chat is NOT closed
-                        if (data.status !== 'closed') {
+                        if (data.status !== 'closed' && data.status !== 'closed_by_buyer' && (!data.deviceKey || data.deviceKey === deviceKey)) {
+                            if (!data.deviceKey) await updateDoc(docRef, { deviceKey });
                             setMessageId(activeChatId);
                             setSubmitted(true);
+                        } else if (data.status === 'closed' || data.status === 'closed_by_buyer' || data.deviceKey !== deviceKey) {
+                            localStorage.removeItem('milano_active_chat');
                         }
                     } else {
                         // If chat doesn't exist in DB, clear local session
@@ -71,6 +82,7 @@ const Contact = () => {
             // Save to Firestore
             const docRef = await addDoc(collection(db, "contact_messages"), {
                 ...formData,
+                deviceKey: getChatDeviceKey(),
                 date: new Date().toLocaleString('en-US'),
                 createdAt: serverTimestamp(),
                 status: 'new',
