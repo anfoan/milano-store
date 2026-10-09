@@ -729,7 +729,7 @@ const Checkout = () => {
             // Store visitors may create orders but are intentionally not granted public product-update
             // permission. Preserve the sale instead of showing a generic browser error; the authenticated
             // admin dashboard reconciles this marked order with inventory exactly once.
-            if (error?.code === 'permission-denied' && !appliedCoupon) {
+            if (error?.code === 'permission-denied') {
                 try {
                     await runTransaction(db, async transaction => {
                         if (walletApplied > 0) {
@@ -748,6 +748,7 @@ const Checkout = () => {
                             inventorySyncPending: true,
                             inventorySyncStatus: 'pending-admin-sync',
                             walletDebitPending: walletApplied > 0,
+                            couponUsagePending: Boolean(appliedCoupon?.id),
                             createdWithoutPublicInventoryWrite: true
                         };
                         transaction.set(orderRef, pendingOrder);
@@ -755,7 +756,7 @@ const Checkout = () => {
                         if (customerHistoryRef && history) transaction.set(customerHistoryRef, history);
                     });
                     const existingOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
-                    existingOrders.unshift({ ...orderData, sourceOrderId: orderRef.id, historyVersion: 1, inventorySyncPending: true, walletDebitPending: walletApplied > 0, createdAt: new Date().toISOString(), timestamp: Date.now() });
+                    existingOrders.unshift({ ...orderData, sourceOrderId: orderRef.id, historyVersion: 1, inventorySyncPending: true, walletDebitPending: walletApplied > 0, couponUsagePending: Boolean(appliedCoupon?.id), createdAt: new Date().toISOString(), timestamp: Date.now() });
                     localStorage.setItem('myOrders', JSON.stringify(existingOrders));
                     localStorage.removeItem('cart');
                     localStorage.removeItem('cart_coupon');
