@@ -6,6 +6,7 @@ import { ArrowRight, ShoppingBag, Filter } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useSettings } from '../hooks/useSettings';
+import { hasAvailableStock } from '../lib/stockUtils';
 
 const optimizeCategoryImage = (url, width = 560) => {
     if (!url || typeof url !== 'string') return url;
@@ -48,7 +49,7 @@ const CategoryPage = () => {
                 } catch { /* network fetch below remains the source of truth */ }
                 if (allProducts.length > 0) {
                     const cachedCategory = allProducts
-                        .filter(p => p.category === decodedCategoryName && !p.hidden && (!hideOutOfStock || Number(p.stock || 0) > 0))
+                        .filter(p => p.category === decodedCategoryName && !p.hidden && hasAvailableStock(p))
                         .sort((a, b) => Number(a.order ?? 999999) - Number(b.order ?? 999999));
                     setProducts(cachedCategory);
                     setLoading(false);
@@ -61,7 +62,7 @@ const CategoryPage = () => {
                     .filter(p => {
                         const matchesCategory = p.category === decodedCategoryName;
                         const isVisible = !p.hidden;
-                        const hasStock = hideOutOfStock ? (Number(p.stock || 0) > 0) : true;
+                        const hasStock = hasAvailableStock(p);
                         return matchesCategory && isVisible && hasStock;
                     })
                     .sort((a, b) => {

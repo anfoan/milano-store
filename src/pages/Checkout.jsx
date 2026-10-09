@@ -630,21 +630,24 @@ const Checkout = () => {
                     const group = grouped.get(productId);
                     if (!snap.exists()) throw new Error(`PRODUCT_NOT_FOUND:${productId}`);
                     const data = snap.data();
-                    const currentStock = Number(data.stock || 0);
+                    const hasSizeStocks = data.sizeStocks && Object.keys(data.sizeStocks).length > 0;
+                    const currentStock = hasSizeStocks
+                        ? Object.values(data.sizeStocks).reduce((sum, quantity) => sum + Math.max(0, Number(quantity) || 0), 0)
+                        : Math.max(0, Number(data.stock || 0));
                     if (group.total > currentStock) throw new Error(`INSUFFICIENT_STOCK:${productId}`);
 
                     const updates = { stock: currentStock - group.total };
-                    if (data.sizeStocks && Object.keys(data.sizeStocks).length > 0) {
+                    if (hasSizeStocks) {
                         const nextSizeStocks = { ...data.sizeStocks };
                         group.items.forEach(item => {
-                            if (item.size && Object.prototype.hasOwnProperty.call(nextSizeStocks, item.size)) {
-                                const currentSizeStock = Number(nextSizeStocks[item.size] || 0);
-                                const qty = Number(item.quantity) || 0;
-                                if (qty > currentSizeStock) throw new Error(`INSUFFICIENT_SIZE_STOCK:${productId}:${item.size}`);
-                                nextSizeStocks[item.size] = currentSizeStock - qty;
-                            }
+                            if (!item.size || !Object.prototype.hasOwnProperty.call(nextSizeStocks, item.size)) throw new Error(`SIZE_REQUIRED:${productId}`);
+                            const currentSizeStock = Number(nextSizeStocks[item.size] || 0);
+                            const qty = Number(item.quantity) || 0;
+                            if (qty > currentSizeStock) throw new Error(`INSUFFICIENT_SIZE_STOCK:${productId}:${item.size}`);
+                            nextSizeStocks[item.size] = currentSizeStock - qty;
                         });
                         updates.sizeStocks = nextSizeStocks;
+                        updates.stock = Object.values(nextSizeStocks).reduce((sum, quantity) => sum + Math.max(0, Number(quantity) || 0), 0);
                     }
                     transaction.update(productRefs[idx], updates);
                 });

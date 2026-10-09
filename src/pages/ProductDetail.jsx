@@ -19,6 +19,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import DraggableScrollContainer from '../components/DraggableScrollContainer';
 import QuantityStepper from '../components/QuantityStepper';
+import { hasAvailableStock } from '../lib/stockUtils';
 
 const ProductDetail = () => {
     const { t, direction, language } = useLanguage();
@@ -136,7 +137,7 @@ const ProductDetail = () => {
                                 .map(d => ({ id: d.id, ...d.data() }))
                                 .filter(p => {
                                     const isVisible = !p.hidden && p.id !== id;
-                                    const hasStock = hideOutOfStock ? (Number(p.stock || 0) > 0) : true;
+                                    const hasStock = hasAvailableStock(p);
                                     return isVisible && hasStock;
                                 });
                         }
@@ -148,7 +149,7 @@ const ProductDetail = () => {
                                 .map(d => ({ id: d.id, ...d.data() }))
                                 .filter(p => {
                                     const isVisible = !p.hidden && p.id !== id && !related.some(r => r.id === p.id);
-                                    const hasStock = hideOutOfStock ? (Number(p.stock || 0) > 0) : true;
+                                    const hasStock = hasAvailableStock(p);
                                     return isVisible && hasStock;
                                 });
                             related = [...related, ...general].slice(0, 10);
@@ -247,6 +248,7 @@ const ProductDetail = () => {
         return Math.max(0, Number(product.stock) || 0);
     };
     const selectedStock = getSelectedStock();
+    const productAvailable = hasAvailableStock(product);
     const existingCartQuantity = (() => {
         try {
             const stored = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -416,7 +418,7 @@ const ProductDetail = () => {
                             </div>
 
                             {/* Sizes */}
-                            {sizes.length > 0 && !((Number(product.stock || 0) <= 0) && interfaceSettings.hideExtraOptions) && (
+                            {sizes.length > 0 && productAvailable && (
                                 <div className="grid grid-cols-4 gap-x-2 gap-y-3 px-0">
                                     {sizes.map((size) => (
                                         <button
@@ -434,7 +436,7 @@ const ProductDetail = () => {
                             )}
 
                             {/* Colors */}
-                            {colors.length > 0 && !((Number(product.stock || 0) <= 0) && interfaceSettings.hideExtraOptions) && (
+                            {colors.length > 0 && productAvailable && (
                                 <div className="flex justify-center flex-wrap gap-2 mt-4">
                                     {colors.map((color) => (
                                         <button
@@ -452,7 +454,7 @@ const ProductDetail = () => {
                             )}
 
                             {/* Add to Cart Button */}
-                            {Number(product.stock || 0) <= 0 ? (
+                            {!productAvailable ? (
                                 <button
                                     disabled
                                     className="w-full py-4 rounded-xl bg-gray-400 dark:bg-zinc-800 text-white dark:text-gray-500 font-black text-xl shadow-lg cursor-not-allowed flex items-center justify-center gap-3 mt-2 opacity-70"

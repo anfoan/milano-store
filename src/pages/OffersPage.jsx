@@ -8,6 +8,7 @@ import { useSettings } from '../hooks/useSettings';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import ImageWithFallback from '../components/ImageWithFallback';
+import { hasAvailableStock } from '../lib/stockUtils';
 
 const OffersPage = () => {
     const [products, setProducts] = useState([]);
@@ -22,7 +23,7 @@ const OffersPage = () => {
         try {
             const cached = JSON.parse(localStorage.getItem('cached_products') || '[]');
             if (Array.isArray(cached)) {
-                const cachedOffers = cached.filter(p => !p.hidden && !p.isOfferPaused && (Number(p.discount || 0) > 0 || Number(p.priceAfterDiscount || 0) < Number(p.price || 0)));
+                const cachedOffers = cached.filter(p => !p.hidden && !p.isOfferPaused && hasAvailableStock(p) && (Number(p.discount || 0) > 0 || Number(p.priceAfterDiscount || 0) < Number(p.price || 0)));
                 setProducts(cachedOffers);
                 setLoading(false);
             }
@@ -39,7 +40,7 @@ const OffersPage = () => {
                         const isVisible = !p.hidden;
                         const hasDiscount = (Number(p.discount || 0) > 0 || (p.priceAfterDiscount && Number(p.priceAfterDiscount) < Number(p.price))) && !p.isOfferPaused;
                         const hideOutOfStock = interfaceSettings?.hideOutOfStock;
-                        const hasStock = hideOutOfStock ? (Number(p.stock || 0) > 0) : true;
+                        const hasStock = hasAvailableStock(p);
                         return isVisible && hasDiscount && hasStock;
                     })
                     .sort((a, b) => {

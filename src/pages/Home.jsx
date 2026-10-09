@@ -7,6 +7,7 @@ import { useSettings } from '../hooks/useSettings';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
+import { hasAvailableStock } from '../lib/stockUtils';
 import DraggableScrollContainer from '../components/DraggableScrollContainer';
 
 
@@ -646,7 +647,7 @@ const Home = () => {
                                 <span className="block text-sm md:text-base font-black text-gray-900 dark:text-white border border-gray-200 dark:border-white/5 bg-gray-100 dark:bg-white/5 rounded-lg py-1 px-2 mx-auto w-fit min-w-[40px]">
                                     {products.filter(p => {
                                         const isVisible = !p.hidden;
-                                        const hasStock = hideOutOfStock ? (Number(p.stock || 0) > 0) : true;
+                                        const hasStock = hasAvailableStock(p);
                                         return isVisible && hasStock;
                                     }).length}
                                 </span>
@@ -788,7 +789,7 @@ const Home = () => {
                             const categoryProducts = products.filter(p => {
                                 const matchesCategory = p.category === cat;
                                 const isVisible = !p.hidden;
-                                const hasStock = hideOutOfStock ? (Number(p.stock || 0) > 0) : true;
+                                const hasStock = hasAvailableStock(p);
                                 return matchesCategory && isVisible && hasStock;
                             });
 
