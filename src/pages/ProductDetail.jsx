@@ -19,7 +19,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import DraggableScrollContainer from '../components/DraggableScrollContainer';
 import QuantityStepper from '../components/QuantityStepper';
-import { hasAvailableStock } from '../lib/stockUtils';
+import { getAvailableSizeValues, getSizeStock, hasAvailableStock } from '../lib/stockUtils';
 
 const ProductDetail = () => {
     const { t, direction, language } = useLanguage();
@@ -72,13 +72,7 @@ const ProductDetail = () => {
                     const colorVariant = data.variants?.find(v => v.type === 'color');
 
                     if (sizeVariant?.values?.length > 0) {
-                        const availableSizes = sizeVariant.values.filter(size => {
-                            if (!data.sizeStocks) {
-                                return Number(data.stock ?? 0) > 0;
-                            }
-                            const stock = Number(data.sizeStocks[size]);
-                            return !isNaN(stock) && stock > 0;
-                        });
+                        const availableSizes = sizeVariant.values.filter(size => !data.sizeStocks || getSizeStock(data, size) > 0);
                         if (availableSizes.length > 0) {
                             setSelectedSize(availableSizes[0]);
                         } else {
@@ -229,23 +223,15 @@ const ProductDetail = () => {
         </div>
     );
 
-    const sizes = (product.variants?.find(v => v.type === 'size')?.values || ['S', 'M', 'L', 'XL', 'XXL'])
-        .filter(size => {
-            if (!product.sizeStocks) {
-                return Number(product.stock ?? 0) > 0;
-            }
-            const stock = Number(product.sizeStocks[size]);
-            return !isNaN(stock) && stock > 0;
-        });
+    const sizes = product.sizeStocks
+        ? getAvailableSizeValues(product)
+        : (product.variants?.find(v => v.type === 'size')?.values || ['S', 'M', 'L', 'XL', 'XXL']);
     const colors = product.variants?.find(v => v.type === 'color')?.values || [];
     const gallery = [product.mainImage, ...(product.gallery || [])].filter(Boolean);
 
     // The customer can only add the quantity still available for the selected variant.
     const getSelectedStock = () => {
-        if (selectedSize && product.sizeStocks && Object.prototype.hasOwnProperty.call(product.sizeStocks, selectedSize)) {
-            return Math.max(0, Number(product.sizeStocks[selectedSize]) || 0);
-        }
-        return Math.max(0, Number(product.stock) || 0);
+        return Math.max(0, getSizeStock(product, selectedSize));
     };
     const selectedStock = getSelectedStock();
     const productAvailable = hasAvailableStock(product);
