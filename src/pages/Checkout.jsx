@@ -531,6 +531,7 @@ const Checkout = () => {
             walletApplied,
             amountDueAfterWallet,
             status: 'new',
+            inventoryCommitted: false,
             currency: activeCurrency, // Store the currency the customer used
             date: new Date().toISOString().split('T')[0],
             createdAt: serverTimestamp(),
@@ -639,7 +640,6 @@ const Checkout = () => {
                         : Math.max(0, Number(data.stock || 0));
                     if (group.total > currentStock) throw new Error(`INSUFFICIENT_STOCK:${productId}`);
 
-                    const updates = { stock: currentStock - group.total };
                     if (hasSizeStocks) {
                         const nextSizeStocks = { ...data.sizeStocks };
                         group.items.forEach(item => {
@@ -647,12 +647,8 @@ const Checkout = () => {
                             const currentSizeStock = Number(nextSizeStocks[item.size] || 0);
                             const qty = Number(item.quantity) || 0;
                             if (qty > currentSizeStock) throw new Error(`INSUFFICIENT_SIZE_STOCK:${productId}:${item.size}`);
-                            nextSizeStocks[item.size] = currentSizeStock - qty;
                         });
-                        updates.sizeStocks = nextSizeStocks;
-                        updates.stock = Object.values(nextSizeStocks).reduce((sum, quantity) => sum + Math.max(0, Number(quantity) || 0), 0);
                     }
-                    transaction.update(productRefs[idx], updates);
                 });
                 transaction.set(orderRef, orderData);
                 const history = buildCustomerOrderHistory(orderData, orderRef.id);
