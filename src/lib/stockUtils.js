@@ -3,7 +3,7 @@ export const toStockNumber = (value) => {
         .replace(/[٠-٩]/g, digit => '٠١٢٣٤٥٦٧٨٩'.indexOf(digit))
         .replace(/,/g, '')
         .trim();
-    const number = Number(normalized);
+    const number = Number(normalized.match(/^-?\d+(?:\.\d+)?/)?.[0] ?? normalized);
     return Number.isFinite(number) ? number : 0;
 };
 

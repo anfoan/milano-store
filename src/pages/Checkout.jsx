@@ -495,7 +495,8 @@ const Checkout = () => {
             const requested = toStockNumber(item.quantity);
             const currentStock = toStockNumber(item.currentStock);
             const sizeStock = item.size && item.sizeStocks ? getSizeStock({ sizeStocks: item.sizeStocks }, item.size) : currentStock;
-            return requested <= 0 || requested > currentStock || (item.size && item.sizeStocks && requested > sizeStock);
+            const hasSizeStock = Boolean(item.size && item.sizeStocks);
+            return requested <= 0 || (hasSizeStock ? requested > sizeStock : requested > currentStock);
         });
         if (invalidStockItem) {
             alert(`عذراً، الكمية المطلوبة من "${invalidStockItem.title}" أكبر من الكمية المتوفرة في المخزون.`);
@@ -637,7 +638,7 @@ const Checkout = () => {
                     const currentStock = hasSizeStocks
                         ? Object.values(data.sizeStocks).reduce((sum, quantity) => sum + Math.max(0, toStockNumber(quantity)), 0)
                         : Math.max(0, toStockNumber(data.stock));
-                    if (group.total > currentStock) throw new Error(`INSUFFICIENT_STOCK:${productId}`);
+                    if (!hasSizeStocks && group.total > currentStock) throw new Error(`INSUFFICIENT_STOCK:${productId}`);
 
                     if (hasSizeStocks) {
                         const nextSizeStocks = { ...data.sizeStocks };
