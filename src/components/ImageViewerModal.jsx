@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, ZoomIn, Play, Maximize, Grid, Pause } from 'lucide-react';
+import { optimizeProductImage } from '../lib/imageUtils';
 
 const ImageViewerModal = ({ isOpen, onClose, images, initialIndex = 0 }) => {
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -106,7 +107,7 @@ const ImageViewerModal = ({ isOpen, onClose, images, initialIndex = 0 }) => {
                         onClick={() => setIsZoomed(!isZoomed)}
                     >
                         <img
-                            src={images[currentIndex]}
+                            src={optimizeProductImage(images[currentIndex], undefined, 100)}
                             alt={`View ${currentIndex + 1}`}
                             className="max-h-[70vh] md:max-h-[80vh] w-auto max-w-full object-contain select-none"
                             draggable={false}
@@ -135,7 +136,7 @@ const ImageViewerModal = ({ isOpen, onClose, images, initialIndex = 0 }) => {
                                 className={`relative w-16 h-20 md:w-20 md:h-24 shrink-0 rounded-md overflow-hidden border-2 transition-all ${currentIndex === idx ? 'border-blue-500 opacity-100' : 'border-transparent opacity-50 hover:opacity-80'
                                     }`}
                             >
-                                <img src={img} alt={`Thumb ${idx}`} className="w-full h-full object-cover" />
+                                <img src={optimizeProductImage(img, 320, 90)} alt={`Thumb ${idx}`} className="w-full h-full object-cover" />
                             </button>
                         ))}
                     </div>

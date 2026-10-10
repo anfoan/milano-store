@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ShoppingBag } from 'lucide-react';
+import { optimizeProductImage } from '../lib/imageUtils';
 
 const ImageWithFallback = ({ src, alt, className, loading = "lazy", decoding = "async" }) => {
     const [error, setError] = useState(false);
@@ -14,7 +15,7 @@ const ImageWithFallback = ({ src, alt, className, loading = "lazy", decoding = "
 
     return (
         <img
-            src={src}
+            src={optimizeProductImage(src, 900, 90)}
             alt={alt}
             className={className}
             loading={loading}

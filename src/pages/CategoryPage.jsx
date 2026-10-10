@@ -12,7 +12,7 @@ const optimizeCategoryImage = (url, width = 560) => {
     try {
         const parsed = new URL(url, window.location.href);
         if (parsed.hostname.includes('res.cloudinary.com') && parsed.pathname.includes('/upload/')) {
-            parsed.pathname = parsed.pathname.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`);
+            parsed.pathname = parsed.pathname.replace('/upload/', `/upload/f_auto,q_90,dpr_auto,w_${width}/`);
         } else if (parsed.hostname.includes('images.unsplash.com')) {
             parsed.searchParams.set('auto', 'format');
             parsed.searchParams.set('fit', 'crop');

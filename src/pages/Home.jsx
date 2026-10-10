@@ -37,7 +37,7 @@ const optimizeImageUrl = (url, width) => {
     try {
         const parsed = new URL(url, window.location.href);
         if (parsed.hostname.includes('res.cloudinary.com') && parsed.pathname.includes('/upload/')) {
-            parsed.pathname = parsed.pathname.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`);
+            parsed.pathname = parsed.pathname.replace('/upload/', `/upload/f_auto,q_90,dpr_auto,w_${width}/`);
             return parsed.toString();
         }
         if (parsed.hostname.includes('images.unsplash.com')) {

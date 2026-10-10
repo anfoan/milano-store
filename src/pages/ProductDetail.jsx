@@ -20,6 +20,7 @@ import { getLocalizedCurrency } from '../lib/currencyUtils';
 import DraggableScrollContainer from '../components/DraggableScrollContainer';
 import QuantityStepper from '../components/QuantityStepper';
 import { getAvailableSizeValues, getSizeStock, hasAvailableStock } from '../lib/stockUtils';
+import { optimizeProductImage } from '../lib/imageUtils';
 
 const ProductDetail = () => {
     const { t, direction, language } = useLanguage();
@@ -491,7 +492,7 @@ const ProductDetail = () => {
                                         onClick={() => { setImageViewerStartIndex(0); setShowImageViewer(true); }}
                                     >
                                         <img
-                                            src={product.mainImage}
+                                            src={optimizeProductImage(product.mainImage, 1200, 90)}
                                             alt={product.name}
                                             loading="eager"
                                             decoding="async"
@@ -549,7 +550,7 @@ const ProductDetail = () => {
                                         className="w-24 h-24 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-[#1a1d23] shrink-0"
                                         onClick={() => { setImageViewerStartIndex(0); setShowImageViewer(true); }}
                                     >
-                                        <img src={product.mainImage} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                                        <img src={optimizeProductImage(product.mainImage, 1200, 90)} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex flex-col items-start gap-2 text-right">
                                         <h1 className="text-base font-black text-gray-900 dark:text-white leading-tight">
@@ -619,7 +620,7 @@ const ProductDetail = () => {
                                                 }}
                                             >
                                                 <ImageWithFallback
-                                                    src={img}
+                                                    src={optimizeProductImage(img, 320, 90)}
                                                     alt={`${product.name} ${i + 1}`}
                                                     className="w-full h-full object-cover"
                                                 />
@@ -769,7 +770,7 @@ const ProductDetail = () => {
                             >
                                 <div className="bg-gray-50 dark:bg-[#1a1d23] rounded-[28px] overflow-hidden border border-gray-100 dark:border-white/5 relative z-10 flex-1 flex flex-col">
                                     <div className="relative aspect-square w-full bg-gray-200 dark:bg-[#2b2d31]">
-                                        <img src={p.mainImage} alt={p.name} className="absolute inset-0 w-full h-full object-cover" draggable="false" />
+                                        <img src={optimizeProductImage(p.mainImage, 560, 90)} alt={p.name} className="absolute inset-0 w-full h-full object-cover" draggable="false" />
                                         {p.priceAfterDiscount && p.priceAfterDiscount < p.price && (
                                             <div className="absolute top-4 left-2 bg-[#f43f5e] text-white text-[10px] font-black px-2 py-1 rounded-lg flex items-center gap-0.5 shadow-md z-10">
                                                 <span className="transform rotate-45 text-[10px]">🏷️</span>
