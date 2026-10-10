@@ -13,7 +13,6 @@ import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import { getCustomerWalletId } from '../lib/wallet';
-import { hasAvailableStock } from '../lib/stockUtils';
 
 const Navbar = () => {
     const { theme } = useTheme();
@@ -153,11 +152,6 @@ const Navbar = () => {
                 ...doc.data()
             })).filter(product => {
                 if (product.hidden) return false; // Hide hidden products from search
-
-                // New: respect hideOutOfStock setting
-                const hideOutOfStock = interfaceSettings?.hideOutOfStock;
-                const hasStock = hasAvailableStock(product);
-                if (!hasStock) return false;
 
                 const searchLower = term.toLowerCase();
                 const nameMatch = product.name?.toLowerCase().includes(searchLower);
