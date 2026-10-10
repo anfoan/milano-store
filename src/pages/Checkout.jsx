@@ -478,8 +478,11 @@ const Checkout = () => {
                 const pDoc = await getDoc(doc(db, "products", item.id));
                 const data = pDoc.exists() ? pDoc.data() : {};
                 const cost = Number(data.costPrice || 0);
-                const currentStock = Number(data.stock || 0);
-                return { ...item, costPrice: cost, currentStock };
+                const hasSizeStocks = data.sizeStocks && Object.keys(data.sizeStocks).length > 0;
+                const currentStock = hasSizeStocks
+                    ? Object.values(data.sizeStocks).reduce((sum, quantity) => sum + Math.max(0, Number(quantity) || 0), 0)
+                    : Math.max(0, Number(data.stock || 0));
+                return { ...item, costPrice: cost, currentStock, sizeStocks: data.sizeStocks || null };
             } catch (err) {
                 console.error("Error fetching details for", item.id, err);
                 return { ...item, costPrice: 0, currentStock: 0 };
