@@ -443,7 +443,7 @@ const ProductDetail = () => {
                             {!productAvailable ? (
                                 <button
                                     disabled
-                                    className="w-full py-4 rounded-xl bg-gray-400 dark:bg-zinc-800 text-white dark:text-gray-500 font-black text-xl shadow-lg cursor-not-allowed flex items-center justify-center gap-3 mt-2 opacity-70"
+                                    className="w-full py-4 rounded-xl border border-gray-400 bg-gray-300 text-gray-950 dark:border-zinc-500 dark:bg-zinc-700 dark:text-white font-black text-xl shadow-lg cursor-not-allowed flex items-center justify-center gap-3 mt-2 opacity-100"
                                 >
                                     <span>{t('product.out_of_stock')}</span>
                                     <AlertTriangle className="w-6 h-6" />
