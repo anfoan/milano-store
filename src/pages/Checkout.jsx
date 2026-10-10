@@ -11,6 +11,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import { getCustomerWalletId, getPhoneWalletId, hashWalletPin, normalizePhone, walletNumber } from '../lib/wallet';
 import { buildCustomerOrderHistory, customerOrderHistoryRef } from '../lib/customerOrderHistory';
+import { getSizeStock, toStockNumber } from '../lib/stockUtils';
 
 const Checkout = () => {
     const { t, direction, language } = useLanguage();
@@ -480,8 +481,8 @@ const Checkout = () => {
                 const cost = Number(data.costPrice || 0);
                 const hasSizeStocks = data.sizeStocks && Object.keys(data.sizeStocks).length > 0;
                 const currentStock = hasSizeStocks
-                    ? Object.values(data.sizeStocks).reduce((sum, quantity) => sum + Math.max(0, Number(quantity) || 0), 0)
-                    : Math.max(0, Number(data.stock || 0));
+                    ? Object.values(data.sizeStocks).reduce((sum, quantity) => sum + Math.max(0, toStockNumber(quantity)), 0)
+                    : Math.max(0, toStockNumber(data.stock));
                 return { ...item, costPrice: cost, currentStock, sizeStocks: data.sizeStocks || null };
             } catch (err) {
                 console.error("Error fetching details for", item.id, err);
@@ -491,11 +492,9 @@ const Checkout = () => {
 
         // Always validate the requested quantity against the latest inventory.
         const invalidStockItem = cartItemsWithDetails.find(item => {
-            const requested = Number(item.quantity) || 0;
-            const currentStock = Number(item.currentStock) || 0;
-            const sizeStock = item.size && item.sizeStocks && Object.prototype.hasOwnProperty.call(item.sizeStocks, item.size)
-                ? Number(item.sizeStocks[item.size] || 0)
-                : currentStock;
+            const requested = toStockNumber(item.quantity);
+            const currentStock = toStockNumber(item.currentStock);
+            const sizeStock = item.size && item.sizeStocks ? getSizeStock({ sizeStocks: item.sizeStocks }, item.size) : currentStock;
             return requested <= 0 || requested > currentStock || (item.size && item.sizeStocks && requested > sizeStock);
         });
         if (invalidStockItem) {
@@ -636,16 +635,19 @@ const Checkout = () => {
                     const data = snap.data();
                     const hasSizeStocks = data.sizeStocks && Object.keys(data.sizeStocks).length > 0;
                     const currentStock = hasSizeStocks
-                        ? Object.values(data.sizeStocks).reduce((sum, quantity) => sum + Math.max(0, Number(quantity) || 0), 0)
-                        : Math.max(0, Number(data.stock || 0));
+                        ? Object.values(data.sizeStocks).reduce((sum, quantity) => sum + Math.max(0, toStockNumber(quantity)), 0)
+                        : Math.max(0, toStockNumber(data.stock));
                     if (group.total > currentStock) throw new Error(`INSUFFICIENT_STOCK:${productId}`);
 
                     if (hasSizeStocks) {
                         const nextSizeStocks = { ...data.sizeStocks };
                         group.items.forEach(item => {
-                            if (!item.size || !Object.prototype.hasOwnProperty.call(nextSizeStocks, item.size)) throw new Error(`SIZE_REQUIRED:${productId}`);
-                            const currentSizeStock = Number(nextSizeStocks[item.size] || 0);
-                            const qty = Number(item.quantity) || 0;
+                            const sizeKey = item.size && Object.prototype.hasOwnProperty.call(nextSizeStocks, item.size)
+                                ? item.size
+                                : Object.keys(nextSizeStocks).find(key => String(key).replace(/[٠-٩]/g, digit => '٠١٢٣٤٥٦٧٨٩'.indexOf(digit)).replace(/^\s*مقاس\s*/i, '').replace(/[：:]/g, '').replace(/\s+/g, '').toLowerCase() === String(item.size || '').replace(/[٠-٩]/g, digit => '٠١٢٣٤٥٦٧٨٩'.indexOf(digit)).replace(/^\s*مقاس\s*/i, '').replace(/[：:]/g, '').replace(/\s+/g, '').toLowerCase());
+                            if (!item.size || !sizeKey) throw new Error(`SIZE_REQUIRED:${productId}`);
+                            const currentSizeStock = toStockNumber(nextSizeStocks[sizeKey]);
+                            const qty = toStockNumber(item.quantity);
                             if (qty > currentSizeStock) throw new Error(`INSUFFICIENT_SIZE_STOCK:${productId}:${item.size}`);
                         });
                     }
@@ -668,13 +670,13 @@ const Checkout = () => {
                         const fixes = {};
                         if (Number(data.stock || 0) < 0) fixes.stock = 0;
                         if (item.size && data.sizeStocks) {
-                            const sizeQty = Number(data.sizeStocks?.[item.size] || 0);
+                            const sizeQty = getSizeStock(data, item.size);
                             if (sizeQty < 0) fixes[`sizeStocks.${item.size}`] = 0;
                         }
                         // Sync total stock with sum of sizes if product has sizes
                         if (data.sizeStocks && Object.keys(data.sizeStocks).length > 0) {
-                            const sumOfSizes = Object.values(data.sizeStocks).reduce((sum, qty) => sum + Number(qty || 0), 0);
-                            const currentStock = Number(data.stock || 0);
+                            const sumOfSizes = Object.values(data.sizeStocks).reduce((sum, qty) => sum + toStockNumber(qty), 0);
+                            const currentStock = toStockNumber(data.stock);
                             // if size was just fixed to 0, recalculate
                             const adjustedStock = fixes.stock !== undefined ? 0 : currentStock;
                             if (adjustedStock !== sumOfSizes) {
