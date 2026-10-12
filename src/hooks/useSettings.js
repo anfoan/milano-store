@@ -77,7 +77,7 @@ const startSharedListeners = () => {
         const rawData = snapshot.data();
         const data = {
             ...rawData,
-            profileImage: rawData.profileImage || rawData.logoImage || '',
+            profileImage: rawData.profileImage && rawData.profileImage !== rawData.navLogo ? rawData.profileImage : '',
             brands: {
                 nike: rawData.brands?.nike || '',
                 adidas: rawData.brands?.adidas || '',
