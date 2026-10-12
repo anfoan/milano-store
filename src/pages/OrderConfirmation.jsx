@@ -348,9 +348,9 @@ const OrderConfirmation = () => {
                                     {formatPrice(subTotal || (total - (deliveryCost || 0) + (discount || 0)), currency || 'YER')}
                                 </span>
                             </div>
-                            <div className="flex justify-between items-center text-sm">
+                            <div className="flex justify-end items-center gap-2 text-sm">
                                 <div className="flex items-center gap-2 font-bold">
-                                    <span className="text-gray-500 dark:text-gray-400">{t('tracking.discount')}:</span>
+                                    <span className="text-red-500 dark:text-red-400">{t('tracking.discount')}:</span>
                                     {couponCode && <span className="text-[10px] text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded-md">#{couponCode}</span>}
                                     {(() => {
                                         const productDiscount = Number(discount || 0);
