@@ -196,7 +196,7 @@ const Navbar = () => {
                             {/* Store Title & Logo */}
                             <Link reloadDocument to="/" className="flex items-center gap-2 md:gap-3 font-black text-lg md:text-xl text-gray-900 dark:text-white hover:text-blue-500 transition-colors whitespace-nowrap pl-2">
                                 <img
-                                    src="/logo-rounded.png"
+                                    src={imageSettings?.navLogo || "/logo-rounded.png"}
                                     alt="Milano Logo"
                                     className="w-9 h-9 md:w-10 md:h-10 object-contain rounded-xl shadow-sm"
                                     onError={(e) => {
