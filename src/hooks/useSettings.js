@@ -23,7 +23,10 @@ const DEFAULTS = {
         contactForm: true
     },
     generalSettings: { storeName: '', currency: 'YER', countryFlag: 'ye' },
-    imageSettings: { profileImage: '', coverImage: '', logoImage: '' },
+    imageSettings: {
+        profileImage: '', coverImage: '', logoImage: '', invoiceLogo: '', navLogo: '',
+        brands: { nike: '', adidas: '', puma: '', lacoste: '' }
+    },
     cartSettings: {
         minOrderAmount: '', enableMinAmount: false,
         maxOrderAmount: '', enableMaxAmount: false,
@@ -71,7 +74,17 @@ const startSharedListeners = () => {
     onSnapshot(doc(db, 'settings', 'general'), snapshot => updateSetting('generalSettings', snapshot.exists() ? snapshot.data() : null, CACHE_KEYS.GENERAL), error => console.error('General settings error:', error));
     onSnapshot(doc(db, 'settings', 'images'), snapshot => {
         if (!snapshot.exists()) return;
-        const data = snapshot.data();
+        const rawData = snapshot.data();
+        const data = {
+            ...rawData,
+            profileImage: rawData.profileImage || rawData.logoImage || '',
+            brands: {
+                nike: rawData.brands?.nike || '',
+                adidas: rawData.brands?.adidas || '',
+                puma: rawData.brands?.puma || '',
+                lacoste: rawData.brands?.lacoste || ''
+            }
+        };
         updateSetting('imageSettings', data, CACHE_KEYS.IMAGES);
         if (data.invoiceLogo) updateSetting('generalSettings', { invoiceLogo: data.invoiceLogo }, CACHE_KEYS.GENERAL);
     }, error => console.error('Image settings error:', error));
