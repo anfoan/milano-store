@@ -172,11 +172,18 @@ const PageMetadataHandler = () => {
                 window.__milanoInstallIcon = iconData;
                 setIcon(iconData);
                 const manifestLink = document.querySelector("link[rel='manifest']") || document.head.appendChild(Object.assign(document.createElement('link'), { rel: 'manifest' }));
-                const manifest = { name: generalSettings?.storeName || 'متجر ميلانو', short_name: generalSettings?.storeName || 'متجر ميلانو', id: '/', start_url: '/', scope: '/', display: 'standalone', background_color: '#ffffff', theme_color: '#ffffff', icons: [{ src: iconData, sizes: '128x128', type: 'image/png', purpose: 'any' }] };
+                const manifest = { name: generalSettings?.storeName || 'متجر ميلانو', short_name: generalSettings?.storeName || 'متجر ميلانو', id: '/', start_url: '/', scope: '/', display: 'standalone', background_color: '#ffffff', theme_color: '#ffffff', icons: [{ src: iconData, sizes: '192x192', type: 'image/png', purpose: 'any' }, { src: iconData, sizes: '512x512', type: 'image/png', purpose: 'any' }] };
                 if (manifestLink.dataset.blobUrl) URL.revokeObjectURL(manifestLink.dataset.blobUrl);
                 const blobUrl = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' }));
                 manifestLink.dataset.blobUrl = blobUrl;
                 manifestLink.href = blobUrl;
+                let latestAppleIcon = document.querySelector("link[rel='apple-touch-icon']");
+                if (!latestAppleIcon) {
+                    latestAppleIcon = document.createElement('link');
+                    latestAppleIcon.rel = 'apple-touch-icon';
+                    document.head.appendChild(latestAppleIcon);
+                }
+                latestAppleIcon.href = iconData;
             };
             image.onerror = () => {};
             image.src = iconHref;
