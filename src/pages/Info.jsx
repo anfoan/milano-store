@@ -203,7 +203,9 @@ const Info = () => {
                                                     rel="noopener noreferrer" 
                                                     className={`flex items-center gap-3 p-4 rounded-2xl bg-gray-50 dark:bg-white/5 ${hoverColors[id]}`}
                                                 >
-                                                    <img src={iconMap[id]} alt={labelMap[id]} className="w-6 h-6" />
+                                                    <span className="social-wave-icon" aria-hidden="true">
+                                                        <img src={iconMap[id]} alt={labelMap[id]} className="w-6 h-6" />
+                                                    </span>
                                                     <span className={`font-bold text-gray-700 dark:text-gray-300 ${textColors[id]}`}>{labelMap[id]}</span>
                                                 </a>
                                             );

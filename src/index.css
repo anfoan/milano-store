@@ -13,6 +13,38 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+@keyframes social-wave-shine {
+  0% { transform: translateX(-150%) skewX(-18deg); opacity: 0; }
+  18% { opacity: .8; }
+  42%, 100% { transform: translateX(180%) skewX(-18deg); opacity: 0; }
+}
+
+.social-wave-icon {
+  position: relative;
+  display: inline-flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  overflow: hidden;
+  border-radius: .45rem;
+  isolation: isolate;
+}
+
+.social-wave-icon::after {
+  content: '';
+  position: absolute;
+  inset: -35% auto -35% -55%;
+  width: 42%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.9), transparent);
+  filter: blur(1px);
+  pointer-events: none;
+  animation: social-wave-shine 2.8s ease-in-out infinite;
+}
+
+.social-wave-icon img {
+  position: relative;
+  z-index: 0;
+}
+
 @layer base {
   body {
     @apply bg-gray-50 text-gray-900 dark:bg-[#111317] dark:text-white transition-colors duration-300;
