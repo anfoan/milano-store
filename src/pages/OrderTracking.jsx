@@ -299,6 +299,13 @@ const OrderTracking = () => {
     const currentStepIndex = stepLabels.findIndex(s => s.status === order.status) !== -1
         ? stepLabels.findIndex(s => s.status === order.status)
         : 0;
+    const stepTone = {
+        new: { active: 'bg-orange-500 border-orange-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.4)]', label: 'text-orange-500', line: 'bg-orange-500' },
+        processing: { active: 'bg-violet-500 border-violet-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.4)]', label: 'text-violet-500', line: 'bg-violet-500' },
+        shipping: { active: 'bg-blue-500 border-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]', label: 'text-blue-500', line: 'bg-blue-500' },
+        completed: { active: 'bg-green-500 border-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]', label: 'text-green-500', line: 'bg-green-500' },
+    };
+    const currentTone = stepTone[stepLabels[currentStepIndex]?.status] || stepTone.new;
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-[#111317] text-gray-900 dark:text-white pb-0 font-['Cairo'] transition-colors duration-300">
@@ -336,30 +343,31 @@ const OrderTracking = () => {
                             </h3>
                             <button
                                 onClick={() => {
-                                    navigator.clipboard.writeText(`${storeUrl}/order-tracking/${displayedId.replace('#', '').replace(/\s+/g, '')}`);
-                                    alert(t('tracking.link_copied'));
+                                    navigator.clipboard.writeText(formatOrderId(displayedId));
+                                    alert('تم نسخ رقم الفاتورة');
                                 }}
                                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-colors shadow-lg shadow-blue-500/20"
                             >
-                                <span className="hidden md:inline">{t('tracking.copy_link')}</span>
+                                <span className="hidden md:inline">نسخ رقم الفاتورة</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>
                             </button>
                         </div>
 
-                        <div className="bg-gray-50 dark:bg-[#111317] border border-gray-200 dark:border-white/5 rounded-xl p-4 mb-6 flex items-center justify-between gap-4 font-mono text-sm text-gray-600 dark:text-gray-400 select-all">
-                            <span className="truncate">{storeUrl}/order-tracking/{displayedId.replace('#', '').replace(/\s+/g, '')}</span>
+                        <div className="bg-gray-50 dark:bg-[#111317] border border-gray-200 dark:border-white/5 rounded-xl p-4 mb-6 flex items-center justify-between gap-4 text-sm text-gray-600 dark:text-gray-400 select-all">
+                            <span className="font-bold">رقم الفاتورة</span>
+                            <span dir="ltr" className="font-mono font-black">{formatOrderId(displayedId)}</span>
                         </div>
 
                         <div className="relative flex justify-between items-center px-2 md:px-6">
                             <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 dark:bg-white/10 -translate-y-1/2 rounded-full"></div>
-                            <div className="absolute top-1/2 right-0 h-1 bg-green-500 -translate-y-1/2 rounded-full transition-all duration-1000" style={{ width: `${(currentStepIndex / (stepLabels.length - 1)) * 100}%` }}></div>
+                            <div className={`absolute top-1/2 right-0 h-1 ${currentTone.line} -translate-y-1/2 rounded-full transition-all duration-1000`} style={{ width: `${(currentStepIndex / (stepLabels.length - 1)) * 100}%` }}></div>
 
                             {stepLabels.map((step, idx) => (
                                 <div key={idx} className="flex flex-col items-center gap-2 relative z-10">
-                                    <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 transition-colors ${idx <= currentStepIndex ? 'bg-green-500 border-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]' : 'bg-gray-100 dark:bg-[#2b2d31] border-gray-200 dark:border-white/10 text-gray-500'}`}>
-                                        <step.icon size={16} />
+                                    <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 transition-colors ${idx <= currentStepIndex ? stepTone[step.status].active : 'bg-gray-100 dark:bg-[#2b2d31] border-gray-200 dark:border-white/10 text-gray-500'}`}>
+                                        <step.icon size={16} className={step.status === 'shipping' ? 'scale-x-[-1]' : ''} />
                                     </div>
-                                    <span className={`text-[10px] md:text-xs font-bold ${idx <= currentStepIndex ? 'text-green-500' : 'text-gray-500'}`}>{step.label}</span>
+                                    <span className={`text-[10px] md:text-xs font-bold ${idx <= currentStepIndex ? stepTone[step.status].label : 'text-gray-500'}`}>{step.label}</span>
                                 </div>
                             ))}
                         </div>
@@ -429,7 +437,7 @@ const OrderTracking = () => {
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-500 dark:text-gray-400">{t('tracking.order_number')}</span>
-                                <span className="text-gray-900 dark:text-white font-mono font-bold tracking-wider">{displayedId}</span>
+                                <span className="text-gray-900 dark:text-white font-mono font-bold tracking-wider">{formatOrderId(displayedId)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-500 dark:text-gray-400">{t('tracking.order_date')}</span>
