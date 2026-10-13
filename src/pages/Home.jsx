@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { ShoppingBag, Star, MapPin, Search, Clock, ShieldCheck, Info, Facebook, Instagram, Music2, Share2, Map as MapIcon, Package, ArrowRight, VolumeX, X, Maximize2, ArrowLeftRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { collection, query, doc, onSnapshot, setDoc, increment, serverTimestamp } from 'firebase/firestore';
 import { useSettings } from '../hooks/useSettings';
@@ -84,6 +84,8 @@ const Home = () => {
     const [selectedPromotionalVideo, setSelectedPromotionalVideo] = useState(null);
     const [selectedVideoMuted, setSelectedVideoMuted] = useState(true);
     const [isVideoFullscreen, setIsVideoFullscreen] = useState(false);
+    const [trackingOpen, setTrackingOpen] = useState(false);
+    const [trackingInvoice, setTrackingInvoice] = useState('');
     const selectedVideoElementRef = useRef(null);
     const selectedVideoContainerRef = useRef(null);
     const [categories, setCategories] = useState(() => {
@@ -103,6 +105,7 @@ const Home = () => {
         }
     });
     const { t, language } = useLanguage();
+    const navigate = useNavigate();
     const { formatPrice } = useCurrency();
     // Global Settings
     const { interfaceSettings, generalSettings, imageSettings, socialLinks: settingsSocialLinks, orderedSocialLinks, loading: settingsLoading } = useSettings();
@@ -119,6 +122,14 @@ const Home = () => {
     const contactEnabled = interfaceSettings?.contactForm ?? true;
     const showCategoriesGrid = interfaceSettings?.showCategories ?? true; // Keep categories visible unless explicitly disabled
     const showProductSections = true; // Always show product rows to ensure content visibility
+
+    const handleInvoiceTracking = (event) => {
+        event.preventDefault();
+        const invoiceNumber = trackingInvoice.trim();
+        if (!invoiceNumber) return;
+        setTrackingOpen(false);
+        navigate(`/order-tracking/${encodeURIComponent(invoiceNumber.replace(/\s+/g, ''))}`);
+    };
 
     // Calculate max discount for the banner
     const maxDiscount = products.length > 0
@@ -552,7 +563,9 @@ const Home = () => {
                                 />
                             </div>
                             <div className="inline-flex items-center gap-1.5 mb-3">
-                                <span className="text-[11px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-100 dark:bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-200 dark:border-cyan-400/20">{t('home.seller_rating')}</span>
+                                <button type="button" onClick={() => setTrackingOpen(true)} className="text-[11px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-100 dark:bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-200 dark:border-cyan-400/20 hover:bg-cyan-200 dark:hover:bg-cyan-400/20 transition-colors">
+                                    ادخل رقم فاتورة طلبك لتتبع طلبك
+                                </button>
                             </div>
                             <div className="flex justify-center gap-1.5 text-yellow-500">
                                 {[1, 2, 3, 4, 5].map(i => <Star key={i} size={20} fill="currentColor" />)}
@@ -901,6 +914,25 @@ const Home = () => {
                         <button type="button" aria-label="تكبير الفيديو" onClick={toggleVideoFullscreen} className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm"><Maximize2 size={17} /></button>
                         <button type="button" onClick={() => { setSelectedPromotionalVideo(null); setIsVideoFullscreen(false); }} className="flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm"><X size={20} /></button>
                     </div>
+                </div>
+            </div>
+        )}
+
+        {trackingOpen && (
+            <div className="fixed inset-0 z-[280] flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm" dir="rtl" onClick={() => setTrackingOpen(false)}>
+                <div className="w-full max-w-xs rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#171b26]" onClick={(event) => event.stopPropagation()}>
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                        <h2 className="text-sm font-black text-slate-900 dark:text-white">تتبع طلبك</h2>
+                        <button type="button" aria-label="إغلاق" onClick={() => setTrackingOpen(false)} className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10"><X size={16} /></button>
+                    </div>
+                    <p className="mb-3 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400">ادخل رقم فاتورة طلبك لمعرفة حالة الطلب.</p>
+                    <form onSubmit={handleInvoiceTracking} className="space-y-2">
+                        <div className="relative">
+                            <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <input autoFocus dir="ltr" value={trackingInvoice} onChange={(event) => setTrackingInvoice(event.target.value)} placeholder="رقم الفاتورة" className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-3 pr-9 text-center text-xs font-black outline-none focus:border-cyan-400 dark:border-white/10 dark:bg-white/5 dark:text-white" />
+                        </div>
+                        <button type="submit" disabled={!trackingInvoice.trim()} className="h-10 w-full rounded-xl bg-cyan-600 text-xs font-black text-white transition-colors hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50">بحث عن الطلب</button>
+                    </form>
                 </div>
             </div>
         )}
