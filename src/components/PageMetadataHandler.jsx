@@ -143,6 +143,10 @@ const PageMetadataHandler = () => {
             const sourceHref = isAdminRoute
                 ? '/admin-icon-192.png'
                 : imageSettings?.navLogo;
+            if (!isAdminRoute) {
+                window.__milanoInstallIcon = null;
+                document.querySelectorAll("link[rel='manifest']").forEach(link => link.remove());
+            }
             const iconHref = sourceHref?.includes('/image/upload/')
                 ? sourceHref.replace('/image/upload/', '/image/upload/f_png,c_fill,g_auto,w_128,h_128,r_24/')
                 : (sourceHref || transparentIcon);
@@ -208,6 +212,7 @@ const PageMetadataHandler = () => {
         const updateManifest = () => {
             const isAdmin = location.pathname.startsWith('/milano-secure-gate-99') ||
                 location.pathname.startsWith('/milano-dashboard-vault-77');
+            if (!isAdmin && !window.__milanoInstallIcon) return;
 
             let manifestLink = document.querySelector('link[rel="manifest"]');
             if (!manifestLink) {
