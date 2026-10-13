@@ -468,7 +468,7 @@ const Checkout = () => {
         }
 
         // Prepare Order Data
-        const newOrderId = '#ORD-' + Math.floor(100000 + Math.random() * 900000);
+        const newOrderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
         // Never block order completion on an optional third-party IP lookup.
         // On weak Wi-Fi this request could stay pending and leave the submit UI loading forever.
         const ipAddress = 'غير متوفر';

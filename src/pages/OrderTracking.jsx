@@ -1,3 +1,4 @@
+import { formatOrderId } from '../lib/orderUtils';
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
@@ -209,7 +210,7 @@ const OrderTracking = () => {
             const textMsg = encodeURIComponent(
                 `مرحباً، أرغب في إكمال عملية الدفع ✅\n\n` +
                 `📋 تفاصيل الطلب:\n` +
-                `▪ رقم الطلب: ${displayedId}\n` +
+                `▪ رقم الطلب: ${formatOrderId(displayedId)}\n` +
                 `▪ تاريخ الطلب: ${order.date || new Date().toLocaleDateString('ar')}\n\n` +
                 `👤 بيانات العميل:\n` +
                 `▪ الاسم: ${formData.name}\n` +

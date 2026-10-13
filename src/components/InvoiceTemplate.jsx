@@ -1,5 +1,6 @@
 import React from 'react';
 import { useCurrency } from "../context/CurrencyContext";
+import { formatOrderId } from '../lib/orderUtils';
 
 const getInvoiceItemPrices = (item) => {
     const currentPrice = Number(item?.price ?? 0);
@@ -100,7 +101,7 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <span className="text-gray-800 font-bold">{lang === 'ar' ? 'رقم الطلب:' : 'Order ID:'}</span>
-                                            <span className="text-base">{order.orderId || order.id}</span>
+                                            <span className="text-base">{formatOrderId(order.orderId || order.id)}</span>
                                         </div>
                                     </div>
                                 </div>
