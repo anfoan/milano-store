@@ -359,8 +359,11 @@ const OrderTracking = () => {
                         </div>
 
                         <div className="relative flex justify-between items-center px-2 md:px-6">
-                            <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 dark:bg-white/10 -translate-y-1/2 rounded-full"></div>
-                            <div className={`absolute top-1/2 right-0 h-1 ${currentTone.line} -translate-y-1/2 rounded-full transition-all duration-1000`} style={{ width: `${(currentStepIndex / (stepLabels.length - 1)) * 100}%` }}></div>
+                            <div
+                                className="absolute top-1/2 left-0 w-full h-1 -translate-y-1/2 rounded-full"
+                                style={{ background: 'linear-gradient(to right, rgba(34,197,94,0.5) 0%, rgba(34,197,94,0.5) 25%, rgba(59,130,246,0.5) 25%, rgba(59,130,246,0.5) 50%, rgba(139,92,246,0.5) 50%, rgba(139,92,246,0.5) 75%, rgba(249,115,22,0.5) 75%, rgba(249,115,22,0.5) 100%)' }}
+                            ></div>
+                            <div className="absolute top-1/2 right-0 h-1 -translate-y-1/2 rounded-full bg-transparent" style={{ width: `${(currentStepIndex / (stepLabels.length - 1)) * 100}%` }}></div>
 
                             {stepLabels.map((step, idx) => (
                                 <div key={idx} className="flex flex-col items-center gap-2 relative z-10">
