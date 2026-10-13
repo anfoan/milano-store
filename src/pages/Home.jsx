@@ -564,7 +564,7 @@ const Home = () => {
                             </div>
                             <div className="inline-flex items-center gap-1.5 mb-3">
                                 <button type="button" onClick={() => setTrackingOpen(true)} className="text-[11px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-100 dark:bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-200 dark:border-cyan-400/20 hover:bg-cyan-200 dark:hover:bg-cyan-400/20 transition-colors">
-                                    ادخل رقم الفاتورة لتتبع طلبك
+                                    ادخل رقم الطلب لتتبع طلبك
                                 </button>
                             </div>
                             <div className="flex justify-center gap-1.5 text-yellow-500">
@@ -925,11 +925,11 @@ const Home = () => {
                         <h2 className="text-sm font-black text-slate-900 dark:text-white">تتبع طلبك</h2>
                         <button type="button" aria-label="إغلاق" onClick={() => setTrackingOpen(false)} className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10"><X size={16} /></button>
                     </div>
-                    <p className="mb-3 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400">ادخل رقم فاتورة طلبك لمعرفة حالة الطلب.</p>
+                    <p className="mb-3 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400">ادخل رقم طلبك لمعرفة حالة الطلب.</p>
                     <form onSubmit={handleInvoiceTracking} className="space-y-2">
                         <div className="relative">
                             <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input autoFocus dir="ltr" value={trackingInvoice} onChange={(event) => setTrackingInvoice(event.target.value)} placeholder="رقم الفاتورة" className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-3 pr-9 text-center text-xs font-black outline-none focus:border-cyan-400 dark:border-white/10 dark:bg-white/5 dark:text-white" />
+                            <input autoFocus dir="ltr" value={trackingInvoice} onChange={(event) => setTrackingInvoice(event.target.value)} placeholder="رقم الطلب" className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-3 pr-9 text-center text-xs font-black outline-none focus:border-cyan-400 dark:border-white/10 dark:bg-white/5 dark:text-white" />
                         </div>
                         <button type="submit" disabled={!trackingInvoice.trim()} className="h-10 w-full rounded-xl bg-cyan-600 text-xs font-black text-white transition-colors hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50">بحث عن الطلب</button>
                     </form>
