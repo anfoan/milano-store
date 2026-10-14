@@ -12,6 +12,7 @@ import { useSettings } from '../hooks/useSettings';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import InvoiceTemplate from '../components/InvoiceTemplate';
 import { getCustomerWalletId } from '../lib/wallet';
+import { cropInvoiceCanvasForWhatsApp } from '../lib/cropInvoiceCanvas';
 
 const OrderTracking = () => {
     const { orderId } = useParams();
@@ -217,8 +218,9 @@ const OrderTracking = () => {
                     }
                 }
             });
+            const whatsappCanvas = cropInvoiceCanvasForWhatsApp(canvas);
             const blob = await new Promise((resolve, reject) => {
-                canvas.toBlob(fileBlob => fileBlob ? resolve(fileBlob) : reject(new Error('تعذر إنشاء صورة الفاتورة')), 'image/png');
+                whatsappCanvas.toBlob(fileBlob => fileBlob ? resolve(fileBlob) : reject(new Error('تعذر إنشاء صورة الفاتورة')), 'image/png');
             });
             const invoiceId = formatOrderId(order.orderId || order.id);
             const invoiceFile = new File([blob], `Milano-Invoice-${invoiceId}.png`, { type: 'image/png' });
