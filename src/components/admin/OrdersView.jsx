@@ -509,6 +509,8 @@ const OrdersView = ({ onViewOrder, lang = 'ar', generalSettings, searchQuery, se
                         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
                         border-radius: 8px;
                     }
+                    .invoice-print-product-heading { transform: translateX(-16px) !important; }
+                    .invoice-print-total-value { display: inline-block !important; transform: translateX(4px) !important; }
                 </style>
             </head>
             <body>
@@ -600,11 +602,13 @@ const OrdersView = ({ onViewOrder, lang = 'ar', generalSettings, searchQuery, se
                     button, input, .no-print { display: none !important; }
                 }
                 
-                @media screen {
-                   body { background: #f0f0f0; padding: 20px; font-family: 'Cairo', sans-serif; }
-                   .print-page { background: white; padding: 20mm; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin: 20px auto; width: 210mm; min-height: 297mm; direction: rtl; }
-                }
-            </style>
+                    @media screen {
+                       body { background: #f0f0f0; padding: 20px; font-family: 'Cairo', sans-serif; }
+                       .print-page { background: white; padding: 20mm; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin: 20px auto; width: 210mm; min-height: 297mm; direction: rtl; }
+                   }
+                    .invoice-print-product-heading { transform: translateX(-16px) !important; }
+                    .invoice-print-total-value { display: inline-block !important; transform: translateX(4px) !important; }
+                </style>
         `);
 
         doc.write('</head><body style="background-color: #f3f4f6;">'); // Light gray bg for preview distinction
