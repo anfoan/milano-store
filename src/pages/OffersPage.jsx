@@ -136,7 +136,7 @@ const OffersPage = () => {
                                         />
 
                                         {/* Discount Badge - Left Side */}
-                                        <div className="absolute top-4 left-2 bg-[#f43f5e] text-white text-[10px] font-black px-2 py-1 rounded-lg flex items-center gap-0.5 shadow-md z-10">
+                                        <div className="absolute top-2 left-1 bg-[#f43f5e] text-white text-[10px] font-black px-2 py-1 rounded-lg flex items-center gap-0.5 shadow-md z-10">
                                             <span className="transform rotate-45 text-[10px]">🏷️</span>
                                             <span>{t('product.discount')} {Math.round((1 - product.priceAfterDiscount / product.price) * 100)}%</span>
                                         </div>
