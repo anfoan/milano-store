@@ -182,10 +182,22 @@ const OrderTracking = () => {
 
         const originalOverflow = document.body.style.overflow;
         const originalBg = document.body.style.backgroundColor;
+        const element = invoiceRef.current;
+        const parent = element?.parentElement;
+        const originalStyles = parent ? {
+            display: parent.style.display,
+            position: parent.style.position,
+            visibility: parent.style.visibility,
+            top: parent.style.top,
+            left: parent.style.left,
+            zIndex: parent.style.zIndex,
+            pointerEvents: parent.style.pointerEvents
+        } : null;
 
         try {
-            const element = invoiceRef.current;
-            const parent = element.parentElement;
+            if (!element || !parent || !order) return;
+
+            await document.fonts.ready;
 
             parent.style.display = 'block';
             parent.style.position = 'fixed';
@@ -193,69 +205,82 @@ const OrderTracking = () => {
             parent.style.top = '0';
             parent.style.left = '0';
             parent.style.zIndex = '-9999';
+            parent.style.pointerEvents = 'none';
 
             const canvas = await html2canvas(element, {
-                scale: 2,
+                scale: 2.5,
                 useCORS: true,
                 backgroundColor: '#ffffff',
                 logging: false,
-                allowTaint: true
+                allowTaint: true,
+                onclone: (clonedDoc) => {
+                    const clonedEl = clonedDoc.querySelector('.print-container');
+                    if (clonedEl) {
+                        clonedEl.style.width = '794px';
+                        clonedEl.style.margin = '0 auto';
+                    }
+                }
             });
 
-            parent.style.display = 'none';
+            const invoiceOrderId = formatOrderId(order.orderId || order.id);
+            const invoiceCurrency = currency || 'YER';
+            const invoiceItems = Array.isArray(cartItems) ? cartItems : [];
+            const invoiceSubtotal = Number(subTotal || total || 0);
+            const invoiceDelivery = Number(deliveryCost || 0);
+            const productDiscount = Number(discount || 0);
+            const couponDiscount = Math.round(invoiceSubtotal * (Number(discountPercentage || 0) / 100));
+            const invoiceDiscount = productDiscount + couponDiscount;
 
-            // WhatsApp number from admin settings (fallback if empty)
+            // Use the seller's saved WhatsApp number from the store settings.
             const waLink = socialLinks?.whatsapp;
-            const phone = !waLink ? "967783700707" : (waLink.includes('wa.me/') ? waLink.split('wa.me/')[1].split('?')[0] : waLink.replace(/\D/g, ''));
+            const phone = (waLink || '').includes('wa.me/')
+                ? waLink.split('wa.me/')[1].split('?')[0].replace(/\D/g, '')
+                : String(waLink || '').replace(/\D/g, '') || '967783700707';
             const textMsg = encodeURIComponent(
                 `مرحباً، أرغب في إكمال عملية الدفع ✅\n\n` +
                 `📋 تفاصيل الطلب:\n` +
-                `▪ رقم الطلب: ${formatOrderId(displayedId)}\n` +
-                `▪ تاريخ الطلب: ${order.date || new Date().toLocaleDateString('ar')}\n\n` +
+                `▪ رقم الطلب: ${invoiceOrderId}\n` +
+                `▪ تاريخ الطلب: ${order.date || new Date().toLocaleDateString('en-GB')}\n\n` +
                 `👤 بيانات العميل:\n` +
-                `▪ الاسم: ${formData.name}\n` +
-                `▪ الهاتف: ${formData.phone}\n` +
-                `▪ الدولة: ${formData.country}\n` +
-                `▪ المدينة: ${formData.city}\n` +
-                `▪ العنوان: ${formData.address}\n` +
-                (formData.notes ? `▪ ملاحظات: ${formData.notes}\n\n` : `\n`) +
+                `▪ الاسم: ${formData?.name || '---'}\n` +
+                `▪ الهاتف: ${formData?.phone || '---'}\n` +
+                `▪ الدولة: ${formData?.country || '---'}\n` +
+                `▪ المدينة: ${formData?.city || '---'}\n` +
+                `▪ العنوان: ${formData?.address || '---'}\n` +
+                (formData?.notes ? `▪ ملاحظات: ${formData.notes}\n\n` : `\n`) +
                 `🛒 المنتجات:\n` +
-                cartItems.map(item => `▪ ${item.title}${item.size ? ` (${item.size})` : ''} × ${item.quantity || 1} = ${formatPrice(item.price * (item.quantity || 1), currency || 'YER')}`).join('\n') +
+                invoiceItems.map(item => `▪ ${item.title || '---'}${item.size ? ` (${item.size})` : ''} × ${item.quantity || 1} = ${formatPrice(Number(item.price || 0) * Number(item.quantity || 1), invoiceCurrency)}`).join('\n') +
                 `\n\n💰 ملخص الفاتورة:\n` +
-                `▪ المجموع الفرعي: ${formatPrice(subTotal || total, currency || 'YER')}\n` +
-                (() => {
-                    const productDiscount = Number(discount || 0);
-                    const couponDiscount = Math.round(Number(subTotal || 0) * (Number(discountPercentage || 0) / 100));
-                    const totalD = productDiscount + couponDiscount;
-                    return totalD > 0 ? `▪ الخصم: -${formatPrice(totalD, currency || 'YER')}\n` : '';
-                })() +
-                `▪ رسوم التوصيل: ${formatPrice(deliveryCost || 0, currency || 'YER')}\n` +
-                `▪ الإجمالي النهائي: ${formatPrice(total, currency || 'YER')}\n\n` +
+                `▪ المجموع الفرعي: ${formatPrice(invoiceSubtotal, invoiceCurrency)}\n` +
+                (invoiceDiscount > 0 ? `▪ الخصم: -${formatPrice(invoiceDiscount, invoiceCurrency)}\n` : '') +
+                `▪ رسوم التوصيل: ${formatPrice(invoiceDelivery, invoiceCurrency)}\n` +
+                `▪ الإجمالي النهائي: ${formatPrice(Number(total || 0), invoiceCurrency)}\n\n` +
                 `▪ طريقة الدفع: واتساب`
             );
-            
+
             const url = `whatsapp://send?phone=${phone}&text=${textMsg}`;
             const fallbackUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${textMsg}`;
 
+            // Browsers do not allow a website to attach a file directly to WhatsApp.
+            // Copy the exact invoice image first so it can be pasted in the opened chat.
             try {
                 const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                const data = [new ClipboardItem({ [blob.type]: blob })];
-                await navigator.clipboard.write(data);
+                if (blob && navigator.clipboard?.write && window.ClipboardItem) {
+                    await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+                }
             } catch (err) {
                 console.error("Clipboard failed", err);
             }
 
-            // A slightly longer delay helps the mobile device finalize the clipboard write before switching apps
+            window.location.href = url;
             setTimeout(() => {
-                window.location.href = url;
-                setTimeout(() => {
-                    if (document.hasFocus()) window.open(fallbackUrl, '_blank');
-                }, 1000);
-            }, 1000);
+                if (document.hasFocus()) window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+            }, 1200);
 
         } catch (error) {
             console.error("WhatsApp flow error:", error);
         } finally {
+            if (parent && originalStyles) Object.assign(parent.style, originalStyles);
             setDownloading(false);
             document.body.style.overflow = originalOverflow;
             document.body.style.backgroundColor = originalBg;
