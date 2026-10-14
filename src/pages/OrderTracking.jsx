@@ -221,26 +221,16 @@ const OrderTracking = () => {
                 canvas.toBlob(fileBlob => fileBlob ? resolve(fileBlob) : reject(new Error('تعذر إنشاء صورة الفاتورة')), 'image/png');
             });
             const invoiceId = formatOrderId(order.orderId || order.id);
-            const invoiceFile = new File([blob], `Milano-Invoice-${invoiceId}.png`, { type: 'image/png' });
-            const shareData = {
-                files: [invoiceFile],
-                title: `فاتورة الطلب ${invoiceId}`,
-                text: `مرحباً، أرغب في إكمال عملية الدفع. رقم الطلب: ${invoiceId}`
-            };
-
-            if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [invoiceFile] }))) {
-                await navigator.share(shareData);
-                return;
+            // Keep the invoice image ready to paste, then open the seller chat directly.
+            if (navigator.clipboard?.write && window.ClipboardItem) {
+                await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
             }
-
-            // Fallback for browsers that cannot share image files: open WhatsApp directly
-            // without the old whatsapp:// scheme or the long text invoice.
             const waLink = socialLinks?.whatsapp;
             const phone = (waLink || '').includes('wa.me/')
                 ? waLink.split('wa.me/')[1].split('?')[0].replace(/\D/g, '')
                 : String(waLink || '').replace(/\D/g, '') || '967783700707';
-            const fallbackText = encodeURIComponent(`مرحباً، أرغب في إكمال عملية الدفع. رقم الطلب: ${invoiceId}`);
-            window.location.href = `https://wa.me/${phone}?text=${fallbackText}`;
+            const directMessage = encodeURIComponent(`مرحباً، أرغب في إكمال عملية الدفع. رقم الطلب: ${invoiceId}`);
+            window.location.assign(`https://wa.me/${phone}?text=${directMessage}`);
         } catch (error) {
             if (error?.name !== 'AbortError') console.error('WhatsApp invoice share error:', error);
         } finally {

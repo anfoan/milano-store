@@ -125,24 +125,17 @@ const OrderConfirmation = () => {
             const blob = await new Promise((resolve, reject) => {
                 canvas.toBlob(fileBlob => fileBlob ? resolve(fileBlob) : reject(new Error('تعذر إنشاء صورة الفاتورة')), 'image/png');
             });
-            const invoiceFile = new File([blob], `Milano-Invoice-${String(orderId).replace('#', '')}.png`, { type: 'image/png' });
-            const shareData = {
-                files: [invoiceFile],
-                title: `فاتورة الطلب ${orderId}`,
-                text: `مرحباً، أرغب في إكمال عملية الدفع. رقم الطلب: ${orderId}`
-            };
-
-            if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [invoiceFile] }))) {
-                await navigator.share(shareData);
-                return;
+            // Keep the invoice image ready to paste, then open the seller chat directly.
+            if (navigator.clipboard?.write && window.ClipboardItem) {
+                await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
             }
 
             const waLink = socialLinks?.whatsapp;
             const phone = !waLink ? '967783700707' : (waLink.includes('wa.me/')
                 ? waLink.split('wa.me/')[1].split('?')[0].replace(/\D/g, '')
                 : waLink.replace(/\D/g, ''));
-            const fallbackText = encodeURIComponent(`مرحباً، أرغب في إكمال عملية الدفع. رقم الطلب: ${orderId}`);
-            window.location.href = `https://wa.me/${phone}?text=${fallbackText}`;
+            const directMessage = encodeURIComponent(`مرحباً، أرغب في إكمال عملية الدفع. رقم الطلب: ${orderId}`);
+            window.location.assign(`https://wa.me/${phone}?text=${directMessage}`);
         } catch (error) {
             if (error?.name !== 'AbortError') console.error('WhatsApp invoice share error:', error);
         } finally {
