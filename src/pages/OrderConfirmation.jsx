@@ -84,94 +84,74 @@ const OrderConfirmation = () => {
         e.preventDefault();
         if (downloading) return;
         setDownloading(true);
-
         const originalOverflow = document.body.style.overflow;
         const originalBg = document.body.style.backgroundColor;
-
+        const element = invoiceRef.current;
+        const parent = element?.parentElement;
+        const originalStyles = parent ? {
+            display: parent.style.display,
+            position: parent.style.position,
+            visibility: parent.style.visibility,
+            top: parent.style.top,
+            left: parent.style.left,
+            zIndex: parent.style.zIndex,
+            pointerEvents: parent.style.pointerEvents
+        } : null;
         try {
-            const element = invoiceRef.current;
-            const parent = element.parentElement;
-
+            if (!element || !parent) return;
+            await document.fonts.ready;
             parent.style.display = 'block';
             parent.style.position = 'fixed';
             parent.style.visibility = 'visible';
             parent.style.top = '0';
             parent.style.left = '0';
             parent.style.zIndex = '-9999';
+            parent.style.pointerEvents = 'none';
 
             const canvas = await html2canvas(element, {
-                scale: 2,
+                scale: 2.5,
                 useCORS: true,
                 backgroundColor: '#ffffff',
                 logging: false,
-                allowTaint: true
+                allowTaint: true,
+                onclone: (clonedDoc) => {
+                    const clonedEl = clonedDoc.querySelector('.print-container');
+                    if (clonedEl) {
+                        clonedEl.style.width = '794px';
+                        clonedEl.style.margin = '0 auto';
+                    }
+                }
             });
+            const blob = await new Promise((resolve, reject) => {
+                canvas.toBlob(fileBlob => fileBlob ? resolve(fileBlob) : reject(new Error('تعذر إنشاء صورة الفاتورة')), 'image/png');
+            });
+            const invoiceFile = new File([blob], `Milano-Invoice-${String(orderId).replace('#', '')}.png`, { type: 'image/png' });
+            const shareData = {
+                files: [invoiceFile],
+                title: `فاتورة الطلب ${orderId}`,
+                text: `مرحباً، أرغب في إكمال عملية الدفع. رقم الطلب: ${orderId}`
+            };
 
-            parent.style.display = 'none';
-
-            // WhatsApp number from admin settings (fallback if empty)
-            const waLink = socialLinks?.whatsapp;
-            const phone = !waLink ? "967783700707" : (waLink.includes('wa.me/') ? waLink.split('wa.me/')[1].split('?')[0] : waLink.replace(/\D/g, ''));
-            const textMsg = encodeURIComponent(
-                `مرحباً، أرغب في إكمال عملية الدفع ✅\n\n` +
-                `📋 تفاصيل الطلب:\n` +
-                `▪ رقم الطلب: ${orderId}\n` +
-                `▪ تاريخ الطلب: ${date || new Date().toLocaleDateString('ar')}\n\n` +
-                `👤 بيانات العميل:\n` +
-                `▪ الاسم: ${formData.name}\n` +
-                `▪ الهاتف: ${formData.phone}\n` +
-                `▪ الدولة: ${formData.country}\n` +
-                `▪ المدينة: ${formData.city}\n` +
-                `▪ العنوان: ${formData.address}\n` +
-                (formData.notes ? `▪ ملاحظات: ${formData.notes}\n\n` : `\n`) +
-                `🛒 المنتجات:\n` +
-                cartItems.map(item => {
-                    const qty = item.quantity || 1;
-                    const lineTotal = item.price * qty;
-                    const sizePart = item.size ? `\n  المقاس: ${item.size}` : '';
-                    return `▪ ${item.title}${sizePart}\n  الكمية: ${qty} × ${formatPrice(item.price, currency || 'YER')} = ${formatPrice(lineTotal, currency || 'YER')}`;
-                }).join('\n') +
-                `\n\n💰 ملخص الفاتورة:\n` +
-                `▪ المجموع الفرعي: ${formatPrice(subTotal || total, currency || 'YER')}\n` +
-                (() => {
-                    const productDiscount = Number(discount || 0);
-                    const couponDiscount = Math.round(Number(subTotal || 0) * (Number(discountPercentage || 0) / 100));
-                    const totalD = productDiscount + couponDiscount;
-                    return totalD > 0 ? `▪ الخصم: -${formatPrice(totalD, currency || 'YER')}\n` : '';
-                })() +
-                `▪ رسوم التوصيل: ${formatPrice(deliveryCost, currency || 'YER')}\n` +
-                `▪ الإجمالي النهائي: ${formatPrice(total, currency || 'YER')}\n\n` +
-                `▪ طريقة الدفع: واتساب`
-            );
-            
-            const url = `whatsapp://send?phone=${phone}&text=${textMsg}`;
-            const fallbackUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${textMsg}`;
-
-            try {
-                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                const data = [new ClipboardItem({ [blob.type]: blob })];
-                await navigator.clipboard.write(data);
-            } catch (err) {
-                console.error("Clipboard failed", err);
+            if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [invoiceFile] }))) {
+                await navigator.share(shareData);
+                return;
             }
 
-            // Give mobile device extra time (1.2s) to finish clipboard write before redirection
-            setTimeout(() => {
-                window.location.href = url;
-                setTimeout(() => {
-                    if (document.hasFocus()) window.open(fallbackUrl, '_blank');
-                }, 1000);
-            }, 1200);
-
+            const waLink = socialLinks?.whatsapp;
+            const phone = !waLink ? '967783700707' : (waLink.includes('wa.me/')
+                ? waLink.split('wa.me/')[1].split('?')[0].replace(/\D/g, '')
+                : waLink.replace(/\D/g, ''));
+            const fallbackText = encodeURIComponent(`مرحباً، أرغب في إكمال عملية الدفع. رقم الطلب: ${orderId}`);
+            window.location.href = `https://wa.me/${phone}?text=${fallbackText}`;
         } catch (error) {
-            console.error("WhatsApp flow error:", error);
+            if (error?.name !== 'AbortError') console.error('WhatsApp invoice share error:', error);
         } finally {
+            if (parent && originalStyles) Object.assign(parent.style, originalStyles);
             setDownloading(false);
             document.body.style.overflow = originalOverflow;
             document.body.style.backgroundColor = originalBg;
         }
     };
-
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-[#111317] text-gray-900 dark:text-white pb-24 font-['Cairo'] transition-colors duration-300">
 

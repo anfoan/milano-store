@@ -177,9 +177,8 @@ const OrderTracking = () => {
 
     const handleWhatsAppClick = async (e) => {
         e.preventDefault();
-        if (downloading) return;
+        if (downloading || !order) return;
         setDownloading(true);
-
         const originalOverflow = document.body.style.overflow;
         const originalBg = document.body.style.backgroundColor;
         const element = invoiceRef.current;
@@ -193,12 +192,9 @@ const OrderTracking = () => {
             zIndex: parent.style.zIndex,
             pointerEvents: parent.style.pointerEvents
         } : null;
-
         try {
-            if (!element || !parent || !order) return;
-
+            if (!element || !parent) return;
             await document.fonts.ready;
-
             parent.style.display = 'block';
             parent.style.position = 'fixed';
             parent.style.visibility = 'visible';
@@ -221,64 +217,32 @@ const OrderTracking = () => {
                     }
                 }
             });
+            const blob = await new Promise((resolve, reject) => {
+                canvas.toBlob(fileBlob => fileBlob ? resolve(fileBlob) : reject(new Error('تعذر إنشاء صورة الفاتورة')), 'image/png');
+            });
+            const invoiceId = formatOrderId(order.orderId || order.id);
+            const invoiceFile = new File([blob], `Milano-Invoice-${invoiceId}.png`, { type: 'image/png' });
+            const shareData = {
+                files: [invoiceFile],
+                title: `فاتورة الطلب ${invoiceId}`,
+                text: `مرحباً، أرغب في إكمال عملية الدفع. رقم الطلب: ${invoiceId}`
+            };
 
-            const invoiceOrderId = formatOrderId(order.orderId || order.id);
-            const invoiceCurrency = currency || 'YER';
-            const invoiceItems = Array.isArray(cartItems) ? cartItems : [];
-            const invoiceSubtotal = Number(subTotal || total || 0);
-            const invoiceDelivery = Number(deliveryCost || 0);
-            const productDiscount = Number(discount || 0);
-            const couponDiscount = Math.round(invoiceSubtotal * (Number(discountPercentage || 0) / 100));
-            const invoiceDiscount = productDiscount + couponDiscount;
+            if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [invoiceFile] }))) {
+                await navigator.share(shareData);
+                return;
+            }
 
-            // Use the seller's saved WhatsApp number from the store settings.
+            // Fallback for browsers that cannot share image files: open WhatsApp directly
+            // without the old whatsapp:// scheme or the long text invoice.
             const waLink = socialLinks?.whatsapp;
             const phone = (waLink || '').includes('wa.me/')
                 ? waLink.split('wa.me/')[1].split('?')[0].replace(/\D/g, '')
                 : String(waLink || '').replace(/\D/g, '') || '967783700707';
-            const textMsg = encodeURIComponent(
-                `مرحباً، أرغب في إكمال عملية الدفع ✅\n\n` +
-                `📋 تفاصيل الطلب:\n` +
-                `▪ رقم الطلب: ${invoiceOrderId}\n` +
-                `▪ تاريخ الطلب: ${order.date || new Date().toLocaleDateString('en-GB')}\n\n` +
-                `👤 بيانات العميل:\n` +
-                `▪ الاسم: ${formData?.name || '---'}\n` +
-                `▪ الهاتف: ${formData?.phone || '---'}\n` +
-                `▪ الدولة: ${formData?.country || '---'}\n` +
-                `▪ المدينة: ${formData?.city || '---'}\n` +
-                `▪ العنوان: ${formData?.address || '---'}\n` +
-                (formData?.notes ? `▪ ملاحظات: ${formData.notes}\n\n` : `\n`) +
-                `🛒 المنتجات:\n` +
-                invoiceItems.map(item => `▪ ${item.title || '---'}${item.size ? ` (${item.size})` : ''} × ${item.quantity || 1} = ${formatPrice(Number(item.price || 0) * Number(item.quantity || 1), invoiceCurrency)}`).join('\n') +
-                `\n\n💰 ملخص الفاتورة:\n` +
-                `▪ المجموع الفرعي: ${formatPrice(invoiceSubtotal, invoiceCurrency)}\n` +
-                (invoiceDiscount > 0 ? `▪ الخصم: -${formatPrice(invoiceDiscount, invoiceCurrency)}\n` : '') +
-                `▪ رسوم التوصيل: ${formatPrice(invoiceDelivery, invoiceCurrency)}\n` +
-                `▪ الإجمالي النهائي: ${formatPrice(Number(total || 0), invoiceCurrency)}\n\n` +
-                `▪ طريقة الدفع: واتساب`
-            );
-
-            const url = `whatsapp://send?phone=${phone}&text=${textMsg}`;
-            const fallbackUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${textMsg}`;
-
-            // Browsers do not allow a website to attach a file directly to WhatsApp.
-            // Copy the exact invoice image first so it can be pasted in the opened chat.
-            try {
-                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                if (blob && navigator.clipboard?.write && window.ClipboardItem) {
-                    await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-                }
-            } catch (err) {
-                console.error("Clipboard failed", err);
-            }
-
-            window.location.href = url;
-            setTimeout(() => {
-                if (document.hasFocus()) window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
-            }, 1200);
-
+            const fallbackText = encodeURIComponent(`مرحباً، أرغب في إكمال عملية الدفع. رقم الطلب: ${invoiceId}`);
+            window.location.href = `https://wa.me/${phone}?text=${fallbackText}`;
         } catch (error) {
-            console.error("WhatsApp flow error:", error);
+            if (error?.name !== 'AbortError') console.error('WhatsApp invoice share error:', error);
         } finally {
             if (parent && originalStyles) Object.assign(parent.style, originalStyles);
             setDownloading(false);
@@ -286,7 +250,6 @@ const OrderTracking = () => {
             document.body.style.backgroundColor = originalBg;
         }
     };
-
     if (loading) return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-[#111317] p-4 font-['Cairo']">
             <div className="flex flex-col items-center gap-4">
