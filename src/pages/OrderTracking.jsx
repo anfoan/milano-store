@@ -233,7 +233,7 @@ const OrderTracking = () => {
             const phone = (waLink || '').includes('wa.me/')
                 ? waLink.split('wa.me/')[1].split('?')[0].replace(/\D/g, '')
                 : String(waLink || '').replace(/\D/g, '') || '967783700707';
-            const directMessage = encodeURIComponent(`مرحباً، أرغب في إكمال عملية الدفع. رقم الطلب: ${invoiceId}`);
+            const directMessage = encodeURIComponent(`مرحباً ارغب في إكمال عملية الدفع.\nرقم الطلب: ${invoiceId}`);
             window.location.href = `whatsapp://send?phone=${phone}&text=${directMessage}`;
         } catch (error) {
             if (error?.name !== 'AbortError') console.error('WhatsApp invoice share error:', error);
