@@ -32,7 +32,7 @@ const ProductDetail = () => {
     const [loading, setLoading] = useState(true);
     const [selectedSize, setSelectedSize] = useState(null);
     const [selectedColor, setSelectedColor] = useState(null);
-    const [quantity, setQuantity] = useState(1);
+    const [quantity, setQuantity] = useState(0);
     const [activeImage, setActiveImage] = useState(null);
     const [showShare, setShowShare] = useState(false);
     const [showQtyDropdown, setShowQtyDropdown] = useState(false);
@@ -249,6 +249,7 @@ const ProductDetail = () => {
     const maxAddableQuantity = Math.max(0, selectedStock - existingCartQuantity);
 
     const addToCart = () => {
+        if (quantity <= 0) return;
         let cart = [];
         try {
             const stored = localStorage.getItem('cart');
@@ -387,8 +388,8 @@ const ProductDetail = () => {
                                 <span className="text-gray-900 dark:text-white font-black text-sm md:text-base text-right">{t('product.quantity')}</span>
                                 <QuantityStepper
                                     value={quantity}
-                                    min={1}
-                                    max={Math.max(1, maxAddableQuantity)}
+                                    min={0}
+                                    max={maxAddableQuantity}
                                     onChange={setQuantity}
                                     disabled={maxAddableQuantity <= 0}
                                     compact
@@ -520,8 +521,8 @@ const ProductDetail = () => {
                                     <div className="col-span-3 flex justify-center relative z-30">
                                         <QuantityStepper
                                             value={quantity}
-                                            min={1}
-                                            max={Math.max(1, maxAddableQuantity)}
+                                            min={0}
+                                            max={maxAddableQuantity}
                                             onChange={setQuantity}
                                             disabled={maxAddableQuantity <= 0}
                                             compact
@@ -571,8 +572,8 @@ const ProductDetail = () => {
                                 <div className="relative w-full z-40 flex justify-center py-2">
                                     <QuantityStepper
                                         value={quantity}
-                                        min={1}
-                                        max={Math.max(1, maxAddableQuantity)}
+                                        min={0}
+                                        max={maxAddableQuantity}
                                         onChange={setQuantity}
                                         disabled={maxAddableQuantity <= 0}
                                         label={t('product.quantity')}
