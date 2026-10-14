@@ -230,7 +230,13 @@ const OrderTracking = () => {
                 ? waLink.split('wa.me/')[1].split('?')[0].replace(/\D/g, '')
                 : String(waLink || '').replace(/\D/g, '') || '967783700707';
             const directMessage = encodeURIComponent(`مرحباً، أرغب في إكمال عملية الدفع. رقم الطلب: ${invoiceId}`);
-            window.location.assign(`https://wa.me/${phone}?text=${directMessage}`);
+            const whatsappLink = document.createElement('a');
+            whatsappLink.href = `https://wa.me/${phone}?text=${directMessage}`;
+            whatsappLink.target = '_self';
+            whatsappLink.rel = 'external';
+            document.body.appendChild(whatsappLink);
+            whatsappLink.click();
+            whatsappLink.remove();
         } catch (error) {
             if (error?.name !== 'AbortError') console.error('WhatsApp invoice share error:', error);
         } finally {

@@ -135,7 +135,13 @@ const OrderConfirmation = () => {
                 ? waLink.split('wa.me/')[1].split('?')[0].replace(/\D/g, '')
                 : waLink.replace(/\D/g, ''));
             const directMessage = encodeURIComponent(`مرحباً، أرغب في إكمال عملية الدفع. رقم الطلب: ${orderId}`);
-            window.location.assign(`https://wa.me/${phone}?text=${directMessage}`);
+            const whatsappLink = document.createElement('a');
+            whatsappLink.href = `https://wa.me/${phone}?text=${directMessage}`;
+            whatsappLink.target = '_self';
+            whatsappLink.rel = 'external';
+            document.body.appendChild(whatsappLink);
+            whatsappLink.click();
+            whatsappLink.remove();
         } catch (error) {
             if (error?.name !== 'AbortError') console.error('WhatsApp invoice share error:', error);
         } finally {
