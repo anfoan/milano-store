@@ -32,18 +32,20 @@ const orderStoreCategories = (items = []) => {
 };
 
 // Request appropriately sized Cloudinary/Unsplash images without changing stored URLs.
-const optimizeImageUrl = (url, width) => {
+const optimizeImageUrl = (url, width, version) => {
     if (!url || typeof url !== 'string') return url;
     try {
         const parsed = new URL(url, window.location.href);
         if (parsed.hostname.includes('res.cloudinary.com') && parsed.pathname.includes('/upload/')) {
             parsed.pathname = parsed.pathname.replace('/upload/', `/upload/f_auto,q_90,dpr_auto,w_${width}/`);
+            if (version) parsed.searchParams.set('v', String(version));
             return parsed.toString();
         }
         if (parsed.hostname.includes('images.unsplash.com')) {
             parsed.searchParams.set('auto', 'format');
             parsed.searchParams.set('fit', 'crop');
             parsed.searchParams.set('w', String(width));
+            if (version) parsed.searchParams.set('v', String(version));
             return parsed.toString();
         }
     } catch (error) {
@@ -834,7 +836,7 @@ const Home = () => {
                                                         {/* Image Container */}
                                                         <div className="relative aspect-square w-full bg-gray-200 dark:bg-[#2b2d31]">
                                                             <img
-                                                                src={optimizeImageUrl(product.mainImage || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=500", 560)}
+                                                                src={optimizeImageUrl(product.mainImage || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=500", 560, product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds)}
                                                                 alt={product.name}
                                                                 className="absolute inset-0 w-full h-full object-cover"
                                                                 draggable="false"
