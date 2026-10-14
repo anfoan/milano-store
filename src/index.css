@@ -6,6 +6,9 @@
   font-family: 'Cairo', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -46,17 +49,56 @@
 }
 
 @layer base {
+  html {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-gray-50 text-gray-900 dark:bg-[#111317] dark:text-white transition-colors duration-300;
     margin: 0;
     min-width: 320px;
+    width: 100%;
+    max-width: 100%;
     min-height: 100vh;
+    overflow-x: hidden;
     overscroll-behavior-y: none;
     /* Prevent pull-to-refresh reset on mobile */
     touch-action: pan-y;
     /* Optimize touch scrolling */
     -webkit-overflow-scrolling: touch;
     /* Smooth scroll for iOS */
+  }
+
+  #root {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+}
+
+/* iOS Safari zooms the page when a focused form control is smaller than
+   16px. Keep wallet and order-tracking forms at the device's normal scale. */
+@media screen and (max-width: 1024px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  button,
+  a,
+  [role='button'] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #root > * {
+    max-width: 100%;
+    min-width: 0;
   }
 }
 
