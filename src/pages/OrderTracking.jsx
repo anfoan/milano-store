@@ -222,21 +222,19 @@ const OrderTracking = () => {
             });
             const invoiceId = formatOrderId(order.orderId || order.id);
             // Keep the invoice image ready to paste, then open the seller chat directly.
-            if (navigator.clipboard?.write && window.ClipboardItem) {
-                await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+            try {
+                if (navigator.clipboard?.write && window.ClipboardItem) {
+                    await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+                }
+            } catch (clipboardError) {
+                console.warn('تعذر نسخ صورة الفاتورة إلى الحافظة:', clipboardError);
             }
             const waLink = socialLinks?.whatsapp;
             const phone = (waLink || '').includes('wa.me/')
                 ? waLink.split('wa.me/')[1].split('?')[0].replace(/\D/g, '')
                 : String(waLink || '').replace(/\D/g, '') || '967783700707';
             const directMessage = encodeURIComponent(`مرحباً، أرغب في إكمال عملية الدفع. رقم الطلب: ${invoiceId}`);
-            const whatsappLink = document.createElement('a');
-            whatsappLink.href = `https://wa.me/${phone}?text=${directMessage}`;
-            whatsappLink.target = '_self';
-            whatsappLink.rel = 'external';
-            document.body.appendChild(whatsappLink);
-            whatsappLink.click();
-            whatsappLink.remove();
+            window.location.href = `whatsapp://send?phone=${phone}&text=${directMessage}`;
         } catch (error) {
             if (error?.name !== 'AbortError') console.error('WhatsApp invoice share error:', error);
         } finally {
