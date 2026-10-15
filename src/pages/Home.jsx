@@ -600,7 +600,17 @@ const Home = () => {
                                     key={product.id}
                                     to={`/product/${product.id}`}
                                     onClick={closeNewArrivals}
-                                    className={`pointer-events-auto absolute inset-0 transition-all duration-500 ${index === newArrivalIndex ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-2 opacity-0'}`}
+                                    onWheel={(event) => {
+                                        if (index !== newArrivalIndex) return;
+                                        const delta = event.deltaY;
+                                        closeNewArrivals();
+                                        if (delta) {
+                                            window.requestAnimationFrame(() => {
+                                                window.scrollBy({ top: delta, left: 0, behavior: 'auto' });
+                                            });
+                                        }
+                                    }}
+                                    className={`absolute inset-0 transition-all duration-500 ${index === newArrivalIndex ? 'pointer-events-auto translate-x-0 opacity-100' : 'pointer-events-none translate-x-2 opacity-0'}`}
                                 >
                                     <img
                                         src={optimizeImageUrl(product.mainImage || product.gallery?.[0], 700, product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds)}
