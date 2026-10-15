@@ -573,29 +573,20 @@ const Home = () => {
         >
             {newArrivalsOpen && newArrivalSlides.length > 0 && (
                 <div
-                    className="fixed inset-0 z-[120] flex items-center justify-center bg-black/45 px-4 py-6 backdrop-blur-[2px]"
+                    className="pointer-events-none fixed inset-0 z-[120] flex items-center justify-center bg-black/45 px-4 py-6 backdrop-blur-[2px]"
                     role="dialog"
                     aria-modal="true"
                     aria-label="جديدنا وصل"
-                    onWheel={(event) => {
-                        const delta = event.deltaY;
-                        closeNewArrivals();
-                        if (delta) {
-                            window.requestAnimationFrame(() => {
-                                window.scrollBy({ top: delta, left: 0, behavior: 'auto' });
-                            });
-                        }
-                    }}
                     onClick={(event) => {
                         if (event.target === event.currentTarget) closeNewArrivals();
                     }}
                 >
-                    <div className="relative w-[min(88vw,350px)] overflow-hidden rounded-[30px] border border-white/70 bg-white p-3 shadow-2xl dark:border-white/10 dark:bg-[#171a20] sm:w-[min(78vw,390px)]">
+                    <div className="pointer-events-none relative w-[min(88vw,350px)] overflow-hidden rounded-[30px] border border-white/70 bg-white p-3 shadow-2xl dark:border-white/10 dark:bg-[#171a20] sm:w-[min(78vw,390px)]">
                         <button
                             type="button"
                             onClick={closeNewArrivals}
                             aria-label="إغلاق جديدنا وصل"
-                            className="absolute left-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-red-600 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
+                            className="pointer-events-auto absolute left-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-red-600 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
                         >
                             <X size={19} strokeWidth={3} />
                         </button>
@@ -609,7 +600,7 @@ const Home = () => {
                                     key={product.id}
                                     to={`/product/${product.id}`}
                                     onClick={closeNewArrivals}
-                                    className={`absolute inset-0 transition-all duration-500 ${index === newArrivalIndex ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-2 opacity-0'}`}
+                                    className={`pointer-events-auto absolute inset-0 transition-all duration-500 ${index === newArrivalIndex ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-2 opacity-0'}`}
                                 >
                                     <img
                                         src={optimizeImageUrl(product.mainImage || product.gallery?.[0], 700, product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds)}
