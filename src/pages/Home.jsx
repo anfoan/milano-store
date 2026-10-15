@@ -90,6 +90,7 @@ const Home = () => {
     const [trackingInvoice, setTrackingInvoice] = useState('');
     const [newArrivalsOpen, setNewArrivalsOpen] = useState(false);
     const [newArrivalIndex, setNewArrivalIndex] = useState(0);
+    const newArrivalsDismissedRef = useRef(false);
     const selectedVideoElementRef = useRef(null);
     const selectedVideoContainerRef = useRef(null);
     const [categories, setCategories] = useState(() => {
@@ -142,11 +143,25 @@ const Home = () => {
         .slice(0, 6);
 
     useEffect(() => {
-        if (products.length > 0 && newArrivalSlides.length > 0) {
+        if (!newArrivalsDismissedRef.current && products.length > 0 && newArrivalSlides.length > 0) {
             setNewArrivalIndex(0);
             setNewArrivalsOpen(true);
         }
     }, [products.length]);
+
+    useEffect(() => {
+        if (!newArrivalsOpen) return undefined;
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [newArrivalsOpen]);
+
+    const closeNewArrivals = () => {
+        newArrivalsDismissedRef.current = true;
+        setNewArrivalsOpen(false);
+    };
 
     useEffect(() => {
         if (!newArrivalsOpen || newArrivalSlides.length < 2) return undefined;
@@ -563,13 +578,13 @@ const Home = () => {
                     aria-modal="true"
                     aria-label="جديدنا وصل"
                     onClick={(event) => {
-                        if (event.target === event.currentTarget) setNewArrivalsOpen(false);
+                        if (event.target === event.currentTarget) closeNewArrivals();
                     }}
                 >
                     <div className="relative w-[min(88vw,350px)] overflow-hidden rounded-[30px] border border-white/70 bg-white p-3 shadow-2xl dark:border-white/10 dark:bg-[#171a20] sm:w-[min(78vw,390px)]">
                         <button
                             type="button"
-                            onClick={() => setNewArrivalsOpen(false)}
+                            onClick={closeNewArrivals}
                             aria-label="إغلاق جديدنا وصل"
                             className="absolute left-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-red-600 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
                         >
@@ -584,7 +599,7 @@ const Home = () => {
                                 <Link
                                     key={product.id}
                                     to={`/product/${product.id}`}
-                                    onClick={() => setNewArrivalsOpen(false)}
+                                    onClick={closeNewArrivals}
                                     className={`absolute inset-0 transition-all duration-500 ${index === newArrivalIndex ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-2 opacity-0'}`}
                                 >
                                     <img
