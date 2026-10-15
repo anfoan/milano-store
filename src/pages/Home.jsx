@@ -82,7 +82,14 @@ const Home = () => {
         }
     });
     const [loading, setLoading] = useState(!products.length);
-    const [promotionalVideos, setPromotionalVideos] = useState([]);
+    const [promotionalVideos, setPromotionalVideos] = useState(() => {
+        try {
+            const cached = localStorage.getItem('cached_promotional_videos');
+            return cached ? JSON.parse(cached) : [];
+        } catch {
+            return [];
+        }
+    });
     const [selectedPromotionalVideo, setSelectedPromotionalVideo] = useState(null);
     const [selectedVideoMuted, setSelectedVideoMuted] = useState(true);
     const [isVideoFullscreen, setIsVideoFullscreen] = useState(false);
@@ -168,6 +175,12 @@ const Home = () => {
         if (!invoiceNumber) return;
         setTrackingOpen(false);
         navigate(`/order-tracking/${encodeURIComponent(invoiceNumber.replace(/\s+/g, ''))}`);
+    };
+
+    const handleStoreWheel = (event) => {
+        if (!event.deltaY || event.target.closest?.('[role="dialog"], input, textarea, select, [data-wheel-scroll]')) return;
+        event.preventDefault();
+        window.scrollBy({ top: event.deltaY, left: 0, behavior: 'auto' });
     };
 
     // Calculate max discount for the banner
@@ -392,7 +405,9 @@ const Home = () => {
                     if (aTime && bTime && aTime !== bTime) return aTime - bTime;
                     return Number(a.order ?? 0) - Number(b.order ?? 0);
                 });
-            setPromotionalVideos(active.filter(video => video.active !== false));
+            const activeVideos = active.filter(video => video.active !== false);
+            setPromotionalVideos(activeVideos);
+            localStorage.setItem('cached_promotional_videos', JSON.stringify(activeVideos));
         }, err => console.error('Error fetching promotional videos:', err));
 
         return () => {
@@ -561,6 +576,7 @@ const Home = () => {
             ref={containerRef}
             className="w-full bg-gray-50 dark:bg-[#111317] min-h-screen text-gray-900 dark:text-white pb-0 font-['Cairo'] transition-colors duration-300"
             style={{ minHeight: minHeightShim }}
+            onWheel={handleStoreWheel}
         >
             {newArrivalsOpen && newArrivalSlides.length > 0 && (
                 <div
