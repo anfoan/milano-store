@@ -577,6 +577,15 @@ const Home = () => {
                     role="dialog"
                     aria-modal="true"
                     aria-label="جديدنا وصل"
+                    onWheel={(event) => {
+                        const delta = event.deltaY;
+                        closeNewArrivals();
+                        if (delta) {
+                            window.requestAnimationFrame(() => {
+                                window.scrollBy({ top: delta, left: 0, behavior: 'auto' });
+                            });
+                        }
+                    }}
                     onClick={(event) => {
                         if (event.target === event.currentTarget) closeNewArrivals();
                     }}
