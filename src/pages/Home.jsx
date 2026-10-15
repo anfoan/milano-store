@@ -88,6 +88,8 @@ const Home = () => {
     const [isVideoFullscreen, setIsVideoFullscreen] = useState(false);
     const [trackingOpen, setTrackingOpen] = useState(false);
     const [trackingInvoice, setTrackingInvoice] = useState('');
+    const [newArrivalsOpen, setNewArrivalsOpen] = useState(false);
+    const [newArrivalIndex, setNewArrivalIndex] = useState(0);
     const selectedVideoElementRef = useRef(null);
     const selectedVideoContainerRef = useRef(null);
     const [categories, setCategories] = useState(() => {
@@ -124,6 +126,35 @@ const Home = () => {
     const contactEnabled = interfaceSettings?.contactForm ?? true;
     const showCategoriesGrid = interfaceSettings?.showCategories ?? true; // Keep categories visible unless explicitly disabled
     const showProductSections = true; // Always show product rows to ensure content visibility
+
+    const newArrivalSlides = [...products]
+        .filter(product => !product.hidden && (product.mainImage || product.gallery?.[0]))
+        .sort((a, b) => {
+            const getTime = (product) => {
+                const value = product.createdAt || product.updatedAt;
+                if (typeof value?.toMillis === 'function') return value.toMillis();
+                if (value?.seconds) return value.seconds * 1000;
+                if (typeof value === 'string') return new Date(value).getTime() || 0;
+                return 0;
+            };
+            return getTime(b) - getTime(a);
+        })
+        .slice(0, 6);
+
+    useEffect(() => {
+        if (products.length > 0 && newArrivalSlides.length > 0) {
+            setNewArrivalIndex(0);
+            setNewArrivalsOpen(true);
+        }
+    }, [products.length]);
+
+    useEffect(() => {
+        if (!newArrivalsOpen || newArrivalSlides.length < 2) return undefined;
+        const timer = window.setInterval(() => {
+            setNewArrivalIndex((current) => (current + 1) % newArrivalSlides.length);
+        }, 5000);
+        return () => window.clearInterval(timer);
+    }, [newArrivalsOpen, newArrivalSlides.length]);
 
     const handleInvoiceTracking = (event) => {
         event.preventDefault();
@@ -519,12 +550,63 @@ const Home = () => {
         </div>
     );
 
-    return (
+        return (
         <div
             ref={containerRef}
             className="w-full bg-gray-50 dark:bg-[#111317] min-h-screen text-gray-900 dark:text-white pb-0 font-['Cairo'] transition-colors duration-300"
             style={{ minHeight: minHeightShim }}
         >
+            {newArrivalsOpen && newArrivalSlides.length > 0 && (
+                <div
+                    className="fixed inset-0 z-[120] flex items-center justify-center bg-black/45 px-4 py-6 backdrop-blur-[2px]"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="جديدنا وصل"
+                    onClick={(event) => {
+                        if (event.target === event.currentTarget) setNewArrivalsOpen(false);
+                    }}
+                >
+                    <div className="relative w-[min(88vw,350px)] overflow-hidden rounded-[30px] border border-white/70 bg-white p-3 shadow-2xl dark:border-white/10 dark:bg-[#171a20] sm:w-[min(78vw,390px)]">
+                        <button
+                            type="button"
+                            onClick={() => setNewArrivalsOpen(false)}
+                            aria-label="إغلاق جديدنا وصل"
+                            className="absolute left-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-red-600 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
+                        >
+                            <X size={19} strokeWidth={3} />
+                        </button>
+                        <div className="px-3 pb-3 pt-2 text-center">
+                            <h2 className="text-xl font-black tracking-tight text-gray-900 dark:text-white sm:text-2xl">جديدنا وصل. <span aria-hidden="true">🔥</span></h2>
+                            <p className="mt-1 text-[11px] font-bold text-gray-500 dark:text-gray-400">اكتشف أحدث المنتجات لدينا</p>
+                        </div>
+                        <div className="relative aspect-square overflow-hidden rounded-[24px] bg-gray-100 dark:bg-[#242830]">
+                            {newArrivalSlides.map((product, index) => (
+                                <Link
+                                    key={product.id}
+                                    to={`/product/${product.id}`}
+                                    onClick={() => setNewArrivalsOpen(false)}
+                                    className={`absolute inset-0 transition-all duration-500 ${index === newArrivalIndex ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-2 opacity-0'}`}
+                                >
+                                    <img
+                                        src={optimizeImageUrl(product.mainImage || product.gallery?.[0], 700, product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds)}
+                                        alt={product.name || 'منتج جديد'}
+                                        className="h-full w-full object-cover"
+                                        draggable="false"
+                                    />
+                                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent px-4 pb-4 pt-12 text-right">
+                                        <p className="text-sm font-black text-white sm:text-base">{product.name || 'منتج جديد'}</p>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                        <div className="flex items-center justify-center gap-1.5 px-2 pb-1 pt-3" aria-label="صور المنتجات الجديدة">
+                            {newArrivalSlides.map((product, index) => (
+                                <span key={product.id} className={`h-1.5 rounded-full transition-all duration-300 ${index === newArrivalIndex ? 'w-6 bg-red-600' : 'w-1.5 bg-gray-300 dark:bg-gray-600'}`} />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Store Profile Header Section (Condensed) */}
             <section className="relative px-1 pt-0 mb-0">
                 <div className="max-w-5xl mx-auto border-transparent pb-0">
