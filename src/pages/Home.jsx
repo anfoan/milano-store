@@ -149,15 +149,6 @@ const Home = () => {
         }
     }, [products.length]);
 
-    useEffect(() => {
-        if (!newArrivalsOpen) return undefined;
-        const previousOverflow = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
-        return () => {
-            document.body.style.overflow = previousOverflow;
-        };
-    }, [newArrivalsOpen]);
-
     const closeNewArrivals = () => {
         newArrivalsDismissedRef.current = true;
         setNewArrivalsOpen(false);
