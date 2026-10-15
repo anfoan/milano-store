@@ -152,7 +152,7 @@ const Home = () => {
         if (!newArrivalsOpen || newArrivalSlides.length < 2) return undefined;
         const timer = window.setInterval(() => {
             setNewArrivalIndex((current) => (current + 1) % newArrivalSlides.length);
-        }, 5000);
+        }, 4000);
         return () => window.clearInterval(timer);
     }, [newArrivalsOpen, newArrivalSlides.length]);
 
