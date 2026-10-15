@@ -177,12 +177,6 @@ const Home = () => {
         navigate(`/order-tracking/${encodeURIComponent(invoiceNumber.replace(/\s+/g, ''))}`);
     };
 
-    const handleStoreWheel = (event) => {
-        if (!event.deltaY || event.target.closest?.('[role="dialog"], input, textarea, select, [data-wheel-scroll]')) return;
-        event.preventDefault();
-        window.scrollBy({ top: event.deltaY, left: 0, behavior: 'auto' });
-    };
-
     // Calculate max discount for the banner
     const maxDiscount = products.length > 0
         ? Math.max(...products.filter(p => !p.hidden).map(p => p.discount || 0), 0) || 50 // Skip hidden products
@@ -576,7 +570,6 @@ const Home = () => {
             ref={containerRef}
             className="w-full bg-gray-50 dark:bg-[#111317] min-h-screen text-gray-900 dark:text-white pb-0 font-['Cairo'] transition-colors duration-300"
             style={{ minHeight: minHeightShim }}
-            onWheel={handleStoreWheel}
         >
             {newArrivalsOpen && newArrivalSlides.length > 0 && (
                 <div
