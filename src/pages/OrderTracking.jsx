@@ -229,36 +229,9 @@ const OrderTracking = () => {
                 title: `فاتورة الطلب ${invoiceId}`,
                 text: `مرحباً ارغب في إكمال عملية الدفع.\nرقم الطلب: ${invoiceId}`
             };
-            const isAppleMobile = /iPad|iPhone|iPod/.test(navigator.userAgent)
-                || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-            if (!isAppleMobile && navigator.share && (!navigator.canShare || navigator.canShare({ files: [invoiceFile] }))) {
+            if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [invoiceFile] }))) {
                 await navigator.share(shareData);
                 return;
-            }
-
-            // Some mobile browsers expose Web Share but reject file sharing.
-            // Keep the customer moving to the seller instead of silently doing nothing.
-            try {
-                if (navigator.clipboard?.write && window.ClipboardItem) {
-                    await navigator.clipboard.write([
-                        new ClipboardItem({
-                            'text/plain': new Blob([shareData.text], { type: 'text/plain' }),
-                            'image/png': blob
-                        })
-                    ]);
-                }
-            } catch (clipboardError) {
-                console.warn('Invoice clipboard copy was not available:', clipboardError);
-            }
-            const rawWhatsAppTarget = order.whatsappNumber || socialLinks?.whatsapp || '';
-            const whatsappPhone = String(rawWhatsAppTarget)
-                .replace(/^https?:\/\/(?:www\.)?wa\.me\//i, '')
-                .split('?')[0]
-                .replace(/[^\d]/g, '');
-            if (whatsappPhone) {
-                window.location.assign(
-                    `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(shareData.text)}`
-                );
             }
 
         } catch (error) {
