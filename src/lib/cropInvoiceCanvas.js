@@ -14,7 +14,7 @@ const isVisiblePixel = (data, index) => {
  */
 export const cropInvoiceCanvasForWhatsApp = (canvas, padding = 52) => {
     const horizontalPadding = padding;
-    const topPadding = 220;
+    const topPadding = 84;
     const bottomPadding = 84;
     if (!canvas || !canvas.width || !canvas.height) return canvas;
 
@@ -68,5 +68,16 @@ export const cropInvoiceCanvasForWhatsApp = (canvas, padding = 52) => {
         sourceHeight
     );
 
-    return cropped;
+    const outputWidth = 1080;
+    const outputHeight = Math.round(cropped.height * outputWidth / cropped.width);
+    const output = document.createElement('canvas');
+    output.width = outputWidth;
+    output.height = outputHeight;
+    const outputContext = output.getContext('2d');
+    outputContext.fillStyle = '#ffffff';
+    outputContext.fillRect(0, 0, output.width, output.height);
+    outputContext.imageSmoothingEnabled = true;
+    outputContext.imageSmoothingQuality = 'high';
+    outputContext.drawImage(cropped, 0, 0, output.width, output.height);
+    return output;
 };
