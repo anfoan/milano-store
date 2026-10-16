@@ -142,11 +142,13 @@ const Home = () => {
         .filter(product => !product.hidden && (product.mainImage || product.gallery?.[0]))
         .sort((a, b) => {
             const getTime = (product) => {
-                const value = product.createdAt || product.updatedAt;
-                if (typeof value?.toMillis === 'function') return value.toMillis();
-                if (value?.seconds) return value.seconds * 1000;
-                if (typeof value === 'string') return new Date(value).getTime() || 0;
-                return 0;
+                const toMillis = (value) => {
+                    if (typeof value?.toMillis === 'function') return value.toMillis();
+                    if (value?.seconds) return value.seconds * 1000;
+                    if (typeof value === 'string') return new Date(value).getTime() || 0;
+                    return 0;
+                };
+                return Math.max(toMillis(product.createdAt), toMillis(product.updatedAt));
             };
             return getTime(b) - getTime(a);
         })
@@ -168,7 +170,7 @@ const Home = () => {
         if (!newArrivalsOpen || newArrivalSlides.length < 2) return undefined;
         const timer = window.setInterval(() => {
             setNewArrivalIndex((current) => (current + 1) % newArrivalSlides.length);
-        }, 4000);
+        }, 3000);
         return () => window.clearInterval(timer);
     }, [newArrivalsOpen, newArrivalSlides.length]);
 
@@ -584,7 +586,7 @@ const Home = () => {
                         if (event.target === event.currentTarget) closeNewArrivals();
                     }}
                 >
-                    <div className="relative w-[min(88vw,350px)] -translate-y-4 overflow-hidden rounded-[30px] border border-white/70 bg-white p-3 shadow-2xl dark:border-white/10 dark:bg-[#171a20] sm:w-[min(78vw,390px)] md:translate-y-0">
+                    <div className="relative w-[min(88vw,350px)] -translate-y-3 overflow-hidden rounded-[30px] border border-white/70 bg-white p-3 shadow-2xl dark:border-white/10 dark:bg-[#171a20] sm:w-[min(78vw,390px)] md:translate-y-0">
                         <button
                             type="button"
                             onClick={closeNewArrivals}
