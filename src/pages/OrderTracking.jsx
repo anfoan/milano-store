@@ -229,7 +229,7 @@ const OrderTracking = () => {
                 title: `فاتورة الطلب ${invoiceId}`,
                 text: `مرحباً ارغب في إكمال عملية الدفع.\nرقم الطلب: ${invoiceId}`
             };
-            if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [invoiceFile] }))) {
+            if (navigator.share) {
                 await navigator.share(shareData);
                 return;
             }
