@@ -12,7 +12,7 @@ const isVisiblePixel = (data, index) => {
  * Removes only the outer blank canvas around the invoice image used for WhatsApp.
  * Balanced white padding is retained so the design does not touch any image edge.
  */
-export const cropInvoiceCanvasForWhatsApp = (canvas, padding = 48) => {
+export const cropInvoiceCanvasForWhatsApp = (canvas, padding = 36) => {
     if (!canvas || !canvas.width || !canvas.height) return canvas;
 
     const context = canvas.getContext('2d', { willReadFrequently: true });
