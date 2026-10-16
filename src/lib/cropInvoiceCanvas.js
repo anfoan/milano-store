@@ -14,7 +14,8 @@ const isVisiblePixel = (data, index) => {
  */
 export const cropInvoiceCanvasForWhatsApp = (canvas, padding = 52) => {
     const horizontalPadding = padding;
-    const verticalPadding = 84;
+    const topPadding = 140;
+    const bottomPadding = 28;
     if (!canvas || !canvas.width || !canvas.height) return canvas;
 
     const context = canvas.getContext('2d', { willReadFrequently: true });
@@ -50,7 +51,7 @@ export const cropInvoiceCanvasForWhatsApp = (canvas, padding = 52) => {
     // Keep a real outer margin even when the detected invoice touches the
     // original canvas edge; clamping the source bounds must not clip the design.
     cropped.width = sourceWidth + horizontalPadding * 2;
-    cropped.height = sourceHeight + verticalPadding * 2;
+    cropped.height = sourceHeight + topPadding + bottomPadding;
 
     const croppedContext = cropped.getContext('2d');
     croppedContext.fillStyle = '#ffffff';
@@ -62,7 +63,7 @@ export const cropInvoiceCanvasForWhatsApp = (canvas, padding = 52) => {
         sourceWidth,
         sourceHeight,
         horizontalPadding,
-        verticalPadding,
+        topPadding,
         sourceWidth,
         sourceHeight
     );
