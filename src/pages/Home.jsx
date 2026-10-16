@@ -60,6 +60,10 @@ const optimizeVideoUrl = (url) => {
     return url.replace('/upload/', '/upload/q_90,vc_auto,h_720,c_limit/');
 };
 
+// Keep the announcement state across SPA navigation. A full page reload
+// creates a new module instance, which intentionally allows it to appear again.
+let newArrivalsShownForPageLoad = false;
+
 const Home = () => {
     // SECURITY & DATA FIX: Clear old cache if project has changed
     const currentProjectId = "milano-anfoan-store-2026";
@@ -97,7 +101,6 @@ const Home = () => {
     const [trackingInvoice, setTrackingInvoice] = useState('');
     const [newArrivalsOpen, setNewArrivalsOpen] = useState(false);
     const [newArrivalIndex, setNewArrivalIndex] = useState(0);
-    const newArrivalsDismissedRef = useRef(false);
     const selectedVideoElementRef = useRef(null);
     const selectedVideoContainerRef = useRef(null);
     const [categories, setCategories] = useState(() => {
@@ -150,14 +153,14 @@ const Home = () => {
         .slice(0, 6);
 
     useEffect(() => {
-        if (!newArrivalsDismissedRef.current && products.length > 0 && newArrivalSlides.length > 0) {
+        if (!newArrivalsShownForPageLoad && products.length > 0 && newArrivalSlides.length > 0) {
+            newArrivalsShownForPageLoad = true;
             setNewArrivalIndex(0);
             setNewArrivalsOpen(true);
         }
     }, [products.length]);
 
     const closeNewArrivals = () => {
-        newArrivalsDismissedRef.current = true;
         setNewArrivalsOpen(false);
     };
 
