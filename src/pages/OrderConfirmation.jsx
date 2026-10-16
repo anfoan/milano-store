@@ -110,7 +110,7 @@ const OrderConfirmation = () => {
             parent.style.pointerEvents = 'none';
 
             const canvas = await html2canvas(element, {
-                scale: 3,
+                scale: 4,
                 useCORS: true,
                 backgroundColor: '#ffffff',
                 logging: false,

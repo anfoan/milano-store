@@ -128,7 +128,7 @@ const OrderTracking = () => {
                 parent.style.zIndex = '-9999';
                 parent.style.pointerEvents = 'none';
                 const canvas = await html2canvas(element, {
-                    scale: 3,
+                    scale: 4,
                     useCORS: true,
                     backgroundColor: '#ffffff',
                     logging: false,
@@ -280,7 +280,7 @@ const OrderTracking = () => {
             parent.style.pointerEvents = 'none';
 
             const canvas = await html2canvas(element, {
-                scale: 3,
+                scale: 4,
                 useCORS: true,
                 backgroundColor: '#ffffff',
                 logging: false,
