@@ -13,6 +13,8 @@ const isVisiblePixel = (data, index) => {
  * Balanced white padding is retained so the design does not touch any image edge.
  */
 export const cropInvoiceCanvasForWhatsApp = (canvas, padding = 52) => {
+    const horizontalPadding = padding;
+    const verticalPadding = 84;
     if (!canvas || !canvas.width || !canvas.height) return canvas;
 
     const context = canvas.getContext('2d', { willReadFrequently: true });
@@ -36,17 +38,17 @@ export const cropInvoiceCanvasForWhatsApp = (canvas, padding = 52) => {
 
     if (maxX < 0 || maxY < 0) return canvas;
 
-    const left = Math.max(0, minX - padding);
-    const top = Math.max(0, minY - padding);
-    const right = Math.min(canvas.width, maxX + padding + 1);
-    const bottom = Math.min(canvas.height, maxY + padding + 1);
+    const left = Math.max(0, minX - horizontalPadding);
+    const top = Math.max(0, minY - verticalPadding);
+    const right = Math.min(canvas.width, maxX + horizontalPadding + 1);
+    const bottom = Math.min(canvas.height, maxY + verticalPadding + 1);
     const sourceWidth = right - left;
     const sourceHeight = bottom - top;
     const cropped = document.createElement('canvas');
     // Keep a real outer margin even when the detected invoice touches the
     // original canvas edge; clamping the source bounds must not clip the design.
-    cropped.width = sourceWidth + padding * 2;
-    cropped.height = sourceHeight + padding * 2;
+    cropped.width = sourceWidth + horizontalPadding * 2;
+    cropped.height = sourceHeight + verticalPadding * 2;
 
     const croppedContext = cropped.getContext('2d');
     croppedContext.fillStyle = '#ffffff';
@@ -57,8 +59,8 @@ export const cropInvoiceCanvasForWhatsApp = (canvas, padding = 52) => {
         top,
         sourceWidth,
         sourceHeight,
-        padding,
-        padding,
+        horizontalPadding,
+        verticalPadding,
         sourceWidth,
         sourceHeight
     );
