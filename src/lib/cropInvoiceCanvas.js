@@ -14,7 +14,7 @@ const isVisiblePixel = (data, index) => {
  */
 export const cropInvoiceCanvasForWhatsApp = (canvas, padding = 52) => {
     const horizontalPadding = padding;
-    const topPadding = 84;
+    const topPadding = 140;
     const bottomPadding = 84;
     if (!canvas || !canvas.width || !canvas.height) return canvas;
 
