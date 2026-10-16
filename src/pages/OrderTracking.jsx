@@ -20,6 +20,7 @@ const OrderTracking = () => {
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [downloading, setDownloading] = useState(false);
+    const [whatsappInvoiceFile, setWhatsappInvoiceFile] = useState(null);
     const [error, setError] = useState(null);
     const invoiceRef = useRef();
     const { t, direction, language } = useLanguage();
@@ -101,6 +102,64 @@ const OrderTracking = () => {
         return () => unsubscribe();
     }, [orderId, t]);
 
+    useEffect(() => {
+        if (!order || !invoiceRef.current) return undefined;
+        let cancelled = false;
+        const prepareInvoiceFile = async () => {
+            const element = invoiceRef.current;
+            const parent = element?.parentElement;
+            if (!element || !parent) return;
+            const originalStyles = {
+                display: parent.style.display,
+                position: parent.style.position,
+                visibility: parent.style.visibility,
+                top: parent.style.top,
+                left: parent.style.left,
+                zIndex: parent.style.zIndex,
+                pointerEvents: parent.style.pointerEvents
+            };
+            try {
+                await document.fonts.ready;
+                parent.style.display = 'block';
+                parent.style.position = 'fixed';
+                parent.style.visibility = 'visible';
+                parent.style.top = '0';
+                parent.style.left = '0';
+                parent.style.zIndex = '-9999';
+                parent.style.pointerEvents = 'none';
+                const canvas = await html2canvas(element, {
+                    scale: 2.5,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    allowTaint: true,
+                    onclone: clonedDoc => {
+                        const clonedEl = clonedDoc.querySelector('.print-container');
+                        if (clonedEl) {
+                            clonedEl.style.width = '794px';
+                            clonedEl.style.margin = '0 auto';
+                        }
+                    }
+                });
+                const whatsappCanvas = cropInvoiceCanvasForWhatsApp(canvas);
+                const blob = await new Promise((resolve, reject) => {
+                    whatsappCanvas.toBlob(fileBlob => fileBlob ? resolve(fileBlob) : reject(new Error('تعذر إنشاء صورة الفاتورة')), 'image/png');
+                });
+                if (!cancelled) {
+                    const invoiceId = formatOrderId(order.orderId || order.id);
+                    setWhatsappInvoiceFile(new File([blob], `Milano-Invoice-${invoiceId}.png`, { type: 'image/png' }));
+                }
+            } catch (prepareError) {
+                console.warn('Invoice pre-generation was not available:', prepareError);
+            } finally {
+                Object.assign(parent.style, originalStyles);
+            }
+        };
+        setWhatsappInvoiceFile(null);
+        prepareInvoiceFile();
+        return () => { cancelled = true; };
+    }, [order]);
+
     const handleDownloadInvoice = async () => {
         if (!invoiceRef.current) return;
         setDownloading(true);
@@ -179,6 +238,22 @@ const OrderTracking = () => {
     const handleWhatsAppClick = async (e) => {
         e.preventDefault();
         if (downloading || !order) return;
+        const invoiceId = formatOrderId(order.orderId || order.id);
+        if (whatsappInvoiceFile && navigator.share) {
+            setDownloading(true);
+            try {
+                await navigator.share({
+                    files: [whatsappInvoiceFile],
+                    title: `فاتورة الطلب ${invoiceId}`,
+                    text: `مرحباً ارغب في إكمال عملية الدفع.\nرقم الطلب: ${invoiceId}`
+                });
+            } catch (error) {
+                if (error?.name !== 'AbortError') console.error('WhatsApp invoice share error:', error);
+            } finally {
+                setDownloading(false);
+            }
+            return;
+        }
         setDownloading(true);
         const originalOverflow = document.body.style.overflow;
         const originalBg = document.body.style.backgroundColor;
@@ -222,7 +297,6 @@ const OrderTracking = () => {
             const blob = await new Promise((resolve, reject) => {
                 whatsappCanvas.toBlob(fileBlob => fileBlob ? resolve(fileBlob) : reject(new Error('تعذر إنشاء صورة الفاتورة')), 'image/png');
             });
-            const invoiceId = formatOrderId(order.orderId || order.id);
             const invoiceFile = new File([blob], `Milano-Invoice-${invoiceId}.png`, { type: 'image/png' });
             const shareData = {
                 files: [invoiceFile],
