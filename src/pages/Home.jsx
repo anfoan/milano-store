@@ -152,7 +152,7 @@ const Home = () => {
             };
             return getTime(b) - getTime(a);
         })
-        .slice(0, 6);
+        .slice(0, 10);
 
     useEffect(() => {
         if (!newArrivalsShownForPageLoad && products.length > 0 && newArrivalSlides.length > 0) {
