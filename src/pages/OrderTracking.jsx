@@ -234,6 +234,28 @@ const OrderTracking = () => {
                 return;
             }
 
+            // Some mobile browsers expose Web Share but reject file sharing.
+            // Keep the customer moving to the seller instead of silently doing nothing.
+            try {
+                if (navigator.clipboard?.write && window.ClipboardItem) {
+                    await navigator.clipboard.write([
+                        new ClipboardItem({ [invoiceFile.type]: invoiceFile })
+                    ]);
+                }
+            } catch (clipboardError) {
+                console.warn('Invoice clipboard copy was not available:', clipboardError);
+            }
+            const rawWhatsAppTarget = order.whatsappNumber || socialLinks?.whatsapp || '';
+            const whatsappPhone = String(rawWhatsAppTarget)
+                .replace(/^https?:\/\/(?:www\.)?wa\.me\//i, '')
+                .split('?')[0]
+                .replace(/[^\d]/g, '');
+            if (whatsappPhone) {
+                window.location.assign(
+                    `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(shareData.text)}`
+                );
+            }
+
         } catch (error) {
             if (error?.name !== 'AbortError') console.error('WhatsApp invoice share error:', error);
         } finally {
