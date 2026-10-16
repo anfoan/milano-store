@@ -269,6 +269,8 @@ const OrderTracking = () => {
     );
 
     const { formData, cartItems, total, subTotal, discount, discountPercentage, deliveryCost, orderId: displayedId, date, couponCode, currency } = order;
+    const isWhatsAppPayment = [formData?.paymentMethod, order.paymentMethod]
+        .some((method) => String(method || '').trim().toLowerCase() === 'whatsapp');
 
     const stepLabels = [
         { label: t('tracking.status_label.new'), status: 'new', icon: Check },
@@ -358,7 +360,7 @@ const OrderTracking = () => {
                     </div>
 
                     {/* WhatsApp Payment Prompt - Simplified */}
-                    {formData?.paymentMethod === 'whatsapp' && (
+                    {isWhatsAppPayment && (
                         <div className="max-w-3xl mx-auto px-0 print:hidden">
                             <button
                                 onClick={handleWhatsAppClick}
