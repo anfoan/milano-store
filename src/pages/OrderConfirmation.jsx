@@ -124,7 +124,7 @@ const OrderConfirmation = () => {
                             if (clonedPage) {
                                 clonedPage.style.paddingTop = '40px';
                                 clonedPage.style.boxSizing = 'border-box';
-                                clonedPage.lastElementChild?.style.setProperty('display', 'none', 'important');
+                                clonedPage.lastElementChild?.querySelectorAll('p')[1]?.style.setProperty('display', 'none', 'important');
                             }
                     }
                 }
