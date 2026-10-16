@@ -39,9 +39,11 @@ export const cropInvoiceCanvasForWhatsApp = (canvas, padding = 52) => {
     if (maxX < 0 || maxY < 0) return canvas;
 
     const left = Math.max(0, minX - horizontalPadding);
-    const top = Math.max(0, minY - verticalPadding);
     const right = Math.min(canvas.width, maxX + horizontalPadding + 1);
-    const bottom = Math.min(canvas.height, maxY + verticalPadding + 1);
+    // Preserve the complete captured invoice vertically. Automatic minY/maxY
+    // cropping was cutting the header and footer before the margin was added.
+    const top = 0;
+    const bottom = canvas.height;
     const sourceWidth = right - left;
     const sourceHeight = bottom - top;
     const cropped = document.createElement('canvas');
