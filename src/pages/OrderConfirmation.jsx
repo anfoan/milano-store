@@ -122,9 +122,6 @@ const OrderConfirmation = () => {
                         clonedEl.style.margin = '0 auto';
                             const clonedPage = clonedDoc.querySelector('.invoice-preview-page');
                             if (clonedPage) {
-                                clonedPage.style.paddingTop = '40px';
-                                clonedPage.style.boxSizing = 'border-box';
-                                clonedPage.lastElementChild?.querySelectorAll('p')[1]?.style.setProperty('display', 'none', 'important');
                             }
                     }
                 }
