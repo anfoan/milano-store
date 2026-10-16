@@ -586,7 +586,7 @@ const Home = () => {
                         if (event.target === event.currentTarget) closeNewArrivals();
                     }}
                 >
-                    <div className="relative w-[min(88vw,350px)] -translate-y-3 overflow-hidden rounded-[30px] border border-white/70 bg-white p-3 shadow-2xl dark:border-white/10 dark:bg-[#171a20] sm:w-[min(78vw,390px)] md:translate-y-0">
+                    <div className="relative w-[min(88vw,350px)] -translate-y-8 overflow-hidden rounded-[30px] border border-white/70 bg-white p-3 shadow-2xl dark:border-white/10 dark:bg-[#171a20] sm:w-[min(78vw,390px)] md:translate-y-0">
                         <button
                             type="button"
                             onClick={closeNewArrivals}
