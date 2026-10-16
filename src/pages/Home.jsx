@@ -1027,7 +1027,7 @@ const Home = () => {
                 <div className="w-full max-w-xs rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#171b26]" onClick={(event) => event.stopPropagation()}>
                     <div className="mb-3 flex items-center justify-between gap-3">
                         <h2 className="text-sm font-black text-slate-900 dark:text-white">تتبع طلبك</h2>
-                        <button type="button" aria-label="إغلاق" onClick={() => setTrackingOpen(false)} className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10"><X size={16} /></button>
+                        <button type="button" aria-label="إغلاق" onClick={() => setTrackingOpen(false)} className="flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-md transition-colors hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"><X size={16} /></button>
                     </div>
                     <p className="mb-3 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400">ادخل رقم طلبك لمعرفة حالة الطلب.</p>
                     <form onSubmit={handleInvoiceTracking} className="space-y-2">
