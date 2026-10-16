@@ -138,6 +138,11 @@ const OrderTracking = () => {
                         if (clonedEl) {
                             clonedEl.style.width = '794px';
                             clonedEl.style.margin = '0 auto';
+                            const clonedPage = clonedDoc.querySelector('.invoice-preview-page');
+                            if (clonedPage) {
+                                clonedPage.style.paddingTop = '48px';
+                                clonedPage.style.boxSizing = 'border-box';
+                            }
                         }
                     }
                 });
@@ -290,6 +295,11 @@ const OrderTracking = () => {
                     if (clonedEl) {
                         clonedEl.style.width = '794px';
                         clonedEl.style.margin = '0 auto';
+                            const clonedPage = clonedDoc.querySelector('.invoice-preview-page');
+                            if (clonedPage) {
+                                clonedPage.style.paddingTop = '48px';
+                                clonedPage.style.boxSizing = 'border-box';
+                            }
                     }
                 }
             });
