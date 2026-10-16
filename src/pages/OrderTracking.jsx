@@ -241,7 +241,10 @@ const OrderTracking = () => {
             try {
                 if (navigator.clipboard?.write && window.ClipboardItem) {
                     await navigator.clipboard.write([
-                        new ClipboardItem({ [invoiceFile.type]: invoiceFile })
+                        new ClipboardItem({
+                            'text/plain': new Blob([shareData.text], { type: 'text/plain' }),
+                            'image/png': blob
+                        })
                     ]);
                 }
             } catch (clipboardError) {
