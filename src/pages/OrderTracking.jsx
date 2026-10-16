@@ -229,7 +229,9 @@ const OrderTracking = () => {
                 title: `فاتورة الطلب ${invoiceId}`,
                 text: `مرحباً ارغب في إكمال عملية الدفع.\nرقم الطلب: ${invoiceId}`
             };
-            if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [invoiceFile] }))) {
+            const isAppleMobile = /iPad|iPhone|iPod/.test(navigator.userAgent)
+                || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            if (!isAppleMobile && navigator.share && (!navigator.canShare || navigator.canShare({ files: [invoiceFile] }))) {
                 await navigator.share(shareData);
                 return;
             }
