@@ -138,6 +138,12 @@ const OrderTracking = () => {
                         if (clonedEl) {
                             clonedEl.style.width = '794px';
                             clonedEl.style.margin = '0 auto';
+                            const clonedPage = clonedDoc.querySelector('.invoice-preview-page');
+                            if (clonedPage) {
+                                clonedPage.style.paddingTop = '40px';
+                                clonedPage.style.boxSizing = 'border-box';
+                                clonedPage.lastElementChild?.style.setProperty('display', 'none', 'important');
+                            }
                         }
                     }
                 });
@@ -290,6 +296,12 @@ const OrderTracking = () => {
                     if (clonedEl) {
                         clonedEl.style.width = '794px';
                         clonedEl.style.margin = '0 auto';
+                            const clonedPage = clonedDoc.querySelector('.invoice-preview-page');
+                            if (clonedPage) {
+                                clonedPage.style.paddingTop = '40px';
+                                clonedPage.style.boxSizing = 'border-box';
+                                clonedPage.lastElementChild?.style.setProperty('display', 'none', 'important');
+                            }
                     }
                 }
             });
