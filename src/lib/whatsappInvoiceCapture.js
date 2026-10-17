@@ -51,6 +51,15 @@ const prepareClonedInvoice = (clonedDocument) => {
         clonedPage.style.setProperty('box-shadow', 'none', 'important');
         clonedPage.style.setProperty('overflow', 'visible', 'important');
         clonedPage.style.setProperty('background', '#ffffff', 'important');
+
+        // The mobile preview keeps later columns visually aligned with a small
+        // offset. Do not carry that preview-only offset into the WhatsApp
+        // image, otherwise it creates a blank strip beside the total column.
+        clonedPage.querySelectorAll('table th, table td').forEach(cell => {
+            cell.style.setProperty('transform', 'none', 'important');
+            cell.style.setProperty('position', 'static', 'important');
+            cell.style.setProperty('isolation', 'auto', 'important');
+        });
     }
 };
 

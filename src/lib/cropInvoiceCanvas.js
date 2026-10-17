@@ -38,9 +38,9 @@ export const cropInvoiceCanvasForWhatsApp = (canvas) => {
     if (maxX < 0 || maxY < 0) return canvas;
 
     const detectedWidth = maxX - minX + 1;
-    const contentPadding = Math.max(88, Math.round(detectedWidth * 0.04));
-    const topSafety = Math.round(contentPadding * 1.15);
-    const bottomSafety = contentPadding;
+    const contentPadding = Math.max(80, Math.round(detectedWidth * 0.035));
+    const topSafety = Math.round(contentPadding * 1.1);
+    const bottomSafety = Math.round(contentPadding * 0.9);
 
     const left = Math.max(0, minX - contentPadding);
     const right = Math.min(canvas.width, maxX + contentPadding + 1);
@@ -49,9 +49,9 @@ export const cropInvoiceCanvasForWhatsApp = (canvas) => {
     const sourceWidth = right - left;
     const sourceHeight = bottom - top;
 
-    const frameX = contentPadding;
-    const frameTop = Math.round(contentPadding * 1.1);
-    const frameBottom = Math.round(contentPadding * 0.9);
+    const frameX = Math.max(64, Math.round(contentPadding * 0.85));
+    const frameTop = Math.round(contentPadding * 0.9);
+    const frameBottom = Math.round(contentPadding * 0.8);
     const framed = document.createElement('canvas');
     framed.width = sourceWidth + frameX * 2;
     framed.height = sourceHeight + frameTop + frameBottom;
