@@ -216,15 +216,15 @@
   .invoice-preview-page table col:nth-child(5) { width: 16% !important; }
   .invoice-preview-page table th {
     text-align: center !important;
-    font-size: 10px !important;
-    line-height: 1 !important;
-    padding: 5px 2px !important;
+    font-size: 11px !important;
+    line-height: 1.1 !important;
+    padding: 8px 2px !important;
     vertical-align: middle !important;
   }
   .invoice-preview-page table td {
-    padding: 6px 2px !important;
-    font-size: 9px !important;
-    line-height: 1.15 !important;
+    padding: 4px 2px !important;
+    font-size: 10px !important;
+    line-height: 1.1 !important;
     vertical-align: middle !important;
   }
   .invoice-preview-page table th:nth-child(n+2),
@@ -252,7 +252,7 @@
     white-space: normal !important;
     overflow-wrap: break-word !important;
     line-height: 1.1 !important;
-    font-size: 9px !important;
+    font-size: 10px !important;
   }
   .invoice-preview-page table td:nth-child(5) > span {
     display: block !important;
