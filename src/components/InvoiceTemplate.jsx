@@ -23,7 +23,7 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
 
             {/* Preview Header - Hidden when printing or capturing or if hideHeader is true */}
             {!hideHeader && (
-                <div className="invoice-preview-toolbar bg-[#111827] text-white py-4 px-6 mb-8 flex justify-between items-center shadow-md print:hidden" data-html2canvas-ignore="true">
+                <div className="bg-[#111827] text-white py-4 px-6 mb-8 flex justify-between items-center shadow-md print:hidden" data-html2canvas-ignore="true">
                     <div className="flex gap-3">
                         <button
                             onClick={() => onDownload ? onDownload() : window.print()}
@@ -44,56 +44,51 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
             )}
 
             {/* Printable Content - Centered */}
-                <div className="flex justify-center px-1 pb-20 sm:px-2 print:p-0 print:block">
-                <div ref={ref} className="print-container w-full max-w-[210mm]">
+            <div className="flex justify-center pb-20 print:p-0 print:block">
+                <div ref={ref} className="print-container">
                     <style type="text/css" media="screen">
-                        {`.invoice-preview-page { width: min(170mm, calc(100vw - 2rem)) !important; max-width: min(170mm, calc(100vw - 2rem)) !important; min-height: 0 !important; height: auto !important; aspect-ratio: auto !important; box-sizing: border-box; overflow: visible !important; } .invoice-preview-page table col:nth-child(1) { width: 43% !important; } .invoice-preview-page table col:nth-child(2) { width: 10% !important; } .invoice-preview-page table col:nth-child(3) { width: 20% !important; } .invoice-preview-page table col:nth-child(4) { width: 9% !important; } .invoice-preview-page table col:nth-child(5) { width: 18% !important; } .invoice-preview-page table th { white-space: nowrap !important; font-size: 11px !important; } .invoice-preview-page table td { font-size: 11px !important; line-height: 1.25 !important; } @media (max-width: 639px) { .invoice-preview-page { width: calc(100vw - 2rem) !important; max-width: calc(100vw - 2rem) !important; } .invoice-preview-page table { font-size: 9px; } .invoice-preview-page table th { font-size: 9px !important; } .invoice-preview-page table td { font-size: 9px !important; } }`}
+                        {`.invoice-preview-page { width: min(170mm, calc(100vw - 2rem)) !important; max-width: min(170mm, calc(100vw - 2rem)) !important; min-height: 0 !important; height: auto !important; box-sizing: border-box; overflow: visible !important; } .invoice-preview-page .invoice-items-table { width: 100%; table-layout: fixed; } .invoice-preview-page .invoice-items-table th { white-space: nowrap !important; font-size: 11px !important; } .invoice-preview-page .invoice-items-table td { font-size: 11px !important; line-height: 1.25 !important; } .invoice-preview-page .invoice-items-table col:nth-child(1) { width: 43% !important; } .invoice-preview-page .invoice-items-table col:nth-child(2) { width: 10% !important; } .invoice-preview-page .invoice-items-table col:nth-child(3) { width: 18% !important; } .invoice-preview-page .invoice-items-table col:nth-child(4) { width: 8% !important; } .invoice-preview-page .invoice-items-table col:nth-child(5) { width: 21% !important; } @media (max-width: 639px) { .invoice-preview-page { width: calc(100vw - 2rem) !important; max-width: calc(100vw - 2rem) !important; } .invoice-preview-page .invoice-items-table th, .invoice-preview-page .invoice-items-table td { font-size: 9px !important; } }`}
                     </style>
                     <style type="text/css" media="print">
                         {`
                         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-                        @page { size: A4 portrait; margin: 0; }
-                        html, body { width: 210mm !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; background: #ffffff !important; }
-                        body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                        .invoice-orders-page { display: none !important; }
-                        .invoice-print-overlay { display: block !important; position: static !important; inset: auto !important; width: 100% !important; min-height: 0 !important; height: auto !important; overflow: visible !important; padding: 0 !important; background: #ffffff !important; }
-                        .invoice-print-overlay > div { display: block !important; width: 100% !important; max-width: none !important; min-height: 0 !important; height: auto !important; }
-                        body * { visibility: hidden !important; }
-                        .print-page, .print-page * { visibility: visible !important; }
-                        .print-container { display: block !important; width: 210mm !important; margin: 0 !important; padding: 0 !important; }
+                        @page { size: A4; margin: 0; }
+                        body { margin: 0; padding: 0; background: white; -webkit-print-color-adjust: exact; }
+                        .print-container { width: 100%; }
                         .print-page {
-                            display: flex !important; flex-direction: column !important;
-                            width: 210mm !important; max-width: 210mm !important;
-                            min-height: 0 !important; height: auto !important; padding: 10mm !important;
-                            margin: 0 !important; page-break-after: auto !important; break-after: auto !important;
-                            page-break-inside: avoid !important; break-inside: avoid !important;
-                            background: #ffffff !important; font-family: 'Cairo', sans-serif !important;
-                            position: relative !important; direction: rtl !important;
-                            border-radius: 0 !important; box-shadow: none !important; overflow: visible !important;
+                            width: 210mm;
+                            min-height: 148mm;
+                            padding: 20px 40px !important;
+                            margin: 0 auto;
+                            page-break-after: always;
+                            break-after: page;
+                            background: white;
+                            font-family: 'Cairo', sans-serif;
+                            position: relative;
+                            direction: rtl;
+                            border-radius: 0;
+                            box-shadow: none;
+                            overflow: hidden;
                         }
-                        .print-page > * { max-width: 100% !important; }
-                        .print-page table { width: 100% !important; table-layout: fixed !important; border-collapse: collapse !important; page-break-inside: avoid !important; }
-                        .print-page tr { page-break-inside: avoid !important; break-inside: avoid !important; }
-                        .print-page th, .print-page td { overflow: visible !important; vertical-align: middle !important; }
-                        .print-page .bg-gray-50 span { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; overflow-wrap: anywhere !important; line-height: 1.35 !important; }
-                        .print-page [data-invoice-customer-card] > div { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; column-gap: 10mm !important; row-gap: 4mm !important; }
-                        .print-page [data-invoice-customer-card] > div > div { display: flex !important; min-width: 0 !important; align-items: baseline !important; flex-wrap: nowrap !important; gap: 3mm !important; white-space: nowrap !important; overflow: visible !important; }
-                        .print-page [data-invoice-customer-card] > div > div > span:first-child { flex: 0 0 auto !important; font-size: 10px !important; line-height: 1.5 !important; min-height: 16px !important; padding-bottom: 1px !important; white-space: nowrap !important; }
-                        .print-page [data-invoice-customer-card] > div > div > span:last-child { flex: 0 1 auto !important; min-width: 0 !important; font-size: 12px !important; line-height: 1.5 !important; min-height: 18px !important; padding-bottom: 1px !important; white-space: nowrap !important; overflow: visible !important; text-overflow: clip !important; overflow-wrap: normal !important; }
-                        .print-page img { max-width: 100% !important; }
-                        .print-page:last-child { page-break-after: auto !important; }
+                        .print-page:last-child { page-break-after: auto; }
                         * { box-sizing: border-box; }
                         `}
                     </style>
-                    {orders.map((order) => (
-                        <div key={order.id} className="print-page invoice-preview-page mx-auto flex flex-col bg-white px-4 py-4 shadow-xl mb-4 sm:px-8 sm:py-6 print:shadow-none print:mb-0 rounded-[24px] print:rounded-none" dir="rtl"
-                            style={{ width: previewWidth, maxWidth: previewWidth, minHeight: 0, height: 'auto', fontFamily: "'Cairo', sans-serif" }}>
+                    {orders.map((order) => {
+                        const invoiceCurrency = order.currency || currency || 'YER';
+                        return (
+                        <div key={order.id} className="print-page invoice-preview-page flex flex-col bg-white shadow-xl mb-4 px-4 py-4 sm:px-8 sm:py-6 print:shadow-none print:mb-0 rounded-[24px] print:rounded-none" dir="rtl"
+                            style={{ width: previewWidth, maxWidth: previewWidth, minHeight: 0, height: 'auto', margin: '0 auto', fontFamily: "'Cairo', sans-serif" }}>
 
                             {/* 1. Header Section */}
-                            <div className="flex justify-between items-start mb-6 pb-3 border-b-2 border-slate-800">
+                            <div className="flex justify-between items-start mb-10 pb-4 border-b-2 border-slate-800">
                                 <div className={`${lang === 'ar' ? 'text-right' : 'text-left'}`}>
-                                    <h1 className="text-3xl sm:text-4xl font-black text-[#111317] mb-2">{lang === 'ar' ? 'فاتورة' : 'INVOICE'}</h1>
-                                    <p className="text-lg sm:text-xl font-bold text-gray-500 mb-2">{lang === 'ar' ? 'متجر ميلانو' : 'Milano Store'}</p>
+                                    <h1 className="text-4xl font-black text-[#111317] mb-4">{lang === 'ar' ? 'فاتورة' : 'INVOICE'}</h1>
+                                    <p className="text-xl font-bold text-gray-500 mb-2">{generalSettings?.storeName || (lang === 'ar' ? 'متجر ميلانو' : 'Milano Store')}</p>
+                                    <div className="mb-4 space-y-0.5 text-xs font-bold text-gray-500">
+                                        {generalSettings?.storeAddress && <p>{generalSettings.storeAddress}</p>}
+                                        {generalSettings?.phoneNumber && <p dir="ltr" className="text-right" style={{ direction: 'ltr', textAlign: 'right' }}>{generalSettings.phoneNumber}</p>}
+                                    </div>
                                     <div className="space-y-1.5 text-sm font-bold text-gray-800">
                                         <div className="flex items-center gap-3">
                                             <span className="text-gray-800 font-bold">{lang === 'ar' ? 'تاريخ الطلب:' : 'Order Date:'}</span>
@@ -106,50 +101,55 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                                     </div>
                                 </div>
                                 <div className={`flex flex-col justify-center items-center ${lang === 'ar' ? 'pl-4' : 'pr-4'}`}>
-                                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-[20px] bg-black flex items-center justify-center overflow-hidden border-4 border-gray-100 p-1">
+                                    <div className="w-28 h-28 rounded-[20px] bg-black flex items-center justify-center overflow-hidden border-4 border-gray-100 p-1">
                                         <img src={generalSettings?.invoiceLogo || "/logo.jpg"} onError={(e) => e.target.src = '/logo.jpg'} className="w-full h-full object-contain rounded-[18px]" />
                                     </div>
                                 </div>
                             </div>
 
                             {/* 2. Customer Info Card */}
-                            <div data-invoice-customer-card className="mb-5 bg-gray-50 rounded-lg p-4 border border-gray-400 print:bg-gray-50 print:border-gray-400">
+                            <div className="mb-5 bg-gray-50 rounded-lg p-4 border border-gray-400 print:bg-gray-50 print:border-gray-400">
                                 <h3 className={`font-black text-lg text-gray-800 border-b border-gray-400 pb-3 mb-4 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'بيانات العميل' : 'Customer Details'}</h3>
-                                    <div className={`grid grid-cols-2 gap-y-3 gap-x-4 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
-                                    <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
-                                        <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'اسم المشتري:' : 'Name:'}</span>
-                                        <span className="min-w-0 overflow-visible whitespace-nowrap font-black text-sm text-[#111317] leading-normal" style={{ lineHeight: '1.35', paddingBottom: '2px' }}>{order.formData?.name || '---'}</span>
+                                <div className={`grid grid-cols-2 gap-y-3 gap-x-4 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+                                    <div className="flex min-w-0 items-start justify-start gap-2">
+                                        <span className="text-gray-500 text-xs font-bold">{lang === 'ar' ? 'اسم المشتري:' : 'Name:'}</span>
+                                        <span className="min-w-0 break-words whitespace-normal font-black text-sm text-[#111317] leading-relaxed">{order.formData?.name || '---'}</span>
                                     </div>
-                                    <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
-                                        <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'الدولة:' : 'Country:'}</span>
-                                        <span className="min-w-0 overflow-visible whitespace-nowrap font-black text-sm text-[#111317] leading-normal" style={{ lineHeight: '1.35', paddingBottom: '2px' }}>
+                                    <div className="flex min-w-0 items-start justify-start gap-2">
+                                        <span className="text-gray-500 text-xs font-bold">{lang === 'ar' ? 'الدولة:' : 'Country:'}</span>
+                                        <span className="min-w-0 break-words whitespace-normal font-black text-sm text-[#111317] leading-relaxed">
                                             {order.formData?.country === 'Yemen' && lang === 'ar' ? 'اليمن' : (order.formData?.country || 'Yemen')}
                                         </span>
                                     </div>
 
                                     {/* Row 2: Address - Country */}
-                                    <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
-                                        <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'العنوان:' : 'Address:'}</span>
-                                        <span className="min-w-0 overflow-visible whitespace-nowrap font-black text-sm text-[#111317] leading-normal" style={{ lineHeight: '1.35', paddingBottom: '2px' }}>{order.formData?.address || '---'}</span>
+                                    <div className="flex min-w-0 items-start justify-start gap-2">
+                                        <span className="text-gray-500 text-xs font-bold">{lang === 'ar' ? 'العنوان:' : 'Address:'}</span>
+                                        <span className="min-w-0 break-words whitespace-normal font-black text-sm text-[#111317] leading-relaxed">{order.formData?.address || '---'}</span>
                                     </div>
-                                    <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
-                                        <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'رقم الهاتف:' : 'Phone:'}</span>
-                                        <span className="min-w-0 overflow-visible whitespace-nowrap font-black text-sm text-[#111317] leading-normal" style={{ lineHeight: '1.35', paddingBottom: '2px' }}>{order.formData?.phone || '---'}</span>
+                                    <div className="flex min-w-0 items-start justify-start gap-2">
+                                        <span className="text-gray-500 text-xs font-bold">{lang === 'ar' ? 'رقم الهاتف:' : 'Phone:'}</span>
+                                        <span className="min-w-0 break-words whitespace-normal font-black text-sm text-[#111317] leading-relaxed">{order.formData?.phone || '---'}</span>
                                     </div>
 
                                     {/* Row 3: City - Payment Method */}
-                                    <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
-                                        <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'المدينة:' : 'City:'}</span>
-                                        <span className="min-w-0 overflow-visible whitespace-nowrap font-black text-sm text-[#111317] leading-normal" style={{ lineHeight: '1.35', paddingBottom: '2px' }}>{order.formData?.city || order.formData?.governorate || '---'}</span>
+                                    <div className="flex min-w-0 items-start justify-start gap-2">
+                                        <span className="text-gray-500 text-xs font-bold">{lang === 'ar' ? 'المدينة:' : 'City:'}</span>
+                                        <span className="min-w-0 break-words whitespace-normal font-black text-sm text-[#111317] leading-relaxed">{order.formData?.city || order.formData?.governorate || '---'}</span>
                                     </div>
-                                    <div className="flex min-w-0 items-center justify-start gap-2 whitespace-nowrap">
-                                        <span className="shrink-0 text-gray-500 text-[10px] sm:text-xs font-bold">{lang === 'ar' ? 'طريقة الدفع:' : 'Payment Method:'}</span>
-                                        <span className="min-w-0 overflow-visible whitespace-nowrap font-black text-sm text-[#111317] leading-normal" style={{ lineHeight: '1.35', paddingBottom: '2px' }}>
+                                    <div className="flex min-w-0 items-start justify-start gap-2">
+                                        <span className="text-gray-500 text-xs font-bold">{lang === 'ar' ? 'طريقة الدفع:' : 'Payment Method:'}</span>
+                                        <span className="min-w-0 break-words whitespace-normal font-black text-sm text-[#111317] leading-relaxed">
                                             {(() => {
-                                                const method = order.paymentMethod || order.formData?.paymentMethod;
+                                                const topLevelMethod = String(order.paymentMethod || '').toLowerCase();
+                                                const method = topLevelMethod && topLevelMethod !== 'manual'
+                                                    ? topLevelMethod
+                                                    : String(order.formData?.paymentMethod || '').toLowerCase();
                                                 if (method === 'whatsapp') return (lang === 'ar' ? 'واتساب' : 'WhatsApp');
-                                                if (method === 'cod') return (lang === 'ar' ? 'كاش' : 'Cash');
-                                                return method || (lang === 'ar' ? 'كاش' : 'Cash');
+                                                if (['cash', 'cod', 'manual', 'cash_on_delivery'].includes(method)) return (lang === 'ar' ? 'نقدي / كاش' : 'Cash');
+                                                if (['card', 'jib', 'jib_wallet', 'wallet'].includes(method)) return (lang === 'ar' ? 'محفظة جيب' : 'Jib Wallet');
+                                                if (['transfer', 'bank_transfer'].includes(method)) return (lang === 'ar' ? 'تحويل بنكي' : 'Bank Transfer');
+                                                return order.paymentMethod || order.formData?.paymentMethod || (lang === 'ar' ? 'نقدي / كاش' : 'Cash');
                                             })()}
                                         </span>
                                     </div>
@@ -159,21 +159,17 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                             {/* 3. Products Table */}
                             <div className="mb-5">
                                 <h3 className={`font-black text-lg sm:text-xl mb-3 text-gray-800 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'تفاصيل الفاتورة' : 'Invoice Details'}</h3>
-                                <table className={`w-full table-fixed ${lang === 'ar' ? 'text-right' : 'text-left'} border-collapse border border-gray-400`} style={{ tableLayout: 'fixed' }}>
+                                <table className={`invoice-items-table w-full table-fixed ${lang === 'ar' ? 'text-right' : 'text-left'} border-collapse border border-gray-400`} style={{ tableLayout: 'fixed' }}>
                                     <colgroup>
-                                        <col style={{ width: '43%' }} />
-                                        <col style={{ width: '10%' }} />
-                                        <col style={{ width: '20%' }} />
-                                        <col style={{ width: '9%' }} />
-                                        <col style={{ width: '18%' }} />
+                                        <col style={{ width: '43%' }} /><col style={{ width: '10%' }} /><col style={{ width: '18%' }} /><col style={{ width: '8%' }} /><col style={{ width: '21%' }} />
                                     </colgroup>
                                     <thead style={{ backgroundColor: '#111317', color: '#ffffff' }} className="bg-[#111317] text-white print:bg-[#111317] print:text-white">
                                         <tr>
-                                            <th style={{ padding: '8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317', border: '1px solid #6b7280' }} className={`text-xs sm:text-sm font-bold ${lang === 'ar' ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'اسم المنتج' : 'Item'}</th>
-                                            <th style={{ padding: '10px 4px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317', border: '1px solid #6b7280' }} className="text-sm font-bold text-center">{lang === 'ar' ? 'المقاس' : 'Size'}</th>
-                                            <th style={{ padding: '10px 4px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317', border: '1px solid #6b7280' }} className="text-sm font-bold text-center">{lang === 'ar' ? 'سعر الحبه' : 'Unit Price'}</th>
-                                            <th style={{ padding: '10px 4px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317', border: '1px solid #6b7280' }} className="text-sm font-bold text-center">{lang === 'ar' ? 'الكمية' : 'Qty'}</th>
-                                            <th style={{ padding: '10px 4px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317', border: '1px solid #6b7280' }} className="text-sm font-bold text-center">{lang === 'ar' ? 'الإجمالي' : 'Total'}</th>
+                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className={`text-sm font-bold border-l border-gray-500 ${lang === 'ar' ? 'text-right' : 'text-left'}`}><span className="inline-block -translate-x-3">{lang === 'ar' ? 'اسم المنتج' : 'Item'}</span></th>
+                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-xs sm:text-sm font-bold text-center border-l border-gray-500 w-[10%] whitespace-nowrap">{lang === 'ar' ? 'المقاس' : 'Size'}</th>
+                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-xs sm:text-sm font-bold text-center border-l border-gray-500 w-[20%] whitespace-nowrap">{lang === 'ar' ? 'سعر الحبه' : 'Unit Price'}</th>
+                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-xs sm:text-sm font-bold text-center border-l border-gray-500 w-[9%] whitespace-nowrap">{lang === 'ar' ? 'الكمية' : 'Qty'}</th>
+                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-xs sm:text-sm font-bold text-center w-[18%] whitespace-nowrap">{lang === 'ar' ? 'الإجمالي' : 'Total'}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-400 bg-white">
@@ -183,20 +179,20 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                                             const hasItemDiscount = itemPrices.original > itemPrices.discounted;
                                             return (
                                             <tr key={idx}>
-                                                <td style={{ padding: '8px', verticalAlign: 'middle', border: '1px solid #9ca3af', overflow: 'hidden' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                                                <td style={{ padding: '8px 16px', verticalAlign: 'middle' }} className="border-l border-gray-400">
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                         <img
                                                             src={item.image}
-                                                            style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #9ca3af', verticalAlign: 'middle', flexShrink: 0 }}
+                                                            style={{ width: '55px', height: '55px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #9ca3af', verticalAlign: 'middle', flexShrink: 0 }}
                                                             onError={(e) => {
                                                                 e.target.onerror = null;
                                                                 e.target.src = '/nav-logo.png';
                                                             }}
                                                         />
-                                                        <span data-invoice-product-title style={{ fontWeight: 'bold', color: '#1f2937', fontSize: '11px', lineHeight: '1.3', verticalAlign: 'middle', minWidth: 0, overflowWrap: 'anywhere' }}>{item.title}</span>
+                                                        <span style={{ fontWeight: 'bold', color: '#1f2937', fontSize: '12px', lineHeight: '1.4', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>{item.title}</span>
                                                     </div>
                                                 </td>
-                                                <td style={{ padding: '8px 4px', verticalAlign: 'middle', border: '1px solid #9ca3af' }} className="text-center text-xs font-bold text-gray-800">
+                                                <td style={{ padding: '8px 16px', verticalAlign: 'middle' }} className="text-center text-xs font-bold text-gray-800 border-l border-gray-400">
                                                     <span>
                                                         {(item.selectedSize || item.size || '---')
                                                             .toString()
@@ -204,7 +200,7 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                                                             .trim()}
                                                     </span>
                                                 </td>
-                                                <td style={{ padding: '8px 4px', verticalAlign: 'middle', border: '1px solid #9ca3af', whiteSpace: 'nowrap' }} className="text-center text-xs font-bold text-gray-600">
+                                                <td style={{ padding: '8px 16px', verticalAlign: 'middle' }} className="text-center text-xs font-bold text-gray-600 border-l border-gray-400 whitespace-nowrap">
                                                     {hasItemDiscount ? (
                                                         <div className="flex flex-col items-center">
                                                             <span style={{ textDecoration: 'line-through', opacity: 0.6 }}>{formatPrice(itemPrices.original, itemCurrency)}</span>
@@ -214,11 +210,13 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                                                         <span>{formatPrice(itemPrices.discounted, itemCurrency)}</span>
                                                     )}
                                                 </td>
-                                                <td style={{ padding: '8px 4px', verticalAlign: 'middle', border: '1px solid #9ca3af' }} className="text-center text-xs font-bold text-gray-600">
+                                                <td style={{ padding: '8px 16px', verticalAlign: 'middle' }} className="text-center text-xs font-bold text-gray-600 border-l border-gray-400">
                                                     <span>{item.quantity || 1}</span>
                                                 </td>
-                                                <td style={{ padding: '8px 4px', verticalAlign: 'middle', border: '1px solid #9ca3af', whiteSpace: 'nowrap' }} className="text-center text-xs font-black text-[#111317]">
-                                                    <span>{formatPrice(itemPrices.discounted * (item.quantity || 1), itemCurrency)}</span>
+                                                <td style={{ padding: '8px 6px', verticalAlign: 'middle' }} className="text-center text-xs font-black text-[#111317] whitespace-nowrap">
+                                                    <div className="flex min-h-[55px] w-full items-center justify-center">
+                                                        <span>{formatPrice(itemPrices.discounted * (item.quantity || 1), itemCurrency)}</span>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             );
@@ -229,12 +227,12 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
 
                             {/* 4. Totals & Footer */}
                             <div className={`flex ${lang === 'ar' ? 'justify-start' : 'justify-end'} mt-1 px-0`}>
-                                <div data-invoice-totals className="w-full max-w-[360px] bg-gray-50 rounded-lg p-3 border border-gray-200 print:bg-gray-50 print:border-gray-200">
-                                    <div className="space-y-1.5">
+                                <div className="w-full max-w-[360px] bg-gray-50 rounded-lg p-3 border border-gray-200 print:bg-gray-50 print:border-gray-200">
+                                    <div className="space-y-2">
                                         <div className={`flex justify-between items-center text-gray-600 text-sm font-bold`}>
                                             <span>{lang === 'ar' ? 'المجموع الفرعي:' : 'Subtotal:'}</span>
                                             <span className="text-gray-800">
-                                                {formatPrice(order.subTotal || order.total, order.currency)}
+                                                {formatPrice(order.subTotal || order.total, invoiceCurrency)}
                                             </span>
                                         </div>
                                         <div className={`flex justify-between items-center text-red-500 text-sm font-bold`}>
@@ -244,21 +242,21 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                                                     const productDiscount = Number(order.discount || 0);
                                                     const couponDiscount = Math.round(Number(order.subTotal || 0) * (Number(order.discountPercentage || 0) / 100));
                                                     const totalD = productDiscount + couponDiscount;
-                                                    return totalD > 0 ? `- ${formatPrice(totalD, order.currency)}` : '0';
+                                                    return totalD > 0 ? `- ${formatPrice(totalD, invoiceCurrency)}` : '0';
                                                 })()}
                                             </span>
                                         </div>
                                         <div className={`flex justify-between items-center text-gray-600 text-sm font-bold`}>
                                             <span>{lang === 'ar' ? 'رسوم التوصيل:' : 'Delivery:'}</span>
                                             <span className="text-gray-800">
-                                                {formatPrice(order.deliveryCost, order.currency)}
+                                                {formatPrice(order.deliveryCost, invoiceCurrency)}
                                             </span>
                                         </div>
                                         <div className="my-2 border-t-2 border-dashed border-gray-300"></div>
                                         <div className={`flex justify-between items-center`}>
-                                            <span className="text-base font-black text-[#111317]">{lang === 'ar' ? 'الإجمالي:' : 'Total:'}</span>
-                                            <span className="text-lg font-black text-[#111317]">
-                                                {formatPrice(order.total || 0, order.currency)}
+                                            <span className="text-lg font-black text-[#111317]">{lang === 'ar' ? 'الإجمالي:' : 'Total:'}</span>
+                                            <span className="text-xl font-black text-[#111317]">
+                                                {formatPrice(order.total || 0, invoiceCurrency)}
                                             </span>
                                         </div>
                                     </div>
@@ -270,7 +268,8 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                                 <p className="text-gray-900 font-mono text-[10px]">{window.location.hostname}</p>
                             </div>
                         </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </div>

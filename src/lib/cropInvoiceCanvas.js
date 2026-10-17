@@ -9,13 +9,11 @@ const isVisiblePixel = (data, index) => {
 };
 
 /**
- * Removes only the outer blank canvas around the invoice image used for WhatsApp.
- * Balanced white padding is retained so the design does not touch any image edge.
+ * Produces a clean, full-height WhatsApp image with a moderate white frame.
+ * The source is detected from its visible invoice content, so headers, logos,
+ * totals and the footer remain inside the captured image on every screen size.
  */
-export const cropInvoiceCanvasForWhatsApp = (canvas, padding = 52) => {
-    const horizontalPadding = padding;
-    const topPadding = 220;
-    const bottomPadding = 84;
+export const cropInvoiceCanvasForWhatsApp = (canvas) => {
     if (!canvas || !canvas.width || !canvas.height) return canvas;
 
     const context = canvas.getContext('2d', { willReadFrequently: true });
@@ -39,45 +37,41 @@ export const cropInvoiceCanvasForWhatsApp = (canvas, padding = 52) => {
 
     if (maxX < 0 || maxY < 0) return canvas;
 
-    const left = Math.max(0, minX - horizontalPadding);
-    const right = Math.min(canvas.width, maxX + horizontalPadding + 1);
-    // Preserve the complete captured invoice vertically. Automatic minY/maxY
-    // cropping was cutting the header and footer before the margin was added.
-    const top = 0;
-    const bottom = canvas.height;
+    const detectedWidth = maxX - minX + 1;
+    const contentPadding = Math.max(88, Math.round(detectedWidth * 0.04));
+    const topSafety = Math.round(contentPadding * 1.15);
+    const bottomSafety = contentPadding;
+
+    const left = Math.max(0, minX - contentPadding);
+    const right = Math.min(canvas.width, maxX + contentPadding + 1);
+    const top = Math.max(0, minY - topSafety);
+    const bottom = Math.min(canvas.height, maxY + bottomSafety + 1);
     const sourceWidth = right - left;
     const sourceHeight = bottom - top;
-    const cropped = document.createElement('canvas');
-    // Keep a real outer margin even when the detected invoice touches the
-    // original canvas edge; clamping the source bounds must not clip the design.
-    cropped.width = sourceWidth + horizontalPadding * 2;
-    cropped.height = sourceHeight + topPadding + bottomPadding;
 
-    const croppedContext = cropped.getContext('2d');
-    croppedContext.fillStyle = '#ffffff';
-    croppedContext.fillRect(0, 0, cropped.width, cropped.height);
-    croppedContext.drawImage(
-        canvas,
-        left,
-        top,
-        sourceWidth,
-        sourceHeight,
-        horizontalPadding,
-        topPadding,
-        sourceWidth,
-        sourceHeight
-    );
+    const frameX = contentPadding;
+    const frameTop = Math.round(contentPadding * 1.1);
+    const frameBottom = Math.round(contentPadding * 0.9);
+    const framed = document.createElement('canvas');
+    framed.width = sourceWidth + frameX * 2;
+    framed.height = sourceHeight + frameTop + frameBottom;
 
-    const outputWidth = 1080;
-    const outputHeight = Math.round(cropped.height * outputWidth / cropped.width);
+    const framedContext = framed.getContext('2d');
+    framedContext.fillStyle = '#ffffff';
+    framedContext.fillRect(0, 0, framed.width, framed.height);
+    framedContext.drawImage(canvas, left, top, sourceWidth, sourceHeight, frameX, frameTop, sourceWidth, sourceHeight);
+
+    const outputWidth = 1440;
+    const outputHeight = Math.round(framed.height * outputWidth / framed.width);
     const output = document.createElement('canvas');
     output.width = outputWidth;
     output.height = outputHeight;
+
     const outputContext = output.getContext('2d');
     outputContext.fillStyle = '#ffffff';
     outputContext.fillRect(0, 0, output.width, output.height);
     outputContext.imageSmoothingEnabled = true;
     outputContext.imageSmoothingQuality = 'high';
-    outputContext.drawImage(cropped, 0, 0, output.width, output.height);
+    outputContext.drawImage(framed, 0, 0, output.width, output.height);
     return output;
 };

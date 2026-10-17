@@ -7,7 +7,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useSettings } from '../hooks/useSettings';
 import InvoiceTemplate from '../components/InvoiceTemplate';
-import { cropInvoiceCanvasForWhatsApp } from '../lib/cropInvoiceCanvas';
+import { createWhatsAppInvoiceBlob } from '../lib/whatsappInvoiceCapture';
 
 const OrderConfirmation = () => {
     const { t, direction, language } = useLanguage();
@@ -109,27 +109,7 @@ const OrderConfirmation = () => {
             parent.style.zIndex = '-9999';
             parent.style.pointerEvents = 'none';
 
-            const canvas = await html2canvas(element, {
-                scale: 4,
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                logging: false,
-                allowTaint: true,
-                onclone: (clonedDoc) => {
-                    const clonedEl = clonedDoc.querySelector('.print-container');
-                    if (clonedEl) {
-                        clonedEl.style.width = '794px';
-                        clonedEl.style.margin = '0 auto';
-                            const clonedPage = clonedDoc.querySelector('.invoice-preview-page');
-                            if (clonedPage) {
-                            }
-                    }
-                }
-            });
-            const whatsappCanvas = cropInvoiceCanvasForWhatsApp(canvas);
-            const blob = await new Promise((resolve, reject) => {
-                whatsappCanvas.toBlob(fileBlob => fileBlob ? resolve(fileBlob) : reject(new Error('تعذر إنشاء صورة الفاتورة')), 'image/png');
-            });
+            const blob = await createWhatsAppInvoiceBlob(element);
             const invoiceFile = new File([blob], `Milano-Invoice-${String(orderId).replace('#', '')}.png`, { type: 'image/png' });
             const shareData = {
                 files: [invoiceFile],
