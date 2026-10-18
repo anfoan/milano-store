@@ -167,21 +167,6 @@ const Home = () => {
     };
 
     useEffect(() => {
-        if (newArrivalsOpen) return undefined;
-
-        // Once the arrivals dialog is closed, let desktop vertical wheel input
-        // reach the document's native scroll action without product rows
-        // intercepting it in the bubbling phase.
-        const preserveDesktopPageWheel = (event) => {
-            if (window.innerWidth < 1024 || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
-            event.stopPropagation();
-        };
-
-        window.addEventListener('wheel', preserveDesktopPageWheel, { capture: true, passive: true });
-        return () => window.removeEventListener('wheel', preserveDesktopPageWheel, { capture: true });
-    }, [newArrivalsOpen]);
-
-    useEffect(() => {
         if (!newArrivalsOpen || newArrivalSlides.length < 2) return undefined;
         const timer = window.setInterval(() => {
             setNewArrivalIndex((current) => (current + 1) % newArrivalSlides.length);

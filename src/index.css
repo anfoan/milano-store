@@ -8,7 +8,7 @@
   font-weight: 400;
   width: 100%;
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -52,18 +52,18 @@
   html {
     width: 100%;
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
     -webkit-text-size-adjust: 100%;
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 dark:bg-[#111317] dark:text-white transition-colors duration-300;
+    @apply bg-gray-50 text-gray-900 dark:bg-[#111317] transition-colors duration-300;
     margin: 0;
     min-width: 320px;
     width: 100%;
     max-width: 100%;
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow-x: clip;
     overscroll-behavior-y: none;
     /* Prevent pull-to-refresh reset on mobile */
     touch-action: pan-y;
@@ -76,7 +76,9 @@
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    overflow-x: hidden;
+    /* Clip horizontal overflow without creating an empty vertical scroll
+       container that can swallow desktop wheel events after the popup closes. */
+    overflow-x: clip;
   }
 }
 
