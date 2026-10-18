@@ -387,6 +387,11 @@
   }
 }
 
+/* Keep the product heading adjustment consistent in the captured invoice. */
+.invoice-preview-page .invoice-items-table th:first-child .invoice-table-header-label {
+  transform: translate(-6px, -4px) !important;
+}
+
 /* Hide number input spinners */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
