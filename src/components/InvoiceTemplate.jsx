@@ -158,18 +158,18 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
 
                             {/* 3. Products Table */}
                             <div className="mb-5">
-                                <h3 className={`font-black text-lg sm:text-xl mb-3 text-gray-800 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'تفاصيل الفاتورة' : 'Invoice Details'}</h3>
+                                <h3 data-invoice-details-heading className={`font-black text-lg sm:text-xl mb-3 text-gray-800 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>{lang === 'ar' ? 'تفاصيل الفاتورة' : 'Invoice Details'}</h3>
                                 <table className={`invoice-items-table w-full table-fixed ${lang === 'ar' ? 'text-right' : 'text-left'} border-collapse border border-gray-400`} style={{ tableLayout: 'fixed' }}>
                                     <colgroup>
                                         <col style={{ width: '43%' }} /><col style={{ width: '10%' }} /><col style={{ width: '18%' }} /><col style={{ width: '8%' }} /><col style={{ width: '21%' }} />
                                     </colgroup>
                                     <thead style={{ backgroundColor: '#111317', color: '#ffffff' }} className="bg-[#111317] text-white print:bg-[#111317] print:text-white">
                                         <tr>
-                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className={`text-sm font-bold border-l border-gray-500 ${lang === 'ar' ? 'text-right' : 'text-left'}`}><span className="inline-block -translate-x-3">{lang === 'ar' ? 'اسم المنتج' : 'Item'}</span></th>
-                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-xs sm:text-sm font-bold text-center border-l border-gray-500 whitespace-nowrap">{lang === 'ar' ? 'المقاس' : 'Size'}</th>
-                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-xs sm:text-sm font-bold text-center border-l border-gray-500 whitespace-nowrap">{lang === 'ar' ? 'سعر الحبه' : 'Unit Price'}</th>
-                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-xs sm:text-sm font-bold text-center border-l border-gray-500 whitespace-nowrap">{lang === 'ar' ? 'الكمية' : 'Qty'}</th>
-                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-xs sm:text-sm font-bold text-center whitespace-nowrap">{lang === 'ar' ? 'الإجمالي' : 'Total'}</th>
+                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className={`text-sm font-bold border-l border-gray-500 ${lang === 'ar' ? 'text-right' : 'text-left'}`}><span className="invoice-table-header-label inline-block -translate-x-3">{lang === 'ar' ? 'اسم المنتج' : 'Item'}</span></th>
+                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-xs sm:text-sm font-bold text-center border-l border-gray-500 whitespace-nowrap"><span className="invoice-table-header-label">{lang === 'ar' ? 'المقاس' : 'Size'}</span></th>
+                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-xs sm:text-sm font-bold text-center border-l border-gray-500 whitespace-nowrap"><span className="invoice-table-header-label">{lang === 'ar' ? 'سعر الحبه' : 'Unit Price'}</span></th>
+                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-xs sm:text-sm font-bold text-center border-l border-gray-500 whitespace-nowrap"><span className="invoice-table-header-label">{lang === 'ar' ? 'الكمية' : 'Qty'}</span></th>
+                                            <th style={{ padding: '10px 8px', verticalAlign: 'middle', color: '#ffffff', backgroundColor: '#111317' }} className="text-xs sm:text-sm font-bold text-center whitespace-nowrap"><span className="invoice-table-header-label">{lang === 'ar' ? 'الإجمالي' : 'Total'}</span></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-400 bg-white">
