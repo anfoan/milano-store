@@ -234,7 +234,7 @@
     transform: translateY(-4px) !important;
   }
   .invoice-preview-page .invoice-items-table th:first-child .invoice-table-header-label {
-    transform: translate(-12px, -4px) !important;
+    transform: translate(9px, -4px) !important;
   }
   .invoice-preview-page.invoice-preview-page table th {
     transform: translateY(-3px) !important;
@@ -287,10 +287,10 @@
   }
   .invoice-preview-page table td:first-child > div {
     gap: 3px !important;
-    transform: translateX(-12px) !important;
+    transform: translateX(0) !important;
   }
   .invoice-preview-page table td:first-child > div > img {
-    transform: translateX(-6px) !important;
+    transform: translateX(6px) !important;
   }
   .invoice-preview-page table td:first-child > div > span {
     font-size: 12px !important;
@@ -304,7 +304,7 @@
     transform: translateY(-3px) !important;
   }
   .invoice-preview-page .invoice-items-table tbody td:first-child > div > span {
-    transform: translate(-12px, -3px) !important;
+    transform: translate(9px, -3px) !important;
   }
   .invoice-preview-page table td:first-child img { width: 34px !important; height: 34px !important; border-radius: 6px !important; }
   .invoice-preview-page table td:last-child > div {
