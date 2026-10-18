@@ -234,7 +234,7 @@
     transform: translateY(-4px) !important;
   }
   .invoice-preview-page .invoice-items-table th:first-child .invoice-table-header-label {
-    transform: translate(9px, -4px) !important;
+    transform: translate(-12px, -4px) !important;
   }
   .invoice-preview-page.invoice-preview-page table th {
     transform: translateY(-3px) !important;
