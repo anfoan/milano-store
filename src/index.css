@@ -392,6 +392,10 @@
   transform: translate(-6px, -4px) !important;
 }
 
+.invoice-preview-page.invoice-preview-page .invoice-items-table [data-invoice-product-title] {
+  transform: translate(-4.5px, -3px) !important;
+}
+
 /* Hide number input spinners */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
