@@ -191,7 +191,7 @@ const Home = () => {
     const categoryTrackRef = useRef(null);
     const categoryPositionRef = useRef(0);
     const categoryDirectionRef = useRef(1);
-    const categoryDragRef = useRef({ active: false, startX: 0, startPosition: 0 });
+    const categoryDragRef = useRef({ active: false, moved: false, startX: 0, startPosition: 0 });
     const videoScrollRef = useRef(null);
     const videoTrackRef = useRef(null);
     const videoPositionRef = useRef(0);
@@ -843,9 +843,9 @@ const Home = () => {
                             onPointerDown={(event) => {
                                 const track = categoryTrackRef.current;
                                 if (!track) return;
-                                event.currentTarget.setPointerCapture?.(event.pointerId);
                                 categoryDragRef.current = {
                                     active: true,
+                                    moved: false,
                                     startX: event.clientX,
                                     startPosition: categoryPositionRef.current
                                 };
@@ -855,17 +855,29 @@ const Home = () => {
                                 const container = categoryScrollRef.current;
                                 const track = categoryTrackRef.current;
                                 if (!drag.active || !container || !track) return;
+                                const delta = event.clientX - drag.startX;
+                                if (Math.abs(delta) < 6) return;
+                                drag.moved = true;
+                                event.currentTarget.setPointerCapture?.(event.pointerId);
                                 event.preventDefault();
                                 const distance = Math.max(0, track.scrollWidth - container.clientWidth);
-                                const position = Math.max(0, Math.min(distance, drag.startPosition + (event.clientX - drag.startX)));
+                                const position = Math.max(0, Math.min(distance, drag.startPosition + delta));
                                 categoryDragTargetRef.current = position;
                                 categoryDirectionRef.current = event.clientX - drag.startX >= 0 ? 1 : -1;
                             }}
                             onPointerUp={(event) => {
-                                event.currentTarget.releasePointerCapture?.(event.pointerId);
+                                if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+                                    event.currentTarget.releasePointerCapture(event.pointerId);
+                                }
                                 categoryDragRef.current.active = false;
                             }}
-                            onPointerCancel={() => { categoryDragRef.current.active = false; }}
+                            onPointerCancel={() => { categoryDragRef.current.active = false; categoryDragRef.current.moved = false; }}
+                            onClickCapture={(event) => {
+                                if (!categoryDragRef.current.moved) return;
+                                event.preventDefault();
+                                event.stopPropagation();
+                                categoryDragRef.current.moved = false;
+                            }}
                         >
                             <div
                                 ref={categoryTrackRef}
