@@ -21,6 +21,9 @@ const OrderTracking = () => {
     const [loading, setLoading] = useState(true);
     const [downloading, setDownloading] = useState(false);
     const [whatsappInvoiceFile, setWhatsappInvoiceFile] = useState(null);
+    const [whatsappInvoiceReady, setWhatsappInvoiceReady] = useState(false);
+    const whatsappInvoiceFileRef = useRef(null);
+    const whatsappShareInProgressRef = useRef(false);
     const [error, setError] = useState(null);
     const invoiceRef = useRef();
     const { t, direction, language } = useLanguage();
@@ -130,7 +133,10 @@ const OrderTracking = () => {
                 const blob = await createWhatsAppInvoiceBlob(element);
                 if (!cancelled) {
                     const invoiceId = formatOrderId(order.orderId || order.id);
-                    setWhatsappInvoiceFile(new File([blob], `Milano-Invoice-${invoiceId}.png`, { type: 'image/png' }));
+                    const file = new File([blob], `Milano-Invoice-${invoiceId}.png`, { type: 'image/png' });
+                    whatsappInvoiceFileRef.current = file;
+                    setWhatsappInvoiceFile(file);
+                    setWhatsappInvoiceReady(true);
                 }
             } catch (prepareError) {
                 console.warn('Invoice pre-generation was not available:', prepareError);
@@ -138,7 +144,9 @@ const OrderTracking = () => {
                 Object.assign(parent.style, originalStyles);
             }
         };
+        whatsappInvoiceFileRef.current = null;
         setWhatsappInvoiceFile(null);
+        setWhatsappInvoiceReady(false);
         prepareInvoiceFile();
         return () => { cancelled = true; };
     }, [order]);
@@ -220,68 +228,28 @@ const OrderTracking = () => {
 
     const handleWhatsAppClick = async (e) => {
         e.preventDefault();
-        if (downloading || !order) return;
+        if (downloading || whatsappShareInProgressRef.current || !order) return;
         const invoiceId = formatOrderId(order.orderId || order.id);
-        if (whatsappInvoiceFile && navigator.share) {
+        const preparedFile = whatsappInvoiceFileRef.current || whatsappInvoiceFile;
+        if (preparedFile && navigator.share) {
+            whatsappShareInProgressRef.current = true;
             setDownloading(true);
             try {
                 await navigator.share({
-                    files: [whatsappInvoiceFile],
+                    files: [preparedFile],
                     title: `فاتورة الطلب ${invoiceId}`,
                     text: `مرحباً ارغب في إكمال عملية الدفع.\nرقم الطلب: ${invoiceId}`
                 });
             } catch (error) {
                 if (error?.name !== 'AbortError') console.error('WhatsApp invoice share error:', error);
             } finally {
+                whatsappShareInProgressRef.current = false;
                 setDownloading(false);
             }
             return;
         }
-        setDownloading(true);
-        const originalOverflow = document.body.style.overflow;
-        const originalBg = document.body.style.backgroundColor;
-        const element = invoiceRef.current;
-        const parent = element?.parentElement;
-        const originalStyles = parent ? {
-            display: parent.style.display,
-            position: parent.style.position,
-            visibility: parent.style.visibility,
-            top: parent.style.top,
-            left: parent.style.left,
-            zIndex: parent.style.zIndex,
-            pointerEvents: parent.style.pointerEvents
-        } : null;
-        try {
-            if (!element || !parent) return;
-            await document.fonts.ready;
-            parent.style.display = 'block';
-            parent.style.position = 'fixed';
-            parent.style.visibility = 'visible';
-            parent.style.top = '0';
-            parent.style.left = '0';
-            parent.style.zIndex = '-9999';
-            parent.style.pointerEvents = 'none';
-
-            const blob = await createWhatsAppInvoiceBlob(element);
-            const invoiceFile = new File([blob], `Milano-Invoice-${invoiceId}.png`, { type: 'image/png' });
-            const shareData = {
-                files: [invoiceFile],
-                title: `فاتورة الطلب ${invoiceId}`,
-                text: `مرحباً ارغب في إكمال عملية الدفع.\nرقم الطلب: ${invoiceId}`
-            };
-            if (navigator.share) {
-                await navigator.share(shareData);
-                return;
-            }
-
-        } catch (error) {
-            if (error?.name !== 'AbortError') console.error('WhatsApp invoice share error:', error);
-        } finally {
-            if (parent && originalStyles) Object.assign(parent.style, originalStyles);
-            setDownloading(false);
-            document.body.style.overflow = originalOverflow;
-            document.body.style.backgroundColor = originalBg;
-        }
+        // The invoice is prepared before this button becomes usable so that
+        // navigator.share() remains inside the original user gesture.
     };
     if (loading) return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-[#111317] p-4 font-['Cairo']">
@@ -404,12 +372,12 @@ const OrderTracking = () => {
                         <div className="max-w-3xl mx-auto px-0 print:hidden">
                             <button
                                 onClick={handleWhatsAppClick}
-                                disabled={downloading}
-                                className={`w-full py-3.5 px-5 bg-[#25D366] rounded-xl text-white font-black flex items-center justify-center gap-3 hover:bg-[#128C7E] transition-all shadow-lg active:scale-95 ${downloading ? 'opacity-70 cursor-wait' : ''}`}
+                                disabled={downloading || !whatsappInvoiceReady}
+                                className={`w-full py-3.5 px-5 bg-[#25D366] rounded-xl text-white font-black flex items-center justify-center gap-3 hover:bg-[#128C7E] transition-all shadow-lg active:scale-95 ${downloading || !whatsappInvoiceReady ? 'opacity-70 cursor-wait' : ''}`}
                             >
                                 <div className="flex items-center justify-center gap-2">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" className={`w-6 h-6 md:w-7 md:h-7 shrink-0 object-contain ${downloading ? 'animate-pulse' : ''}`} alt="WhatsApp" />
-                                    <span className="text-sm md:text-lg whitespace-nowrap leading-tight">{downloading ? 'جاري تجهيز الفاتورة...' : t('tracking.whatsapp_button')}</span>
+                                    <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" className={`w-6 h-6 md:w-7 md:h-7 shrink-0 object-contain ${downloading || !whatsappInvoiceReady ? 'animate-pulse' : ''}`} alt="WhatsApp" />
+                                    <span className="text-sm md:text-lg whitespace-nowrap leading-tight">{downloading || !whatsappInvoiceReady ? 'جاري تجهيز الفاتورة...' : t('tracking.whatsapp_button')}</span>
                                 </div>
                             </button>
                         </div>
