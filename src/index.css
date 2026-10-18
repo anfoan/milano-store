@@ -234,7 +234,7 @@
     transform: translateY(-4px) !important;
   }
   .invoice-preview-page .invoice-items-table th:first-child .invoice-table-header-label {
-    transform: translate(-6px, -4px) !important;
+    transform: translate(0, -4px) !important;
   }
   .invoice-preview-page.invoice-preview-page table th {
     transform: translateY(-3px) !important;
@@ -389,7 +389,7 @@
 
 /* Keep the product heading adjustment consistent in the captured invoice. */
 .invoice-preview-page .invoice-items-table th:first-child .invoice-table-header-label {
-  transform: translate(-6px, -4px) !important;
+  transform: translate(0, -4px) !important;
 }
 
 .invoice-preview-page.invoice-preview-page .invoice-items-table [data-invoice-product-title] {
