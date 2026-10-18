@@ -41,13 +41,6 @@ const DraggableScrollContainer = ({ children, className, style }) => {
         ref.current.scrollLeft = scrollLeft - walk;
     };
 
-    const onWheel = (e) => {
-        // Horizontal product rows must never trap the page's vertical wheel scroll.
-        if (!e.deltaY || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
-        e.preventDefault();
-        window.scrollBy({ top: e.deltaY, left: 0, behavior: 'auto' });
-    };
-
     const onClickCapture = (e) => {
         if (isDragging) {
             e.preventDefault();
@@ -65,7 +58,6 @@ const DraggableScrollContainer = ({ children, className, style }) => {
             onMouseUp={onMouseUp}
             onMouseMove={onMouseMove}
             onClickCapture={onClickCapture}
-            onWheel={onWheel}
         >
             {children}
         </div>
