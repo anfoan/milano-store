@@ -36,7 +36,7 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                         </button>
                         <button
                             onClick={() => onClose ? onClose() : window.history.back()}
-                            className="flex items-center gap-2 bg-[#374151] hover:bg-[#4b5563] text-white px-6 py-2 rounded-lg font-bold transition-colors"
+                            className={`flex items-center gap-2 ${customerOrdersPreview ? 'invoice-preview-close-button bg-red-600 hover:bg-red-700' : 'bg-[#374151] hover:bg-[#4b5563]'} text-white px-6 py-2 rounded-lg font-bold transition-colors`}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                             <span>{lang === 'ar' ? 'إغلاق' : 'Close'}</span>
