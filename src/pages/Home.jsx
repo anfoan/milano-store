@@ -772,7 +772,7 @@ const Home = () => {
 
                             {/* 4. Orders (Leftmost) */}
                             <Link to="/profile" className="flex flex-col items-center justify-end space-y-2 group translate-y-1" draggable="false">
-                                <div className="transition-transform group-hover:scale-110 active:scale-95 duration-300">
+                                <div className="orders-wave-icon transition-transform group-hover:scale-110 active:scale-95 duration-300">
                                     <span className="text-[34px] md:text-[40px] block drop-shadow-md select-none leading-none">🛍️</span>
                                 </div>
                                 <span className="block text-xs md:text-sm font-black text-gray-900 dark:text-white leading-none tracking-tight">طلباتك</span>

@@ -73,6 +73,27 @@
   animation: social-wave-shine 3.8s ease-in-out infinite;
 }
 
+.orders-wave-icon {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  isolation: isolate;
+  line-height: 1;
+}
+
+.orders-wave-icon::after {
+  content: '';
+  position: absolute;
+  inset: -35% auto -35% -55%;
+  width: 32%;
+  z-index: 2;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.2) 25%, rgba(255,255,255,1) 50%, rgba(255,255,255,.2) 75%, transparent 100%);
+  filter: blur(.4px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: social-wave-shine 3.8s ease-in-out infinite;
+}
+
 @layer base {
   html {
     width: 100%;
