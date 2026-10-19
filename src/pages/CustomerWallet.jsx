@@ -171,7 +171,7 @@ const CustomerWallet = () => {
     const displayedCurrency = activeCurrency === 'SAR' ? 'ريال سعودي' : 'ريال يمني';
     const rewardAmountYER = Math.max(0, Number(walletSettings.defaultReward || 0));
     const rewardAmountSAR = Math.round(rewardAmountYER / 140);
-    const rewardText = `قيمة المكافأة الحالية: ${rewardAmountYER.toLocaleString('en-US')} ريال يمني ${rewardAmountSAR.toLocaleString('en-US')} ريال سعودي`;
+    const rewardText = `قيمة المكافأة الحالية: ${rewardAmountYER.toLocaleString('en-US')} ريال يمني / ${rewardAmountSAR.toLocaleString('en-US')} ريال سعودي`;
     const noticeView = notice && <div className={`rounded-xl border px-3 py-2 text-center text-[10px] font-bold ${noticeTone === 'error' ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-400/30 dark:bg-rose-400/10 dark:text-rose-200' : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200'}`}>{notice}</div>;
 
     if (walletSettingsLoaded && walletSettings.enabled === false) return null;
