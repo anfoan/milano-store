@@ -213,7 +213,7 @@ const Navbar = () => {
                             {/* Customer Wallet */}
                             {walletEnabled && <Link
                                 to="/wallet"
-                                style={{ position: 'relative', left: '-40px' }}
+                                style={{ position: 'relative', left: '-30px' }}
                                 className="flex h-9 items-center gap-1.5 rounded-xl border border-emerald-300/80 bg-emerald-100/75 px-2.5 text-emerald-700 shadow-sm transition-all hover:bg-emerald-200 active:scale-95 dark:border-emerald-400/40 dark:bg-emerald-400/15 dark:text-emerald-200 dark:hover:bg-emerald-400/20 md:h-10"
                                 aria-label="محفظة المتجر"
                             >
