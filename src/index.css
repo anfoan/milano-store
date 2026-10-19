@@ -17,9 +17,10 @@
 }
 
 @keyframes social-wave-shine {
-  0% { transform: translateX(-150%) skewX(-18deg); opacity: 0; }
-  18% { opacity: .8; }
-  42%, 100% { transform: translateX(180%) skewX(-18deg); opacity: 0; }
+  0%, 8% { transform: translateX(-180%) skewX(-18deg); opacity: 0; }
+  18% { opacity: 1; }
+  46% { opacity: .9; }
+  64%, 100% { transform: translateX(220%) skewX(-18deg); opacity: 0; }
 }
 
 .social-wave-icon {
@@ -36,11 +37,13 @@
   content: '';
   position: absolute;
   inset: -35% auto -35% -55%;
-  width: 42%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.9), transparent);
-  filter: blur(1px);
+  width: 48%;
+  z-index: 2;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.25) 25%, rgba(255,255,255,1) 50%, rgba(255,255,255,.25) 75%, transparent 100%);
+  filter: blur(.4px);
+  mix-blend-mode: screen;
   pointer-events: none;
-  animation: social-wave-shine 2.8s ease-in-out infinite;
+  animation: social-wave-shine 1.9s ease-in-out infinite;
 }
 
 .social-wave-icon img {
