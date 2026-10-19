@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Star, ArrowLeft, ArrowRight, Trash2 } from 'lucide-react';
+import { Star, ArrowLeft, ArrowRight } from 'lucide-react';
 import { db } from '../lib/firebase';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,19 +15,6 @@ const Reviews = () => {
         total: 0,
         distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
     });
-
-    const deleteStoreReply = async (reviewId) => {
-        const confirmed = window.confirm(direction === 'rtl'
-            ? 'هل تريد حذف رد المدير فقط؟'
-            : 'Delete the store reply only?');
-        if (!confirmed) return;
-        try {
-            await updateDoc(doc(db, 'reviews', reviewId), { replyText: '' });
-        } catch (error) {
-            console.error('Error deleting store reply:', error);
-            alert(direction === 'rtl' ? 'تعذر حذف الرد، حاول مرة أخرى.' : 'Unable to delete the reply. Please try again.');
-        }
-    };
 
     useEffect(() => {
         // window.scrollTo(0, 0); // Handled globally by ScrollToTop
@@ -153,21 +140,10 @@ const Reviews = () => {
 
                                         {/* Store Reply */}
                                         {rev.replyText && (
-                                            <div className={`relative mt-3 bg-blue-50 dark:bg-blue-900/10 ${direction === 'rtl' ? 'border-r-4 rounded-l-xl' : 'border-l-4 rounded-r-xl'} border-blue-500 p-3`}>
-                                                <h4 className="font-black text-blue-600 dark:text-blue-400 text-xs mb-1 flex items-center justify-between gap-2">
-                                                    <span className="flex items-center gap-2">
+                                            <div className={`mt-3 bg-blue-50 dark:bg-blue-900/10 ${direction === 'rtl' ? 'border-r-4 rounded-l-xl' : 'border-l-4 rounded-r-xl'} border-blue-500 p-3`}>
+                                                <h4 className="font-black text-blue-600 dark:text-blue-400 text-xs mb-1 flex items-center gap-2">
                                                     <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                                                     {t('reviews.store_reply')}
-                                                    </span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => deleteStoreReply(rev.id)}
-                                                        className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-red-600 text-white shadow-sm transition-colors hover:bg-red-700 active:scale-95"
-                                                        title={direction === 'rtl' ? 'حذف رد المدير' : 'Delete store reply'}
-                                                        aria-label={direction === 'rtl' ? 'حذف رد المدير' : 'Delete store reply'}
-                                                    >
-                                                        <Trash2 size={13} strokeWidth={2.5} />
-                                                    </button>
                                                 </h4>
                                                 <p className="text-gray-600 dark:text-gray-300 text-xs font-bold leading-relaxed">
                                                     {rev.replyText}
