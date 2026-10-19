@@ -12,10 +12,12 @@ const getInvoiceItemPrices = (item) => {
     };
 };
 
-const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDownload, generalSettings, hideHeader = false }, ref) => {
+const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDownload, generalSettings, hideHeader = false, customerOrdersPreview = false }, ref) => {
     const { formatPrice } = useCurrency();
     const currency = generalSettings?.currency || 'YER';
-    const previewWidth = typeof window !== 'undefined' && window.innerWidth < 640
+    const previewWidth = customerOrdersPreview
+        ? '794px'
+        : typeof window !== 'undefined' && window.innerWidth < 640
         ? 'calc(100vw - 2rem)'
         : '170mm';
     return (
@@ -77,7 +79,7 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                     {orders.map((order) => {
                         const invoiceCurrency = order.currency || currency || 'YER';
                         return (
-                        <div key={order.id} className="print-page invoice-preview-page flex flex-col bg-white shadow-xl mb-4 px-4 py-4 sm:px-8 sm:py-6 print:shadow-none print:mb-0 rounded-[24px] print:rounded-none" dir="rtl"
+                        <div key={order.id} className={`print-page invoice-preview-page flex flex-col bg-white shadow-xl mb-4 px-4 py-4 sm:px-8 sm:py-6 print:shadow-none print:mb-0 rounded-[24px] print:rounded-none${customerOrdersPreview ? ' customer-orders-whatsapp-layout' : ''}`} dir="rtl"
                             style={{ width: previewWidth, maxWidth: previewWidth, minHeight: 0, height: 'auto', margin: '0 auto', fontFamily: "'Cairo', sans-serif" }}>
 
                             {/* 1. Header Section */}
