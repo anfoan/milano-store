@@ -260,9 +260,16 @@ const Cart = () => {
 
                             {/* Price Section */}
                             <div className="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 w-full flex justify-between items-center">
-                                <span className="text-[#16a34a] dark:text-[#4ade80] font-black text-xl">
-                                    {formatPrice(item.price)}
-                                </span>
+                                <div className="flex flex-col items-start gap-0.5">
+                                    {Number(item.originalPrice || 0) > Number(item.price || 0) && (
+                                        <span className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-bold line-through">
+                                            {formatPrice(item.originalPrice)}
+                                        </span>
+                                    )}
+                                    <span className="text-[#16a34a] dark:text-[#4ade80] font-black text-xl">
+                                        {formatPrice(item.price)}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     ))}
