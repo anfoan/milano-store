@@ -324,12 +324,14 @@ const Contact = () => {
                                                 className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center rounded-xl md:rounded-[20px] bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all"
                                                 title={labelMap[id]}
                                             >
-                                                <img 
-                                                    src={iconMap[id]} 
-                                                    alt={labelMap[id]} 
-                                                    style={{ width: (id === 'googlemap' || id === 'twitter') ? '20px' : '24px' }} 
-                                                    className="object-contain" 
-                                                />
+                                                <span className="social-wave-icon" aria-hidden="true">
+                                                    <img
+                                                        src={iconMap[id]}
+                                                        alt={labelMap[id]}
+                                                        style={{ width: (id === 'googlemap' || id === 'twitter') ? '20px' : '24px' }}
+                                                        className="object-contain"
+                                                    />
+                                                </span>
                                             </a>
                                         );
                                     })
