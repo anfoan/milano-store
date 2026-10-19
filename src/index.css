@@ -43,7 +43,7 @@
   filter: blur(.4px);
   mix-blend-mode: screen;
   pointer-events: none;
-  animation: social-wave-shine 1.9s ease-in-out infinite;
+  animation: social-wave-shine 3.8s ease-in-out infinite;
 }
 
 .social-wave-icon img {
