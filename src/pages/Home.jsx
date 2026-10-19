@@ -706,7 +706,9 @@ const Home = () => {
                                     rel="noopener noreferrer"
                                     className="w-12 h-12 flex items-center justify-center transition-all hover:scale-110 active:scale-95"
                                 >
-                                    <img src={item.img} alt={item.name} style={{ width: item.size }} className="drop-shadow-sm" draggable="false" />
+                                    <span className="social-wave-icon" style={{ width: item.size, height: item.size }} aria-hidden="true">
+                                        <img src={item.img} alt={item.name} style={{ width: item.size, height: item.size }} className="drop-shadow-sm" draggable="false" />
+                                    </span>
                                 </a>
                             ))}
                         </div>
