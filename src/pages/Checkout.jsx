@@ -1010,11 +1010,11 @@ const Checkout = () => {
                                             <p className="text-sm font-bold text-gray-900 dark:text-white">
                                                 {item.size && `(${item.size})`} {item.title}
                                             </p>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <p className="text-[#16a34a] dark:text-[#4ADE80] font-bold text-sm">{formatPrice(item.price)}</p>
+                                            <div className="flex flex-col items-start gap-0.5 mt-1">
                                                 {Number(item.originalPrice || 0) > Number(item.price || 0) && (
-                                                    <p className="text-gray-400 dark:text-gray-500 text-[10px] line-through font-bold">{formatPrice(item.originalPrice)}</p>
+                                                    <p className="text-gray-500 dark:text-gray-400 text-[10px] line-through font-bold">{formatPrice(item.originalPrice)}</p>
                                                 )}
+                                                <p className="text-[#16a34a] dark:text-[#4ADE80] font-bold text-sm">{formatPrice(item.price)}</p>
                                             </div>
                                         </div>
                                     </div>
