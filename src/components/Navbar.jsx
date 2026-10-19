@@ -232,7 +232,7 @@ const Navbar = () => {
                             </div>
 
                             {/* Theme Toggle (Restored Frame + Centered) */}
-                            <div style={{ position: 'relative', left: '-10px' }} className="flex flex-col items-center gap-1 translate-y-[5px]">
+                            <div style={{ position: 'relative', left: '-20px' }} className="flex flex-col items-center gap-1 translate-y-[5px]">
                                 <div className="transition-all w-11 h-11 md:w-12 md:h-12 flex items-center justify-center">
                                     <ThemeToggle />
                                 </div>
