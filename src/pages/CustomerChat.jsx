@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Send, Paperclip, Settings, X, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Send, Paperclip, X, ArrowRight, ArrowLeft } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { uploadChatMedia } from '../services/uploadService';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -18,7 +18,6 @@ const CustomerChat = () => {
     const messagesEndRef = useRef(null);
     const fileInputRef = useRef(null); // Fix: Added missing ref
 
-    const [showMenu, setShowMenu] = useState(false); // Menu State
     const [chatAccess, setChatAccess] = useState('checking');
 
     // Keep the chat available on this device without claiming shared links.
@@ -41,8 +40,7 @@ const CustomerChat = () => {
                     const deviceKey = localStorage.getItem('milano_chat_device_key');
                     const activeChatId = localStorage.getItem('milano_active_chat');
                     const ownsChat = data.deviceKey === deviceKey || (!data.deviceKey && activeChatId === chatId);
-                    const isClosed = data.status === 'closed' || data.status === 'closed_by_buyer';
-                    if (!ownsChat || isClosed) {
+                    if (!ownsChat) {
                         setChatAccess('denied');
                         if (activeChatId === chatId) localStorage.removeItem('milano_active_chat');
                         navigate('/contact', { replace: true });
@@ -91,26 +89,6 @@ const CustomerChat = () => {
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
-    const handleCloseChat = async () => {
-        if (!chatId) return;
-        try {
-            // 1. Mark as closed in Firestore
-            const docRef = doc(db, "contact_messages", chatId);
-            await updateDoc(docRef, { status: 'closed' });
-
-            // 2. Clear from localStorage
-            localStorage.removeItem('milano_active_chat');
-
-            // 3. Navigate away
-            navigate('/');
-        } catch (error) {
-            console.error("Error closing chat:", error);
-            // Even if FS fails, clear local and exit
-            localStorage.removeItem('milano_active_chat');
-            navigate('/');
-        }
     };
 
     const chatMediaError = error => {
@@ -204,27 +182,6 @@ const CustomerChat = () => {
                     </div>
                 </div>
 
-                {/* Settings Menu (Left) */}
-                <div className="relative">
-                    <button
-                        onClick={() => setShowMenu(!showMenu)}
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors text-white shadow-md ${showMenu ? 'bg-red-600' : 'bg-red-500 hover:bg-red-600 shadow-red-500/20'}`}
-                    >
-                        {showMenu ? <X size={20} /> : <Settings size={20} />}
-                    </button>
-
-                    {/* Dropdown menu */}
-                    {showMenu && (
-                        <div className={`absolute top-12 w-32 bg-white dark:bg-[#1a1d23] rounded-xl shadow-xl border border-gray-100 dark:border-white/10 overflow-hidden py-1 z-50 ${direction === 'rtl' ? 'left-0' : 'right-0'}`}>
-                            <button
-                                onClick={handleCloseChat}
-                                className={`w-full px-4 py-3 text-red-500 hover:bg-red-50 font-bold text-sm transition-colors ${direction === 'rtl' ? 'text-right' : 'text-start'}`}
-                            >
-                                {t('chat.close')}
-                            </button>
-                        </div>
-                    )}
-                </div>
             </div>
 
             {/* Messages Area */}
