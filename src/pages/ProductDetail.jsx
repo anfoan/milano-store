@@ -58,6 +58,7 @@ const ProductDetail = () => {
                     if (cachedProduct) {
                         setProduct(cachedProduct);
                         setActiveImage(cachedProduct.mainImage);
+                        setQuantity(hasAvailableStock(cachedProduct) ? 1 : 0);
                         setLoading(false);
                     }
                 } catch { /* network record below remains the source of truth */ }
@@ -68,6 +69,7 @@ const ProductDetail = () => {
                     const data = { id: docSnap.id, ...docSnap.data() };
                     setProduct(data);
                     setActiveImage(data.mainImage);
+                    setQuantity(hasAvailableStock(data) ? 1 : 0);
 
                     // SELECTION LOGIC: Set initial size and color from variants
                     const sizeVariant = data.variants?.find(v => v.type === 'size');
