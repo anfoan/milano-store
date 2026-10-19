@@ -51,6 +51,28 @@
   z-index: 0;
 }
 
+.country-flag-wave {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.country-flag-wave::after {
+  content: '';
+  position: absolute;
+  inset: -35% auto -35% -55%;
+  width: 48%;
+  z-index: 2;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.25) 25%, rgba(255,255,255,1) 50%, rgba(255,255,255,.25) 75%, transparent 100%);
+  filter: blur(.4px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: social-wave-shine 3.8s ease-in-out infinite;
+}
+
 @layer base {
   html {
     width: 100%;

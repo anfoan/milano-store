@@ -734,7 +734,7 @@ const Home = () => {
                             {/* 2. Flag & Country */}
                             {interfaceSettings.showCountryFlag && (
                                 <div className="space-y-3">
-                                    <div className="w-10 h-6 md:w-14 md:h-9 mx-auto rounded overflow-hidden shadow-sm border border-gray-200 dark:border-white/10 mt-2">
+                                    <div className="country-flag-wave w-10 h-6 md:w-14 md:h-9 mx-auto rounded overflow-hidden shadow-sm border border-gray-200 dark:border-white/10 mt-2">
                                         <img
                                             src={`https://flagcdn.com/w80/${generalSettings.countryFlag || 'ye'}.png`}
                                             alt="Country"
