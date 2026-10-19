@@ -480,13 +480,15 @@
     padding-top: 0 !important;
     padding-left: 12px !important;
     padding-right: 12px !important;
-    padding-bottom: 40px !important;
+    padding-bottom: 52px !important;
   }
 
   .customer-orders-invoice-preview .print-container {
     width: 794px !important;
     max-width: 794px !important;
     flex: 0 0 794px !important;
+    margin-top: -4px !important;
+    margin-bottom: 12px !important;
   }
 
   .customer-orders-invoice-preview .customer-orders-whatsapp-layout {
