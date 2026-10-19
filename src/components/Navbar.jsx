@@ -213,7 +213,7 @@ const Navbar = () => {
                             {/* Customer Wallet */}
                             {walletEnabled && <Link
                                 to="/wallet"
-                                style={{ position: 'relative', left: '-20px' }}
+                                style={{ position: 'relative', left: '-40px' }}
                                 className="flex h-9 items-center gap-1.5 rounded-xl border border-emerald-300/80 bg-emerald-100/75 px-2.5 text-emerald-700 shadow-sm transition-all hover:bg-emerald-200 active:scale-95 dark:border-emerald-400/40 dark:bg-emerald-400/15 dark:text-emerald-200 dark:hover:bg-emerald-400/20 md:h-10"
                                 aria-label="محفظة المتجر"
                             >
@@ -221,7 +221,7 @@ const Navbar = () => {
                                 <span dir="ltr" className="font-sans text-[11px] font-black tabular-nums md:text-xs">$ {Math.round(convertPrice(walletBalance, walletDisplayCurrency)).toLocaleString('en-US')}</span>
                             </Link>}
                             {/* Search (Restored Frame + Centered) */}
-                            <div style={{ position: 'relative', left: '-20px' }} className="flex flex-col items-center gap-1 translate-y-[5px]">
+                            <div style={{ position: 'relative', left: '-40px' }} className="flex flex-col items-center gap-1 translate-y-[5px]">
                                 <button
                                     onClick={() => setIsSearchOpen(true)}
                                     className="group flex h-11 w-11 items-center justify-center text-gray-700 transition-all active:scale-95 md:h-12 md:w-12 dark:text-gray-300"
@@ -232,7 +232,7 @@ const Navbar = () => {
                             </div>
 
                             {/* Theme Toggle (Restored Frame + Centered) */}
-                            <div style={{ position: 'relative', left: '-20px' }} className="flex flex-col items-center gap-1 translate-y-[5px]">
+                            <div style={{ position: 'relative', left: '-30px' }} className="flex flex-col items-center gap-1 translate-y-[5px]">
                                 <div className="transition-all w-11 h-11 md:w-12 md:h-12 flex items-center justify-center">
                                     <ThemeToggle />
                                 </div>
