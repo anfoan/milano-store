@@ -477,10 +477,10 @@
     width: 100% !important;
     max-width: none !important;
     box-sizing: border-box !important;
-    padding-top: 4px !important;
+    padding-top: 0 !important;
     padding-left: 12px !important;
     padding-right: 12px !important;
-    padding-bottom: 24px !important;
+    padding-bottom: 40px !important;
   }
 
   .customer-orders-invoice-preview .print-container {
