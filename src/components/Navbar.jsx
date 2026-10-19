@@ -213,14 +213,14 @@ const Navbar = () => {
                             {/* Customer Wallet */}
                             {walletEnabled && <Link
                                 to="/wallet"
-                                className="flex h-9 -translate-x-2 items-center gap-1.5 rounded-xl border border-emerald-300/80 bg-emerald-100/75 px-2.5 text-emerald-700 shadow-sm transition-all hover:bg-emerald-200 active:scale-95 dark:border-emerald-400/40 dark:bg-emerald-400/15 dark:text-emerald-200 dark:hover:bg-emerald-400/20 md:h-10 md:-translate-x-2.5"
+                                className="relative -left-2 flex h-9 items-center gap-1.5 rounded-xl border border-emerald-300/80 bg-emerald-100/75 px-2.5 text-emerald-700 shadow-sm transition-all hover:bg-emerald-200 active:scale-95 dark:border-emerald-400/40 dark:bg-emerald-400/15 dark:text-emerald-200 dark:hover:bg-emerald-400/20 md:h-10"
                                 aria-label="محفظة المتجر"
                             >
                                 <Wallet className="h-4 w-4 shrink-0" strokeWidth={2.4}/>
                                 <span dir="ltr" className="font-sans text-[11px] font-black tabular-nums md:text-xs">$ {Math.round(convertPrice(walletBalance, walletDisplayCurrency)).toLocaleString('en-US')}</span>
                             </Link>}
                             {/* Search (Restored Frame + Centered) */}
-                            <div className="flex -translate-x-2 flex-col items-center gap-1 translate-y-[5px] md:-translate-x-2.5">
+                            <div className="relative -left-2 flex flex-col items-center gap-1 translate-y-[5px]">
                                 <button
                                     onClick={() => setIsSearchOpen(true)}
                                     className="group flex h-11 w-11 items-center justify-center text-gray-700 transition-all active:scale-95 md:h-12 md:w-12 dark:text-gray-300"
@@ -231,7 +231,7 @@ const Navbar = () => {
                             </div>
 
                             {/* Theme Toggle (Restored Frame + Centered) */}
-                            <div className="flex -translate-x-2 flex-col items-center gap-1 translate-y-[5px] md:-translate-x-2.5">
+                            <div className="relative -left-1 flex flex-col items-center gap-1 translate-y-[5px]">
                                 <div className="transition-all w-11 h-11 md:w-12 md:h-12 flex items-center justify-center">
                                     <ThemeToggle />
                                 </div>
@@ -241,7 +241,7 @@ const Navbar = () => {
                             {/* Categories (Frameless + Leftmost) */}
                             <button 
                                 onClick={() => setIsOpen(true)}
-                                className="flex flex-col items-center gap-1 group -translate-x-1 -translate-y-[4.5px] cursor-pointer"
+                                className="relative -left-1 flex flex-col items-center gap-1 group -translate-y-[4.5px] cursor-pointer"
                                 aria-label="Categories"
                             >
                                 <div className="w-11 h-11 md:w-12 md:h-12 flex items-center justify-center text-purple-600 dark:text-purple-400 transition-all group-active:scale-90">
