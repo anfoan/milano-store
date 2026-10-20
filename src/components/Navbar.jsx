@@ -146,9 +146,11 @@ const Navbar = () => {
 
     // Search Handler
     const handleSearch = async (term) => {
-        setSearchTerm(term);
-        if (term.length < 2) {
+        const normalizedTerm = typeof term === 'string' ? term : String(term ?? '');
+        setSearchTerm(normalizedTerm);
+        if (normalizedTerm.trim().length < 2) {
             setSearchResults([]);
+            setIsSearching(false);
             return;
         }
 
@@ -165,17 +167,18 @@ const Navbar = () => {
             })).filter(product => {
                 if (product.hidden) return false; // Hide hidden products from search
 
-                const searchLower = term.toLowerCase();
-                const nameMatch = product.name?.toLowerCase().includes(searchLower);
+                const searchLower = normalizedTerm.toLowerCase().trim();
+                const nameMatch = String(product.name ?? product.title ?? '').toLowerCase().includes(searchLower);
                 // Check ID (SKU) exact match or prefix
-                const idMatch = product.id?.toLowerCase().includes(searchLower);
-                const codeMatch = product.code?.toLowerCase().includes(searchLower);
+                const idMatch = String(product.id ?? '').toLowerCase().includes(searchLower);
+                const codeMatch = String(product.code ?? '').toLowerCase().includes(searchLower);
                 return nameMatch || idMatch || codeMatch;
             });
 
             setSearchResults(results);
         } catch (error) {
             console.error("Search error:", error);
+            setSearchResults([]);
         } finally {
             setIsSearching(false);
         }
@@ -335,12 +338,12 @@ const Navbar = () => {
                                                             <ImageWithFallback src={product.mainImage} className="w-full h-full object-cover" />
                                                         </div>
                                                         <div className="flex-1 text-right">
-                                                            <h4 className="font-bold text-gray-900 dark:text-white text-sm line-clamp-1">{product.name}</h4>
+                                                        <h4 className="font-bold text-gray-900 dark:text-white text-sm line-clamp-1">{String(product.name ?? product.title ?? '')}</h4>
                                                             <div className="flex items-center gap-2 mt-1">
                                                                 <span className="text-[#4ade80] font-black text-xs">{formatPrice(product.price)}</span>
                                                                 {!interfaceSettings?.hideSKU && (
                                                                     <span className="text-[10px] text-gray-400 bg-gray-200 dark:bg-white/10 px-1.5 py-0.5 rounded font-mono">
-                                                                        {product.code || product.id.slice(0, 6).toUpperCase()}
+                                                                            {String(product.code ?? (product.id || '').slice(0, 6).toUpperCase())}
                                                                     </span>
                                                                 )}
                                                             </div>
