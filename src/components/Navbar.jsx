@@ -340,7 +340,7 @@ const Navbar = () => {
                                                         <div className="flex-1 text-right">
                                                         <h4 className="font-bold text-gray-900 dark:text-white text-sm line-clamp-1">{String(product.name ?? product.title ?? '')}</h4>
                                                             <div className="flex items-center gap-2 mt-1">
-                                                                <span className="text-[#4ade80] font-black text-xs">{formatPrice(product.price)}</span>
+                                                                <span className="text-[#4ade80] font-black text-xs">{formatPrice(product.priceAfterDiscount && Number(product.priceAfterDiscount) < Number(product.price) ? product.priceAfterDiscount : product.price)}</span>
                                                                 {!interfaceSettings?.hideSKU && (
                                                                     <span className="text-[10px] text-gray-400 bg-gray-200 dark:bg-white/10 px-1.5 py-0.5 rounded font-mono">
                                                                             {String(product.code ?? (product.id || '').slice(0, 6).toUpperCase())}
