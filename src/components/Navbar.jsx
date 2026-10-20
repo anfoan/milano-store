@@ -14,6 +14,11 @@ import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import { getCustomerWalletId } from '../lib/wallet';
 
+const isNewArrivalsCategory = (category) => {
+    const name = typeof category === 'string' ? category : category?.name;
+    return String(name || '').trim() === 'كل ماهو جديد';
+};
+
 const Navbar = () => {
     const { theme } = useTheme();
     const { t, language, direction, setStoreLanguage } = useLanguage();
@@ -31,7 +36,7 @@ const Navbar = () => {
     const [categories, setCategories] = useState(() => {
         try {
             const cached = JSON.parse(localStorage.getItem('cached_all_categories') || localStorage.getItem('cached_categories') || '[]');
-            return Array.isArray(cached) ? cached : [];
+            return Array.isArray(cached) ? cached.filter(category => !isNewArrivalsCategory(category)) : [];
         } catch {
             return [];
         }
@@ -70,7 +75,7 @@ const Navbar = () => {
                 }));
                 // Sort by order field
                 cats.sort((a, b) => (a.order || 9999) - (b.order || 9999));
-                setCategories(cats);
+                setCategories(cats.filter(category => !isNewArrivalsCategory(category)));
             } catch (err) {
                 console.error("Error fetching categories for navbar:", err);
                 setCategories([]); // Fallback to empty
