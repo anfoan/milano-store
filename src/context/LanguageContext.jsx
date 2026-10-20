@@ -7,7 +7,10 @@ const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
     const storedLanguage = typeof window !== 'undefined' ? window.localStorage.getItem('storeLanguage') : null;
-    const initialLanguage = storedLanguage === 'en' ? 'en' : 'ar';
+    const localOverride = typeof window !== 'undefined' ? window.localStorage.getItem('storeLanguageOverride') : null;
+    const initialLanguage = localOverride === 'en' || localOverride === 'ar'
+        ? localOverride
+        : (storedLanguage === 'en' ? 'en' : 'ar');
     const [language, setLanguage] = useState(initialLanguage);
     const [direction, setDirection] = useState(initialLanguage === 'ar' ? 'rtl' : 'ltr');
     const [loading, setLoading] = useState(true);
@@ -17,7 +20,10 @@ export const LanguageProvider = ({ children }) => {
         const unsubscribe = onSnapshot(doc(db, "settings", "language"), (doc) => {
             if (doc.exists()) {
                 const data = doc.data();
-                const newLang = data.currentLanguage === 'en' ? 'en' : 'ar';
+                const currentOverride = window.localStorage.getItem('storeLanguageOverride');
+                const newLang = currentOverride === 'en' || currentOverride === 'ar'
+                    ? currentOverride
+                    : (data.currentLanguage === 'en' ? 'en' : 'ar');
                 setLanguage(newLang);
                 setDirection(newLang === 'ar' ? 'rtl' : 'ltr');
                 window.localStorage.setItem('storeLanguage', newLang);
@@ -58,10 +64,23 @@ export const LanguageProvider = ({ children }) => {
         return langDict[key] || key;
     };
 
+    const setStoreLanguage = (nextLanguage) => {
+        const next = nextLanguage === 'en' ? 'en' : 'ar';
+        window.localStorage.setItem('storeLanguageOverride', next);
+        window.localStorage.setItem('storeLanguage', next);
+        setLanguage(next);
+        setDirection(next === 'ar' ? 'rtl' : 'ltr');
+        document.documentElement.lang = next;
+        document.documentElement.dir = next === 'ar' ? 'rtl' : 'ltr';
+        document.body.lang = next;
+        document.body.dir = next === 'ar' ? 'rtl' : 'ltr';
+    };
+
     const value = {
         language,
         direction,
         t,
+        setStoreLanguage,
         loading
     };
 
