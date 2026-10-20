@@ -104,7 +104,7 @@
   content: '';
   position: absolute;
   inset: -35% auto -35% -55%;
-  width: 30%;
+  width: 55%;
   z-index: 2;
   background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.25) 25%, rgba(255,255,255,1) 50%, rgba(255,255,255,.25) 75%, transparent 100%);
   filter: blur(.4px);
