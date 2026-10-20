@@ -40,7 +40,6 @@ const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const isProductPage = location.pathname.startsWith('/product');
-    const isCategoryPage = location.pathname.startsWith('/category/');
 
     // Close sidebar/cart on route change
     useEffect(() => {
@@ -412,19 +411,8 @@ const Navbar = () => {
                                             </div>
                                         </div>
 
-                                        {/* Category-page language switcher; contact/reviews stay available elsewhere. */}
-                                        {!isCategoryPage ? <div>
-                                            <div className="flex flex-col mb-2 px-2 items-start">
-                                                <div className="w-fit">
-                                                    <h4 className="text-gray-500 dark:text-gray-400 text-[11px] font-black uppercase tracking-[0.2em]">{t('nav.quick_links')}</h4>
-                                                    <div className="h-1 w-full bg-blue-500 mt-1 rounded-full"></div>
-                                                </div>
-                                            </div>
-                                            <div className="space-y-0.5">
-                                                <Link to="/contact" onClick={() => setIsOpen(false)} className="block py-2 px-3.5 text-[13.5px] font-bold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-all rounded-[12px]" draggable="false">{t('nav.contact')}</Link>
-                                                <Link to="/reviews" onClick={() => setIsOpen(false)} className="block py-2 px-3.5 text-[13.5px] font-bold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-all rounded-[12px]" draggable="false">{t('nav.reviews')}</Link>
-                                            </div>
-                                        </div> : <div>
+                                        {/* Storefront-only language switcher inside the side categories drawer. */}
+                                        <div>
                                             <div className="flex flex-col mb-2 px-2 items-start">
                                                 <div className="w-fit">
                                                     <h4 className="text-gray-500 dark:text-gray-400 text-[11px] font-black uppercase tracking-[0.2em]">{language === 'ar' ? 'لغة المتجر' : 'Store Language'}</h4>
@@ -435,7 +423,7 @@ const Navbar = () => {
                                                 <button type="button" onClick={() => setStoreLanguage('en')} className={`flex-1 rounded-lg px-2.5 py-2 text-[11px] font-black transition ${language === 'en' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10'}`}>English</button>
                                                 <button type="button" onClick={() => setStoreLanguage('ar')} className={`flex-1 rounded-lg px-2.5 py-2 text-[11px] font-black transition ${language === 'ar' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10'}`}>العربية</button>
                                             </div>
-                                        </div>}
+                                        </div>
                                     </div>
                                 </div>
                             </motion.div>
