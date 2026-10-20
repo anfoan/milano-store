@@ -45,6 +45,9 @@ const Navbar = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
+    const searchProductsRef = useRef(null);
+    const searchProductsRequestRef = useRef(null);
+    const searchRequestIdRef = useRef(0);
     const [walletBalance, setWalletBalance] = useState(0);
     const [walletId, setWalletId] = useState(() => getCustomerWalletId());
     const [walletEnabled, setWalletEnabled] = useState(true);
@@ -63,6 +66,30 @@ const Navbar = () => {
     useEffect(() => {
         setWalletDisplayCurrency(activeCurrency);
     }, [activeCurrency]);
+
+    const loadSearchProducts = async () => {
+        if (searchProductsRef.current) return searchProductsRef.current;
+        if (!searchProductsRequestRef.current) {
+            searchProductsRequestRef.current = getDocs(query(collection(db, "products"), limit(200)))
+                .then(querySnapshot => querySnapshot.docs.map(productDoc => ({
+                    id: productDoc.id,
+                    ...productDoc.data()
+                })))
+                .then(products => {
+                    searchProductsRef.current = products;
+                    return products;
+                })
+                .finally(() => {
+                    searchProductsRequestRef.current = null;
+                });
+        }
+        return searchProductsRequestRef.current;
+    };
+
+    useEffect(() => {
+        if (!isSearchOpen || searchProductsRef.current) return;
+        loadSearchProducts().catch(error => console.error("Search preload error:", error));
+    }, [isSearchOpen]);
 
     // Fetch categories from Firestore
     useEffect(() => {
@@ -149,25 +176,21 @@ const Navbar = () => {
         const normalizedTerm = typeof term === 'string' ? term : String(term ?? '');
         setSearchTerm(normalizedTerm);
         if (normalizedTerm.trim().length < 2) {
+            searchRequestIdRef.current += 1;
             setSearchResults([]);
             setIsSearching(false);
             return;
         }
 
+        const requestId = ++searchRequestIdRef.current;
         setIsSearching(true);
         try {
-            // Fetch products (Optimization: In a real large app, use Algolia/ElasticSearch. 
-            // For now, fetching recent products and filtering client-side is acceptable for < 1000 items)
-            const q = query(collection(db, "products"), limit(200));
-            const querySnapshot = await getDocs(q);
-
-            const results = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })).filter(product => {
+            const products = await loadSearchProducts();
+            if (requestId !== searchRequestIdRef.current) return;
+            const searchLower = normalizedTerm.toLowerCase().trim();
+            const results = products.filter(product => {
                 if (product.hidden) return false; // Hide hidden products from search
 
-                const searchLower = normalizedTerm.toLowerCase().trim();
                 const nameMatch = String(product.name ?? product.title ?? '').toLowerCase().includes(searchLower);
                 // Check ID (SKU) exact match or prefix
                 const idMatch = String(product.id ?? '').toLowerCase().includes(searchLower);
@@ -178,9 +201,9 @@ const Navbar = () => {
             setSearchResults(results);
         } catch (error) {
             console.error("Search error:", error);
-            setSearchResults([]);
+            if (requestId === searchRequestIdRef.current) setSearchResults([]);
         } finally {
-            setIsSearching(false);
+            if (requestId === searchRequestIdRef.current) setIsSearching(false);
         }
     };
 
