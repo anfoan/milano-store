@@ -1,5 +1,5 @@
 // Service Worker - Milano Store v3 (Force Update for New Database)
-const CACHE_NAME = 'milano-cache-v10'; // Refresh the storefront bundle after sidebar language position update
+const CACHE_NAME = 'milano-cache-v11'; // Refresh the storefront bundle after sidebar language position update
 
 // On install: Skip waiting to activate immediately
 self.addEventListener('install', (event) => {
