@@ -852,7 +852,7 @@ const Checkout = () => {
                             />
                         </div>
                         {walletEnabled && phoneWalletId && <div className={`mt-2 rounded-lg border px-3 py-2 text-right text-[10px] font-bold ${customerWallet?.pinConfigured ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200' : 'border-slate-200 bg-slate-50 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300'}`}>
-                            {customerWallet?.pinConfigured ? <>تم العثور على محفظة هذا الرقم — الرصيد المتاح: <span dir="ltr" className="font-mono font-black">$ {walletNumber(Math.max(0, Number(customerWallet.balance || 0)))}</span></> : 'لا توجد محفظة مؤمنة مرتبطة بهذا الرقم حتى الآن.'}
+                            {customerWallet?.pinConfigured ? <>{language === 'ar' ? 'تم العثور على محفظة هذا الرقم — الرصيد المتاح: ' : 'Wallet found for this number — available balance: '}<span dir="ltr" className="font-mono font-black">$ {walletNumber(Math.max(0, Number(customerWallet.balance || 0)))}</span></> : (language === 'ar' ? 'لا توجد محفظة مؤمنة مرتبطة بهذا الرقم حتى الآن.' : 'No secured wallet is linked to this number yet.')}
                         </div>}
 
                         {/* Dropdown Overlay */}
@@ -1050,10 +1050,10 @@ const Checkout = () => {
                                 <span className="text-gray-900 dark:text-white">{t('cart.total')}</span>
                             </div>
                             {walletEnabled && <button type="button" onClick={requestWalletCredit} className={`mt-2 flex w-full items-center justify-between rounded-xl border p-3 text-right transition-all ${useWalletCredit ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-400/50 dark:bg-emerald-400/10' : 'border-slate-200 bg-slate-50 hover:border-emerald-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-emerald-400/40'}`}>
-                                <div className="flex items-center gap-2"><div className={`flex h-7 w-7 items-center justify-center rounded-lg ${useWalletCredit ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-300'}`}>{useWalletCredit ? <CheckCircle2 size={16}/> : <CheckCircle2 size={16}/>}</div><div><p className="text-xs font-black text-slate-800 dark:text-white">استخدام رصيد محفظتي</p><p className="mt-0.5 text-[9px] font-bold text-slate-400">رصيد متاح: <span dir="ltr" className="font-mono text-emerald-600 dark:text-emerald-300">$ {walletNumber(walletBalance)}</span></p></div></div>
+                                <div className="flex items-center gap-2"><div className={`flex h-7 w-7 items-center justify-center rounded-lg ${useWalletCredit ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-300'}`}>{useWalletCredit ? <CheckCircle2 size={16}/> : <CheckCircle2 size={16}/>}</div><div><p className="text-xs font-black text-slate-800 dark:text-white">{language === 'ar' ? 'استخدام رصيد محفظتي' : 'Use my wallet balance'}</p><p className="mt-0.5 text-[9px] font-bold text-slate-400">{language === 'ar' ? 'رصيد متاح: ' : 'Available balance: '}<span dir="ltr" className="font-mono text-emerald-600 dark:text-emerald-300">$ {walletNumber(walletBalance)}</span></p></div></div>
                                 <span className={`h-5 w-5 rounded-full border-2 ${useWalletCredit ? 'border-emerald-500 bg-emerald-500' : 'border-slate-300 dark:border-slate-600'}`}>{useWalletCredit && <CheckCircle2 size={16} className="m-[-1px] text-white"/>}</span>
                             </button>}
-                            {walletApplied > 0 && <><div className="flex justify-between items-center text-sm font-black text-emerald-600 dark:text-emerald-300"><span dir="ltr">- $ {walletNumber(walletApplied)}</span><span>خصم من المحفظة</span></div><div className="flex justify-between items-center text-base font-black text-emerald-600 dark:text-emerald-300"><span>{amountDueAfterWallet > 0 ? formatPrice(amountDueAfterWallet) : '0'}</span><span>المتبقي للدفع</span></div></>}
+                            {walletApplied > 0 && <><div className="flex justify-between items-center text-sm font-black text-emerald-600 dark:text-emerald-300"><span dir="ltr">- $ {walletNumber(walletApplied)}</span><span>{language === 'ar' ? 'خصم من المحفظة' : 'Wallet discount'}</span></div><div className="flex justify-between items-center text-base font-black text-emerald-600 dark:text-emerald-300"><span>{amountDueAfterWallet > 0 ? formatPrice(amountDueAfterWallet) : '0'}</span><span>{language === 'ar' ? 'المتبقي للدفع' : 'Remaining to pay'}</span></div></>}
                         </div>
 
                         {/* Payment Method */}
@@ -1068,15 +1068,15 @@ const Checkout = () => {
                                             <AlertTriangle size={32} />
                                         </div>
                                         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
-                                            المتجر مشغول حالياً
+                                            {language === 'ar' ? 'المتجر مشغول حالياً' : 'The store is currently busy'}
                                         </h3>
                                         <p className="text-gray-500 dark:text-gray-400 text-sm">
-                                            لا يزال بإمكانك التصفح وتجهيز عربة التسوق، ولكن تم إيقاف استقبال الطلبات مؤقتاً.
+                                            {language === 'ar' ? 'لا يزال بإمكانك التصفح وتجهيز عربة التسوق، ولكن تم إيقاف استقبال الطلبات مؤقتاً.' : 'You can still browse and prepare your cart, but order reception is temporarily paused.'}
                                         </p>
                                     </div>
                                 ) : (
                                     loading ? (
-                                        <div className="text-center py-4 text-gray-400">جاري تحميل طرق الدفع...</div>
+                                        <div className="text-center py-4 text-gray-400">{language === 'ar' ? 'جاري تحميل طرق الدفع...' : 'Loading payment methods...'}</div>
                                     ) : (
                                         <>
                                             {(() => {
