@@ -420,17 +420,12 @@ const Navbar = () => {
 
                                         {/* Storefront-only language switcher inside the side categories drawer. */}
                                         <div>
-                                            <div className="flex flex-col mb-2 px-2 items-start">
-                                                <div className="w-fit">
-                                                    <h4 className="text-gray-500 dark:text-gray-400 text-[11px] font-black uppercase tracking-[0.2em]">{language === 'ar' ? 'لغة المتجر' : 'Store Language'}</h4>
-                                                    <div className="h-1 w-full bg-blue-500 mt-1 rounded-full"></div>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center justify-center gap-1 px-2 text-[9px] font-black" dir="ltr">
+                                            <div className="flex items-center justify-center gap-1 px-2 text-[9px] font-black" dir="rtl">
                                                 <button type="button" onClick={() => setStoreLanguage('ar')} className={`rounded-md px-2 py-1 transition ${language === 'ar' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10'}`}>عربي</button>
                                                 <span className="text-gray-400">/</span>
                                                 <button type="button" onClick={() => setStoreLanguage('en')} className={`rounded-md px-2 py-1 transition ${language === 'en' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10'}`}>English</button>
                                             </div>
+                                            <div className="mx-2 mt-1 h-1 w-[calc(100%-1rem)] rounded-full bg-blue-500"></div>
                                         </div>
                                     </div>
                                 </div>
