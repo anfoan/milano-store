@@ -254,7 +254,7 @@ const Navbar = () => {
                                         <path d="M8 8 L6.5 10.5 L5 8 L2.5 6.5 L5 5 L6.5 2.5 L8 5 L10.5 6.5 z" />
                                     </svg>
                                 </div>
-                                <span className="text-[11px] md:text-[12px] font-black text-black dark:text-white tracking-tighter leading-none mt-[-5px]">{t('nav.browse_categories')}</span>
+                                <span className="text-[11px] md:text-[12px] font-black text-black dark:text-white tracking-tighter leading-none mt-[-5px]">{language === 'ar' ? 'الفئات' : 'Categories'}</span>
                             </button>
                         </div>
                     </div>
@@ -376,7 +376,7 @@ const Navbar = () => {
                                                     <path d="M8 8 L6.5 10.5 L5 8 L2.5 6.5 L5 5 L6.5 2.5 L8 5 L10.5 6.5 z" />
                                                 </svg>
                                             </div>
-                                            <span className="text-black dark:text-white font-black text-xl md:text-2xl tracking-tight">{t('nav.browse_categories')}</span>
+                                            <span className="text-black dark:text-white font-black text-xl md:text-2xl tracking-tight">{language === 'ar' ? 'الفئات' : 'Categories'}</span>
                                         </div>
                                         <button onClick={() => setIsOpen(false)} className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center hover:bg-brand-red/10 hover:text-brand-red rounded-full transition-all group">
                                             <X size={22} className="text-gray-600 dark:text-gray-300 transition-transform group-hover:rotate-90" />
