@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useLanguage } from '../context/LanguageContext';
@@ -11,13 +11,11 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Footer = () => {
-    const { language, t, setStoreLanguage } = useLanguage();
-    const location = useLocation();
+    const { language, t } = useLanguage();
     const [footerData, setFooterData] = useState(null);
     const [selectedDetail, setSelectedDetail] = useState(null); // { title: string, content: string }
 
     const isRTL = language === 'ar';
-    const isCategoryPage = location.pathname.startsWith('/category/');
 
     useEffect(() => {
         const unsub = onSnapshot(doc(db, 'settings', 'footer'), (docSnap) => {
@@ -104,26 +102,25 @@ const Footer = () => {
                     </div>
                 </div>
 
-                {/* Section 2: FAQ (MIDDLE), replaced by the storefront language switcher on category pages */}
+                {/* Section 2: FAQ (MIDDLE) */}
                 <div className={`relative left-4 flex flex-col order-2 items-center overflow-hidden`}>
-                    {isCategoryPage ? <>
-                        <ColumnHeader title={isRTL ? 'لغة المتجر' : 'Store Language'} className="text-center" />
-                        <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/70 p-1.5 shadow-sm dark:border-white/10 dark:bg-white/5" dir="ltr">
-                            <button type="button" onClick={() => setStoreLanguage('en')} className={`flex-1 rounded-lg px-2 py-2 text-[10px] font-black transition ${!isRTL ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10'}`}>English</button>
-                            <button type="button" onClick={() => setStoreLanguage('ar')} className={`flex-1 rounded-lg px-2 py-2 text-[10px] font-black transition ${isRTL ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10'}`}>العربية</button>
-                        </div>
-                    </> : <>
-                        <ColumnHeader title={isRTL ? (footerData.faqSection?.title || "الأسئلة الشائعة") : "FAQ"} className="text-center" />
-                        <div className="flex flex-col space-y-0.5 md:space-y-2 items-start w-full">
-                            {footerData.faqSection?.items?.map((item, idx) => (
-                                <button key={idx} onClick={() => setSelectedDetail({ title: item.question, content: item.answer })} className="flex items-center justify-between w-full min-h-[24px] md:min-h-[30px] text-gray-800 dark:text-gray-200 hover:text-red-600 dark:hover:text-red-500 transition-colors group overflow-hidden">
-                                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 rounded-full transition-all bg-gray-400 dark:bg-gray-500 group-hover:bg-red-600"></div>
-                                    <span className={`shrink font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight whitespace-nowrap overflow-hidden text-ellipsis ${isRTL ? 'text-right' : 'text-left'}`}>{localizeFooterLabel(item.question)}</span>
-                                    <ChevronRight size={12} className={`shrink-0 opacity-40 group-hover:opacity-100 transition-all ${isRTL ? 'rotate-180 group-hover:translate-x-1' : 'group-hover:-translate-x-1'}`} />
-                                </button>
-                            ))}
-                        </div>
-                    </>}
+                    <ColumnHeader 
+                        title={isRTL ? (footerData.faqSection?.title || "الأسئلة الشائعة") : "FAQ"}
+                        className="text-center"
+                    />
+                    <div className="flex flex-col space-y-0.5 md:space-y-2 items-start w-full">
+                        {footerData.faqSection?.items?.map((item, idx) => (
+                            <button 
+                                key={idx}
+                                onClick={() => setSelectedDetail({ title: item.question, content: item.answer })}
+                                className={`flex items-center justify-between w-full min-h-[24px] md:min-h-[30px] text-gray-800 dark:text-gray-200 hover:text-red-600 dark:hover:text-red-500 transition-colors group overflow-hidden`}
+                            >
+                                <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 rounded-full transition-all bg-gray-400 dark:bg-gray-500 group-hover:bg-red-600`}></div>
+                                <span className="shrink font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight whitespace-nowrap overflow-hidden text-ellipsis ${isRTL ? 'text-right' : 'text-left'}">{localizeFooterLabel(item.question)}</span>
+                                <ChevronRight size={12} className={`shrink-0 opacity-40 group-hover:opacity-100 transition-all ${isRTL ? 'rotate-180 group-hover:translate-x-1' : 'group-hover:-translate-x-1'}`} />
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Section 3: Store Info (LEFT in Arabic) */}
