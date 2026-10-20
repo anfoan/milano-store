@@ -84,7 +84,7 @@ const Footer = () => {
                 <div className={`flex flex-col items-start md:items-center ${isRTL ? 'order-1' : 'order-3'} pe-3 md:pe-0 md:pl-8`}>
                     <ColumnHeader
                         title={isRTL ? (footerData.paymentSection?.title || "طرق الدفع") : "Payment Methods"}
-                        className="relative left-4 text-end pl-5 md:pl-56"
+                        className={isRTL ? "relative left-4 text-end pl-5 md:pl-56" : "relative self-start text-start pl-0 md:pl-0"}
                     />
                     <div className="flex flex-col space-y-0.5 md:space-y-2 items-start w-full">
                         {footerData.paymentSection?.items?.map((item, idx) => (
