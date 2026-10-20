@@ -23,7 +23,7 @@ const Navbar = () => {
     const { theme } = useTheme();
     const { t, language, direction, setStoreLanguage } = useLanguage();
     const { generalSettings, imageSettings, interfaceSettings } = useSettings();
-    const { activeCurrency, toggleCurrency, currencySymbol, convertPrice } = useCurrency();
+    const { activeCurrency, toggleCurrency, currencySymbol, convertPrice, formatPrice } = useCurrency();
     const currency = currencySymbol;
     const [isOpen, setIsOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
