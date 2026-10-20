@@ -254,7 +254,7 @@ const Navbar = () => {
                                         <path d="M8 8 L6.5 10.5 L5 8 L2.5 6.5 L5 5 L6.5 2.5 L8 5 L10.5 6.5 z" />
                                     </svg>
                                 </div>
-                                <span className="text-[11px] md:text-[12px] font-black text-black dark:text-white tracking-tighter leading-none mt-[-5px]">الفئات</span>
+                                <span className="text-[11px] md:text-[12px] font-black text-black dark:text-white tracking-tighter leading-none mt-[-5px]">{t('nav.browse_categories')}</span>
                             </button>
                         </div>
                     </div>
@@ -376,7 +376,7 @@ const Navbar = () => {
                                                     <path d="M8 8 L6.5 10.5 L5 8 L2.5 6.5 L5 5 L6.5 2.5 L8 5 L10.5 6.5 z" />
                                                 </svg>
                                             </div>
-                                            <span className="text-black dark:text-white font-black text-xl md:text-2xl tracking-tight">الفئات</span>
+                                            <span className="text-black dark:text-white font-black text-xl md:text-2xl tracking-tight">{t('nav.browse_categories')}</span>
                                         </div>
                                         <button onClick={() => setIsOpen(false)} className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center hover:bg-brand-red/10 hover:text-brand-red rounded-full transition-all group">
                                             <X size={22} className="text-gray-600 dark:text-gray-300 transition-transform group-hover:rotate-90" />
@@ -445,7 +445,7 @@ const Navbar = () => {
                             {location.pathname === '/' && <motion.div layoutId="bottom-nav-watery-bg" className="absolute inset-0 m-auto w-12 h-12 pointer-events-none bg-blue-500/10 dark:bg-blue-400/15 rounded-full z-0" transition={{ type: "spring", stiffness: 380, damping: 30 }} />}
                             <img src="/nav-home.png" alt="Home" className="w-[38px] h-[38px] md:w-[42px] md:h-[42px] -translate-y-[3px] transition-transform group-hover:scale-110 object-contain" />
                         </div>
-                        <span className="text-[10px] font-black tracking-wider leading-none relative z-10">الرئيسية</span>
+                        <span className="text-[10px] font-black tracking-wider leading-none relative z-10">{t('nav.home')}</span>
                     </Link>
 
                     {/* Currency Switcher */}
@@ -462,7 +462,7 @@ const Navbar = () => {
                                     className="w-[50px] h-[50px] md:w-[54px] md:h-[54px] transition-transform group-hover:scale-110 object-contain drop-shadow-md" 
                                 />
                             </div>
-                            <span className="text-[10px] font-black tracking-wider text-black dark:text-white leading-none relative z-10">العملة</span>
+                            <span className="text-[10px] font-black tracking-wider text-black dark:text-white leading-none relative z-10">{language === 'ar' ? 'العملة' : 'Currency'}</span>
                         </button>
 
                         <AnimatePresence>
@@ -498,7 +498,7 @@ const Navbar = () => {
                             {location.pathname === '/offers' && <motion.div layoutId="bottom-nav-watery-bg" className="absolute inset-0 m-auto w-14 h-14 translate-x-1 pointer-events-none bg-red-500/10 dark:bg-red-400/15 rounded-full z-0" transition={{ type: "spring", stiffness: 380, damping: 30 }} />}
                             <img src="/nav-offers.png" alt="Offers" className="w-[38px] h-[38px] md:w-[42px] md:h-[42px] transition-transform group-hover:scale-110 object-contain drop-shadow-md" />
                         </div>
-                        <span className="text-[10px] font-black tracking-wider leading-none relative z-10">عروض</span>
+                        <span className="text-[10px] font-black tracking-wider leading-none relative z-10">{t('nav.offers')}</span>
                     </Link>
 
                     {/* Cart Section - Direct Link to /cart */}
@@ -520,7 +520,7 @@ const Navbar = () => {
                                     </span>
                                 </div>
                             </div>
-                            <span className="text-[10px] font-black tracking-wider text-black group-hover:text-blue-600 dark:text-white dark:hover:text-blue-400 transition-colors leading-none relative z-10">السلة</span>
+                            <span className="text-[10px] font-black tracking-wider text-black group-hover:text-blue-600 dark:text-white dark:hover:text-blue-400 transition-colors leading-none relative z-10">{t('nav.cart')}</span>
                         </Link>
 
                         {/* Mini Cart Dropdown (Floats upwards from the bottom nav) */}

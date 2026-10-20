@@ -48,6 +48,23 @@ const Footer = () => {
         gray: 'bg-gray-100 text-gray-600'
     };
 
+    const localizeFooterLabel = (value) => {
+        if (isRTL || !value) return value;
+        const labels = {
+            'الدفع عند الاستلام': 'Cash on delivery',
+            'تحويل بنك الكريمي': 'Al-Kuraimi bank transfer',
+            'تحويل محفظة جيب': 'Jeeb wallet transfer',
+            'تحويل صرافة محلية': 'Local exchange transfer',
+            'تم شراء البضاعة على جودة': 'Quality-guaranteed products',
+            'شميلة شارع السفينة': 'Shamila Ship St.',
+            'خيارات التوصيل': 'Delivery options',
+            'سياسة الاستبدال': 'Exchange policy',
+            'اختيار المقاسات': 'Size guide',
+            'معلومات مهمة': 'Important information'
+        };
+        return labels[value] || value;
+    };
+
     const ColumnHeader = ({ title, className = "text-center" }) => (
         <div className={`mb-2 md:mb-8 w-full ${className}`}>
             <div className="inline-block">
@@ -66,7 +83,7 @@ const Footer = () => {
                 {/* Section 1: Payment Methods */}
                 <div className={`flex flex-col items-start md:items-center ${isRTL ? 'order-1' : 'order-3'} pe-3 md:pe-0 md:pl-8`}>
                     <ColumnHeader
-                        title={footerData.paymentSection?.title || (isRTL ? "طرق الدفع" : "Payment Methods")}
+                        title={isRTL ? (footerData.paymentSection?.title || "طرق الدفع") : "Payment Methods"}
                         className="relative left-4 text-end pl-5 md:pl-56"
                     />
                     <div className="flex flex-col space-y-0.5 md:space-y-2 items-start w-full">
@@ -79,7 +96,7 @@ const Footer = () => {
                                 <span className={`shrink-0 transition-transform group-hover:scale-110 ${colorClasses[item.color] ? colorClasses[item.color].split(' ')[1] : ''}`}>
                                      {iconMap[item.icon] ? React.cloneElement(iconMap[item.icon], { size: 14, className: "w-[12px] h-[12px] sm:w-[14px] sm:h-[14px]" }) : <CreditCard size={14} className="w-[12px] h-[12px] sm:w-[14px] sm:h-[14px]" />}
                                 </span>
-                                <span className="shrink font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight text-right">{item.text}</span>
+                                <span className="shrink font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight text-right">{localizeFooterLabel(item.text)}</span>
                             </button>
                         ))}
                     </div>
@@ -88,7 +105,7 @@ const Footer = () => {
                 {/* Section 2: FAQ (MIDDLE) */}
                 <div className={`relative left-4 flex flex-col order-2 items-center overflow-hidden`}>
                     <ColumnHeader 
-                        title={footerData.faqSection?.title || (isRTL ? "الأسئلة الشائعة" : "FAQ")} 
+                        title={isRTL ? (footerData.faqSection?.title || "الأسئلة الشائعة") : "FAQ"}
                         className="text-center"
                     />
                     <div className="flex flex-col space-y-0.5 md:space-y-2 items-start w-full">
@@ -99,7 +116,7 @@ const Footer = () => {
                                 className={`flex items-center justify-between w-full min-h-[24px] md:min-h-[30px] text-gray-800 dark:text-gray-200 hover:text-red-600 dark:hover:text-red-500 transition-colors group overflow-hidden`}
                             >
                                 <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 rounded-full transition-all bg-gray-400 dark:bg-gray-500 group-hover:bg-red-600`}></div>
-                                <span className="shrink font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight whitespace-nowrap overflow-hidden text-ellipsis ${isRTL ? 'text-right' : 'text-left'}">{item.question}</span>
+                                <span className="shrink font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight whitespace-nowrap overflow-hidden text-ellipsis ${isRTL ? 'text-right' : 'text-left'}">{localizeFooterLabel(item.question)}</span>
                                 <ChevronRight size={12} className={`shrink-0 opacity-40 group-hover:opacity-100 transition-all ${isRTL ? 'rotate-180 group-hover:translate-x-1' : 'group-hover:-translate-x-1'}`} />
                             </button>
                         ))}
@@ -110,7 +127,7 @@ const Footer = () => {
                 <div className={`relative left-4 flex flex-col ${isRTL ? 'items-end' : 'items-start'} md:items-end ${isRTL ? 'order-3' : 'order-1'} md:pr-24`}>
                     <div style={isRTL ? {paddingLeft: '20px'} : {}}>
                     <ColumnHeader 
-                        title={footerData.storeSection?.title || (isRTL ? "متجر ميلانو" : "Milano Store")} 
+                        title={isRTL ? (footerData.storeSection?.title || "متجر ميلانو") : "Milano Store"}
                         className={`relative -left-2 ${isRTL ? 'text-start' : 'text-start pl-8 md:pl-24'}`}
                     />
                     </div>

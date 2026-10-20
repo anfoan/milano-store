@@ -581,7 +581,7 @@ const Home = () => {
                     className="fixed inset-0 z-[120] flex items-center justify-center bg-black/45 px-4 py-6 backdrop-blur-[2px]"
                     role="dialog"
                     aria-modal="true"
-                    aria-label="جديدنا وصل"
+                    aria-label={language === 'ar' ? 'جديدنا وصل' : 'New arrivals'}
                     onClick={(event) => {
                         if (event.target === event.currentTarget) closeNewArrivals();
                     }}
@@ -590,14 +590,14 @@ const Home = () => {
                         <button
                             type="button"
                             onClick={closeNewArrivals}
-                            aria-label="إغلاق جديدنا وصل"
+                            aria-label={language === 'ar' ? 'إغلاق جديدنا وصل' : 'Close new arrivals'}
                             className="absolute left-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-red-600 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
                         >
                             <X size={19} strokeWidth={3} />
                         </button>
                         <div className="px-3 pb-3 pt-2 text-center">
-                            <h2 className="text-xl font-black tracking-tight text-gray-900 dark:text-white sm:text-2xl">جديدنا وصل. <span aria-hidden="true">🔥</span></h2>
-                            <p className="mt-1 text-[11px] font-bold text-gray-500 dark:text-gray-400">اكتشف أحدث المنتجات لدينا</p>
+                            <h2 className="text-xl font-black tracking-tight text-gray-900 dark:text-white sm:text-2xl">{language === 'ar' ? 'جديدنا وصل.' : 'New arrivals.'} <span aria-hidden="true">🔥</span></h2>
+                            <p className="mt-1 text-[11px] font-bold text-gray-500 dark:text-gray-400">{language === 'ar' ? 'اكتشف أحدث المنتجات لدينا' : 'Discover our latest products'}</p>
                         </div>
                         <div className="relative aspect-square overflow-hidden rounded-[24px] bg-gray-100 dark:bg-[#242830]">
                             {newArrivalSlides.map((product, index) => (
@@ -668,7 +668,7 @@ const Home = () => {
                             </div>
                             <div className="inline-flex items-center gap-1.5 mb-3">
                                 <button type="button" onClick={() => setTrackingOpen(true)} className="tracking-wave-bar text-[11px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-100 dark:bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-200 dark:border-cyan-400/20 hover:bg-cyan-200 dark:hover:bg-cyan-400/20 transition-colors">
-                                    ادخل رقم الطلب لتتبع طلبك
+                                    {language === 'ar' ? 'ادخل رقم الطلب لتتبع طلبك' : 'Enter your order number to track your order'}
                                 </button>
                             </div>
                             <div className="flex justify-center gap-1.5 text-yellow-500">
@@ -775,7 +775,7 @@ const Home = () => {
                                 <div className="orders-wave-icon transition-transform group-hover:scale-110 active:scale-95 duration-300">
                                     <span className="text-[34px] md:text-[40px] block drop-shadow-md select-none leading-none">🛍️</span>
                                 </div>
-                                <span className="block text-xs md:text-sm font-black text-gray-900 dark:text-white leading-none tracking-tight">طلباتك</span>
+                                <span className="block text-xs md:text-sm font-black text-gray-900 dark:text-white leading-none tracking-tight">{language === 'ar' ? 'طلباتك' : 'Your Orders'}</span>
                             </Link>
                         </div>
                     </div>
@@ -788,7 +788,7 @@ const Home = () => {
                 <section className="w-full px-1 mb-5 mt-2">
                     <div className="flex items-center justify-between mb-2 px-3">
                         <div className="flex items-center gap-2">
-                            <h2 className="text-lg md:text-xl font-black text-[#f43f5e]">عروض و خصومات</h2>
+                            <h2 className="text-lg md:text-xl font-black text-[#f43f5e]">{language === 'ar' ? 'عروض و خصومات' : 'Offers & Discounts'}</h2>
                             <span className="text-2xl leading-none">🎉</span>
                             <img src="/nav-offers.png" alt="Offers" className="w-8 h-8 md:w-9 md:h-9 object-contain" />
                         </div>
@@ -804,20 +804,20 @@ const Home = () => {
                                 {/* Discount Box - Horizontal phrase */}
                                 <div className="flex items-center justify-center bg-white/10 backdrop-blur-md px-6 py-2 rounded-[24px] border border-white/20 min-w-fit shadow-inner">
                                     <span className="text-xl md:text-3xl font-black text-white drop-shadow-md">
-                                        خصومات تصل إلى {maxDiscount}%
+                                        {language === 'ar' ? `خصومات تصل إلى ${maxDiscount}%` : `Discounts up to ${maxDiscount}%`}
                                     </span>
                                 </div>
 
                                 {/* Text & Button Content */}
                                 <div className="text-center md:text-right flex-1 flex flex-col items-center md:items-start">
                                     <h2 className="text-xl md:text-3xl font-black mb-0.5 leading-tight flex items-center justify-center md:justify-start">
-                                        عروض خاصة لا تفوت!
+                                        {language === 'ar' ? 'عروض خاصة لا تفوت!' : "Special offers you can't miss!"}
                                     </h2>
                                     <p className="text-pink-100 font-bold text-[13px] md:text-base mb-1.5 text-center md:text-right leading-relaxed">
-                                        استفد من تخفيضاتنا المميزة واغتنم فرصة التوفير.
+                                        {language === 'ar' ? 'استفد من تخفيضاتنا المميزة واغتنم فرصة التوفير.' : 'Enjoy our special discounts and save more.'}
                                     </p>
                                     <div className="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 px-6 py-2 rounded-xl font-black text-xs md:text-sm hover:bg-yellow-300 transition-all hover:scale-105 shadow-lg shadow-yellow-400/20">
-                                        <span>استعرض الخصومات</span>
+                                        <span>{language === 'ar' ? 'استعرض الخصومات' : 'Browse offers'}</span>
                                         <ArrowRight size={16} className="flip-rtl" />
                                     </div>
                                 </div>
@@ -833,7 +833,7 @@ const Home = () => {
                     <div className="flex items-center justify-between mb-2 px-3">
                         <div className="flex items-center gap-2">
                             <div className="h-5 w-1 bg-blue-600 rounded-full"></div>
-                            <h2 className="text-lg md:text-xl font-black text-gray-900 dark:text-white">الأقسام</h2>
+                            <h2 className="text-lg md:text-xl font-black text-gray-900 dark:text-white">{language === 'ar' ? 'الأقسام' : 'Categories'}</h2>
                         </div>
                     </div>
 
@@ -1040,16 +1040,16 @@ const Home = () => {
             <div className="fixed inset-0 z-[280] flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm" dir="rtl" onClick={() => setTrackingOpen(false)}>
                 <div className="w-full max-w-xs rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl dark:border-white/10 dark:bg-[#171b26]" onClick={(event) => event.stopPropagation()}>
                     <div className="mb-3 flex items-center justify-between gap-3">
-                        <h2 className="text-sm font-black text-slate-900 dark:text-white">تتبع طلبك</h2>
-                        <button type="button" aria-label="إغلاق" onClick={() => setTrackingOpen(false)} className="flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-md transition-colors hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"><X size={16} /></button>
+                    <h2 className="text-sm font-black text-slate-900 dark:text-white">{language === 'ar' ? 'تتبع طلبك' : 'Track your order'}</h2>
+                    <button type="button" aria-label={language === 'ar' ? 'إغلاق' : 'Close'} onClick={() => setTrackingOpen(false)} className="flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-md transition-colors hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"><X size={16} /></button>
                     </div>
-                    <p className="mb-3 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400">ادخل رقم طلبك لمعرفة حالة الطلب.</p>
+                    <p className="mb-3 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400">{language === 'ar' ? 'ادخل رقم طلبك لمعرفة حالة الطلب.' : 'Enter your order number to check its status.'}</p>
                     <form onSubmit={handleInvoiceTracking} className="space-y-2">
                         <div className="relative">
                             <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input autoFocus dir="ltr" value={trackingInvoice} onChange={(event) => setTrackingInvoice(event.target.value)} placeholder="رقم الطلب" className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-3 pr-9 text-center text-xs font-black outline-none focus:border-cyan-400 dark:border-white/10 dark:bg-white/5 dark:text-white" />
+                    <input autoFocus dir="ltr" value={trackingInvoice} onChange={(event) => setTrackingInvoice(event.target.value)} placeholder={language === 'ar' ? 'رقم الطلب' : 'Order number'} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-3 pr-9 text-center text-xs font-black outline-none focus:border-cyan-400 dark:border-white/10 dark:bg-white/5 dark:text-white" />
                         </div>
-                        <button type="submit" disabled={!trackingInvoice.trim()} className="h-10 w-full rounded-xl bg-cyan-600 text-xs font-black text-white transition-colors hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50">بحث عن الطلب</button>
+                    <button type="submit" disabled={!trackingInvoice.trim()} className="h-10 w-full rounded-xl bg-cyan-600 text-xs font-black text-white transition-colors hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50">{language === 'ar' ? 'بحث عن الطلب' : 'Search order'}</button>
                     </form>
                 </div>
             </div>
