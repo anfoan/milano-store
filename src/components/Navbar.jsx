@@ -28,7 +28,14 @@ const Navbar = () => {
     const [walletDisplayCurrency, setWalletDisplayCurrency] = useState(activeCurrency);
     const cartRef = useRef(null);
     const currencyRef = useRef(null);
-    const [categories, setCategories] = useState([]);
+    const [categories, setCategories] = useState(() => {
+        try {
+            const cached = JSON.parse(localStorage.getItem('cached_all_categories') || localStorage.getItem('cached_categories') || '[]');
+            return Array.isArray(cached) ? cached : [];
+        } catch {
+            return [];
+        }
+    });
     // Search State
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
@@ -419,9 +426,10 @@ const Navbar = () => {
                                                     <div className="h-1 w-full bg-blue-500 mt-1 rounded-full"></div>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-1.5 px-2" dir="ltr">
-                                                <button type="button" onClick={() => setStoreLanguage('en')} className={`flex-1 rounded-lg px-2.5 py-2 text-[11px] font-black transition ${language === 'en' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10'}`}>English</button>
-                                                <button type="button" onClick={() => setStoreLanguage('ar')} className={`flex-1 rounded-lg px-2.5 py-2 text-[11px] font-black transition ${language === 'ar' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10'}`}>العربية</button>
+                                            <div className="flex items-center justify-center gap-1 px-2 text-[9px] font-black" dir="ltr">
+                                                <button type="button" onClick={() => setStoreLanguage('ar')} className={`rounded-md px-2 py-1 transition ${language === 'ar' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10'}`}>عربي</button>
+                                                <span className="text-gray-400">/</span>
+                                                <button type="button" onClick={() => setStoreLanguage('en')} className={`rounded-md px-2 py-1 transition ${language === 'en' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10'}`}>English</button>
                                             </div>
                                         </div>
                                     </div>

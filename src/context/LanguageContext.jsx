@@ -6,11 +6,8 @@ import { translations } from '../utils/translations';
 const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
-    const storedLanguage = typeof window !== 'undefined' ? window.localStorage.getItem('storeLanguage') : null;
     const localOverride = typeof window !== 'undefined' ? window.localStorage.getItem('storeLanguageOverride') : null;
-    const initialLanguage = localOverride === 'en' || localOverride === 'ar'
-        ? localOverride
-        : (storedLanguage === 'en' ? 'en' : 'ar');
+    const initialLanguage = localOverride === 'en' || localOverride === 'ar' ? localOverride : 'ar';
     const [language, setLanguage] = useState(initialLanguage);
     const [direction, setDirection] = useState(initialLanguage === 'ar' ? 'rtl' : 'ltr');
     const [loading, setLoading] = useState(true);
@@ -21,9 +18,7 @@ export const LanguageProvider = ({ children }) => {
             if (doc.exists()) {
                 const data = doc.data();
                 const currentOverride = window.localStorage.getItem('storeLanguageOverride');
-                const newLang = currentOverride === 'en' || currentOverride === 'ar'
-                    ? currentOverride
-                    : (data.currentLanguage === 'en' ? 'en' : 'ar');
+                const newLang = currentOverride === 'en' || currentOverride === 'ar' ? currentOverride : 'ar';
                 setLanguage(newLang);
                 setDirection(newLang === 'ar' ? 'rtl' : 'ltr');
                 window.localStorage.setItem('storeLanguage', newLang);
