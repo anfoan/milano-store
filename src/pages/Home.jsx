@@ -1023,7 +1023,7 @@ const Home = () => {
             </section>
         )}
 
-        <section className="delivery-company-section mx-2 mt-4 overflow-hidden rounded-2xl border border-cyan-200/60 bg-gradient-to-r from-cyan-50 via-white to-amber-50 px-4 py-4 shadow-sm dark:border-white/10 dark:from-[#12212a] dark:via-[#171a20] dark:to-[#282117]" dir="rtl" aria-label="شركة التوصيل">
+        <section className="delivery-company-section mx-auto mt-4 w-[calc(100%-1rem)] max-w-2xl overflow-hidden rounded-2xl border border-cyan-200/60 bg-gradient-to-r from-cyan-50 via-white to-amber-50 px-4 py-4 shadow-sm dark:border-white/10 dark:from-[#12212a] dark:via-[#171a20] dark:to-[#282117]" dir="rtl" aria-label="شركة التوصيل">
             <div className="mb-2 flex items-center justify-between gap-3">
                 <div>
                     <h2 className="text-base font-black text-slate-900 dark:text-white">شركة التوصيل</h2>
