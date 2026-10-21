@@ -4,12 +4,12 @@
 
 /* Keep the new-arrivals popup visibly raised on every storefront viewport. */
 .new-arrivals-popup-position {
-  transform: translateY(-44px) !important;
+  transform: translateY(-56px) !important;
 }
 
 @media (min-width: 768px) {
   .new-arrivals-popup-position {
-    transform: translateY(-12px) !important;
+    transform: translateY(-24px) !important;
   }
 }
 
