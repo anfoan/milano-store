@@ -13,24 +13,6 @@
   }
 }
 
-.delivery-bike-lane {
-  position: relative;
-  width: 100%;
-  height: clamp(150px, 33vw, 280px);
-  overflow: hidden;
-  border-bottom: 3px solid rgba(14, 165, 233, .35);
-  background: linear-gradient(180deg, transparent 0 70%, rgba(14, 165, 233, .08) 70% 100%);
-}
-
-.delivery-bike-reference-video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  background: #eef5ff;
-  object-position: center;
-}
-
 :root {
   font-family: 'Cairo', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
