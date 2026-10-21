@@ -1031,8 +1031,17 @@ const Home = () => {
                 </div>
                 <span className="text-2xl" aria-hidden="true">📦</span>
             </div>
-            <div className="delivery-bike-lane" dir="ltr" aria-label="دراجة التوصيل تتحرك من اليسار إلى اليمين">
-                <div className="delivery-bike-motion" aria-hidden="true">🛵</div>
+            <div className="delivery-bike-lane" dir="ltr" aria-label="دراجة وشخص التوصيل يتحركان من اليسار إلى اليمين">
+                <video
+                    className="delivery-bike-reference-video"
+                    src="/delivery-bike-company.mp4"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    aria-label="فيديو دراجة وشخص التوصيل"
+                />
             </div>
         </section>
 
