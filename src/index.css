@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Keep the new-arrivals popup visibly raised on every storefront viewport. */
+.new-arrivals-popup-position {
+  transform: translateY(-44px) !important;
+}
+
+@media (min-width: 768px) {
+  .new-arrivals-popup-position {
+    transform: translateY(-12px) !important;
+  }
+}
+
 :root {
   font-family: 'Cairo', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
