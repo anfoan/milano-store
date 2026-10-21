@@ -13,6 +13,29 @@
   }
 }
 
+@keyframes delivery-bike-left-to-right {
+  0% { transform: translateX(-18vw); }
+  100% { transform: translateX(118vw); }
+}
+
+.delivery-bike-lane {
+  position: relative;
+  height: 3.25rem;
+  overflow: hidden;
+  border-bottom: 3px solid rgba(14, 165, 233, .35);
+  background: linear-gradient(180deg, transparent 0 70%, rgba(14, 165, 233, .08) 70% 100%);
+}
+
+.delivery-bike-motion {
+  position: absolute;
+  left: 0;
+  bottom: .15rem;
+  font-size: 2.25rem;
+  line-height: 1;
+  animation: delivery-bike-left-to-right 5s linear infinite;
+  will-change: transform;
+}
+
 :root {
   font-family: 'Cairo', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

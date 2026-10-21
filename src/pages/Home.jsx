@@ -1023,6 +1023,19 @@ const Home = () => {
             </section>
         )}
 
+        <section className="delivery-company-section mx-2 mt-4 overflow-hidden rounded-2xl border border-cyan-200/60 bg-gradient-to-r from-cyan-50 via-white to-amber-50 px-4 py-4 shadow-sm dark:border-white/10 dark:from-[#12212a] dark:via-[#171a20] dark:to-[#282117]" dir="rtl" aria-label="شركة التوصيل">
+            <div className="mb-2 flex items-center justify-between gap-3">
+                <div>
+                    <h2 className="text-base font-black text-slate-900 dark:text-white">شركة التوصيل</h2>
+                    <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300">توصيل سريع حتى باب منزلك</p>
+                </div>
+                <span className="text-2xl" aria-hidden="true">📦</span>
+            </div>
+            <div className="delivery-bike-lane" dir="ltr" aria-label="دراجة التوصيل تتحرك من اليسار إلى اليمين">
+                <div className="delivery-bike-motion" aria-hidden="true">🛵</div>
+            </div>
+        </section>
+
         {selectedPromotionalVideo && (
             <div className={`fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm ${isVideoFullscreen ? 'p-0' : 'p-3 md:p-6'}`} onClick={() => { setSelectedPromotionalVideo(null); setIsVideoFullscreen(false); }} dir="rtl">
                 <div ref={selectedVideoContainerRef} style={isVideoFullscreen ? { height: '100dvh', minHeight: '100vh', width: '100vw', maxWidth: 'none', borderRadius: 0 } : undefined} className={`relative overflow-hidden bg-transparent shadow-2xl ring-1 ring-white/20 ${isVideoFullscreen ? 'h-[100dvh] min-h-screen w-screen rounded-none' : 'h-[min(86vh,720px)] w-[min(92vw,460px)] rounded-[24px]'}`} onClick={(event) => event.stopPropagation()}>
