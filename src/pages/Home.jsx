@@ -851,14 +851,26 @@ const Home = () => {
             {/* Offers Section - Dynamic */}
             {/* Offers Section - Controlled by 'showOffersSection' */}
             {(() => {
-                const tShirtProducts = products.filter(product => {
+                const getProductTime = (product) => {
+                    const value = product.updatedAt || product.createdAt;
+                    if (typeof value?.toMillis === 'function') return value.toMillis();
+                    if (value?.seconds) return value.seconds * 1000;
+                    if (typeof value === 'string') return new Date(value).getTime() || 0;
+                    return 0;
+                };
+                const eligibleJerseys = products.filter(product => {
                     if (product.hidden || !(product.mainImage || product.gallery?.[0])) return false;
-                    const searchable = [product.name, product.category, product.type, product.productType, ...(product.tags || [])]
-                        .filter(Boolean)
-                        .join(' ')
-                        .toLowerCase();
-                    return /تي ?شيرت|تيشرت|فنيلة|فنايل|فانيلة|t-?shirt|shirt|jersey|tee/.test(searchable);
+                    return product.category === 'فنايل نسخة اللاعبين' || product.category === 'فنايل كلاسيك قديم';
                 });
+                const latestPlayerJerseys = eligibleJerseys
+                    .filter(product => product.category === 'فنايل نسخة اللاعبين')
+                    .sort((a, b) => getProductTime(b) - getProductTime(a))
+                    .slice(0, 10);
+                const latestClassicJerseys = eligibleJerseys
+                    .filter(product => product.category === 'فنايل كلاسيك قديم')
+                    .sort((a, b) => getProductTime(b) - getProductTime(a))
+                    .slice(0, 10);
+                const tShirtProducts = [...latestPlayerJerseys, ...latestClassicJerseys];
                 return tShirtProducts.length > 0 ? (
                     <div className="w-full px-2 md:px-3" aria-label={language === 'ar' ? 'معلاق التيشرتات' : 'T-shirt rack'}>
                         <HangingRackSection
