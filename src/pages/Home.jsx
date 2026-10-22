@@ -106,20 +106,34 @@ const HangingRackSection = ({ category, products, formatPrice, language }) => {
                                 <div className="absolute left-1/2 top-0 h-4 w-px -translate-x-1/2 bg-gray-500 dark:bg-gray-400" />
                                 <div className="absolute left-1/2 top-2 h-3 w-5 -translate-x-1/2 rounded-t-full border-2 border-b-0 border-gray-500 dark:border-gray-400" />
                             </div>
-                            <div className={`relative -mt-1 h-44 w-full overflow-visible transition-transform duration-300 ease-out md:h-56 ${isActive ? 'scale-105' : ''}`}>
-                                <div className="absolute left-1/2 top-2 h-full w-full -translate-x-1/2 overflow-visible [perspective:700px]">
-                                    <img
-                                        src={optimizeImageUrl(product.mainImage || product.gallery?.[0], 360, product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds)}
-                                        alt={product.name || 'Product'}
-                                        className={`h-full w-full origin-top object-contain drop-shadow-md transition-[transform,filter] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] [backface-visibility:hidden] [transform-style:preserve-3d] ${isActive ? 'drop-shadow-xl' : ''}`}
-                                        style={{
-                                            transform: isActive
-                                                ? 'perspective(700px) rotateY(0deg) scaleX(1)'
-                                                : 'perspective(700px) rotateY(68deg) scaleX(0.72)',
-                                        }}
-                                        draggable="false"
-                                        loading="lazy"
-                                    />
+                            <div className="relative -mt-1 h-44 w-full overflow-visible md:h-56">
+                                <div className="absolute left-1/2 top-2 h-full w-full -translate-x-1/2 overflow-hidden">
+                                    {(() => {
+                                        const frontImage = product.mainImage || product.gallery?.[0];
+                                        const alternateImage = product.gallery?.length > 1
+                                            ? product.gallery[product.gallery.length - 1]
+                                            : frontImage;
+                                        const imageVersion = product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds;
+                                        return (
+                                            <>
+                                                <img
+                                                    src={optimizeImageUrl(alternateImage, 360, imageVersion)}
+                                                    alt=""
+                                                    aria-hidden="true"
+                                                    className={`absolute inset-0 h-full w-full object-contain drop-shadow-md transition-opacity duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] ${isActive ? 'opacity-0' : 'opacity-100'}`}
+                                                    draggable="false"
+                                                    loading="lazy"
+                                                />
+                                                <img
+                                                    src={optimizeImageUrl(frontImage, 360, imageVersion)}
+                                                    alt={product.name || 'Product'}
+                                                    className={`absolute inset-0 h-full w-full object-contain drop-shadow-md transition-opacity duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] ${isActive ? 'opacity-100 drop-shadow-xl' : 'opacity-0'}`}
+                                                    draggable="false"
+                                                    loading="lazy"
+                                                />
+                                            </>
+                                        );
+                                    })()}
                                 </div>
                                 <span className="absolute left-1/2 top-0 z-20 -translate-x-1/2 -rotate-6 whitespace-nowrap rounded-sm bg-white px-1.5 py-0.5 text-[9px] font-black text-gray-800 shadow-md dark:bg-gray-100">
                                     {formatPrice(price)}
