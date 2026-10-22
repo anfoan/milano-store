@@ -545,7 +545,7 @@ const Navbar = () => {
 
                                     <div className="flex items-center justify-center gap-5" dir="rtl">
                                         <div className="flex min-w-0 flex-1 flex-col gap-4">
-                                            <div className="relative rounded-xl bg-gray-50 p-3 dark:bg-white/5">
+                                            <div className="relative rounded-xl bg-gray-100 p-3 dark:bg-white/10">
                                                 <div className="mb-2 text-center text-sm font-black text-gray-500 dark:text-gray-300">{language === 'ar' ? 'الطول' : 'Height'}</div>
                                                 <div className="flex items-center justify-center gap-2">
                                                     <button type="button" onClick={() => setSizeGuideHeight(value => value + 1)} className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg bg-transparent text-3xl font-black leading-none text-blue-600 transition active:scale-90" aria-label="زيادة الطول">+</button>
@@ -553,7 +553,7 @@ const Navbar = () => {
                                                     <button type="button" onClick={() => setSizeGuideHeight(value => value - 1)} className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg bg-transparent text-3xl font-black leading-none text-red-600 transition active:scale-90" aria-label="إنقاص الطول">−</button>
                                                 </div>
                                             </div>
-                                            <div className="relative rounded-xl bg-gray-50 p-3 dark:bg-white/5">
+                                            <div className="relative rounded-xl bg-gray-100 p-3 dark:bg-white/10">
                                                 <div className="mb-2 text-center text-sm font-black text-gray-500 dark:text-gray-300">{language === 'ar' ? 'الوزن' : 'Weight'}</div>
                                                 <div className="flex items-center justify-center gap-2">
                                                     <button type="button" onClick={() => setSizeGuideWeight(value => value + 1)} className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg bg-transparent text-3xl font-black leading-none text-blue-600 transition active:scale-90" aria-label="زيادة الوزن">+</button>
@@ -563,7 +563,7 @@ const Navbar = () => {
                                             </div>
                                         </div>
 
-                                        <div className="flex h-40 w-20 shrink-0 -translate-y-2 items-center justify-center rounded-xl bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-400/10 dark:to-transparent">
+                                        <div className="flex h-40 w-20 shrink-0 -translate-y-2 items-center justify-center rounded-xl bg-gradient-to-b from-emerald-100 to-white dark:from-emerald-400/20 dark:to-transparent">
                                             <div
                                                 className="relative flex justify-center drop-shadow-md transition-all duration-75"
                                                 style={{ height: `${Math.max(78, Math.min(135, 78 + (sizeGuideHeight - 130) * 0.85))}px`, width: `${Math.max(28, Math.min(48, 28 + (sizeGuideWeight - 35) * 0.16))}px` }}
