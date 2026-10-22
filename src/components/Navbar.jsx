@@ -548,17 +548,17 @@ const Navbar = () => {
                                             <div className="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
                                                 <div className="mb-2 text-center text-sm font-black text-gray-500 dark:text-gray-300">{language === 'ar' ? 'الطول' : 'Height'}</div>
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <button type="button" onClick={() => setSizeGuideHeight(value => value + 1)} className="h-9 w-9 shrink-0 rounded-lg bg-transparent text-xl font-black leading-none text-blue-600 transition active:scale-90" aria-label="زيادة الطول">+</button>
+                                                    <button type="button" onClick={() => setSizeGuideHeight(value => value + 1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-transparent text-2xl font-black leading-none text-blue-600 transition active:scale-90" aria-label="زيادة الطول">+</button>
                                                     <strong className="font-sans text-2xl tabular-nums">{sizeGuideHeight}<span className="ml-1 text-xs font-bold text-gray-400">cm</span></strong>
-                                                    <button type="button" onClick={() => setSizeGuideHeight(value => value - 1)} className="h-9 w-9 shrink-0 rounded-lg bg-transparent text-xl font-black leading-none text-red-600 transition active:scale-90" aria-label="إنقاص الطول">−</button>
+                                                    <button type="button" onClick={() => setSizeGuideHeight(value => value - 1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-transparent text-2xl font-black leading-none text-red-600 transition active:scale-90" aria-label="إنقاص الطول">−</button>
                                                 </div>
                                             </div>
                                             <div className="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
                                                 <div className="mb-2 text-center text-sm font-black text-gray-500 dark:text-gray-300">{language === 'ar' ? 'الوزن' : 'Weight'}</div>
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <button type="button" onClick={() => setSizeGuideWeight(value => value + 1)} className="h-9 w-9 shrink-0 rounded-lg bg-transparent text-xl font-black leading-none text-blue-600 transition active:scale-90" aria-label="زيادة الوزن">+</button>
+                                                    <button type="button" onClick={() => setSizeGuideWeight(value => value + 1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-transparent text-2xl font-black leading-none text-blue-600 transition active:scale-90" aria-label="زيادة الوزن">+</button>
                                                     <strong className="font-sans text-2xl tabular-nums">{sizeGuideWeight}<span className="ml-1 text-xs font-bold text-gray-400">kg</span></strong>
-                                                    <button type="button" onClick={() => setSizeGuideWeight(value => value - 1)} className="h-9 w-9 shrink-0 rounded-lg bg-transparent text-xl font-black leading-none text-red-600 transition active:scale-90" aria-label="إنقاص الوزن">−</button>
+                                                    <button type="button" onClick={() => setSizeGuideWeight(value => value - 1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-transparent text-2xl font-black leading-none text-red-600 transition active:scale-90" aria-label="إنقاص الوزن">−</button>
                                                 </div>
                                             </div>
                                         </div>
