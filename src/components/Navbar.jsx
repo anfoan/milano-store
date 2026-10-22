@@ -19,6 +19,14 @@ const isNewArrivalsCategory = (category) => {
     return String(name || '').trim() === 'كل ماهو جديد';
 };
 
+const SIZE_GUIDE_ROWS = [
+    { size: 'S', minWeight: 55, maxWeight: 65, minHeight: 160, maxHeight: 170 },
+    { size: 'M', minWeight: 65, maxWeight: 75, minHeight: 168, maxHeight: 175 },
+    { size: 'L', minWeight: 75, maxWeight: 85, minHeight: 173, maxHeight: 180 },
+    { size: 'XL', minWeight: 85, maxWeight: 95, minHeight: 178, maxHeight: 185 },
+    { size: 'XXL', minWeight: 95, maxWeight: 105, minHeight: 182, maxHeight: 190 },
+];
+
 const Navbar = () => {
     const { theme } = useTheme();
     const { t, language, direction, setStoreLanguage } = useLanguage();
@@ -34,9 +42,21 @@ const Navbar = () => {
     const [sizeGuideHeight, setSizeGuideHeight] = useState(180);
     const [sizeGuideWeight, setSizeGuideWeight] = useState(89);
     const sizeGuideRecommendedSize = (() => {
-        const heightSize = sizeGuideHeight >= 180 ? 3 : sizeGuideHeight >= 174 ? 2 : sizeGuideHeight >= 164 ? 1 : 0;
-        const weightSize = sizeGuideWeight > 85 ? 3 : sizeGuideWeight >= 70 ? 2 : sizeGuideWeight >= 56 ? 1 : 0;
-        return ['S', 'M', 'L', 'XL'][Math.max(heightSize, weightSize)];
+        const matches = SIZE_GUIDE_ROWS.filter(row => (
+            sizeGuideWeight >= row.minWeight && sizeGuideWeight <= row.maxWeight
+            && sizeGuideHeight >= row.minHeight && sizeGuideHeight <= row.maxHeight
+        ));
+        if (matches.length > 0) return matches[matches.length - 1].size;
+
+        const distance = (value, min, max) => value < min ? min - value : value > max ? value - max : 0;
+        return SIZE_GUIDE_ROWS
+            .map((row, index) => ({
+                size: row.size,
+                index,
+                score: distance(sizeGuideWeight, row.minWeight, row.maxWeight) / 10
+                    + distance(sizeGuideHeight, row.minHeight, row.maxHeight) / 10,
+            }))
+            .sort((a, b) => a.score - b.score || a.index - b.index)[0].size;
     })();
     const [walletDisplayCurrency, setWalletDisplayCurrency] = useState(activeCurrency);
     const cartRef = useRef(null);
@@ -561,6 +581,20 @@ const Navbar = () => {
 
                                     <div className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-center dark:bg-emerald-400/10">
                                         <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-300">{language === 'ar' ? 'المقاس المقترح' : 'Suggested size'} <strong className="ml-1 font-sans text-lg text-emerald-800 dark:text-emerald-200">{sizeGuideRecommendedSize}</strong></span>
+                                    </div>
+                                    <div className="mt-3 overflow-hidden rounded-lg border border-gray-200 text-[9px] dark:border-white/10" dir="rtl">
+                                        <div className="grid grid-cols-3 bg-gray-100 px-2 py-1 font-black text-gray-500 dark:bg-white/10 dark:text-gray-300">
+                                            <span>{language === 'ar' ? 'المقاس' : 'Size'}</span>
+                                            <span>{language === 'ar' ? 'الوزن' : 'Weight'}</span>
+                                            <span>{language === 'ar' ? 'الطول' : 'Height'}</span>
+                                        </div>
+                                        {SIZE_GUIDE_ROWS.map(row => (
+                                            <div key={row.size} className={`grid grid-cols-3 px-2 py-1 font-bold ${row.size === sizeGuideRecommendedSize ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-400/20 dark:text-emerald-200' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                <span className="font-sans">{row.size}</span>
+                                                <span className="font-sans">{row.minWeight} - {row.maxWeight} kg</span>
+                                                <span className="font-sans">{row.minHeight} - {row.maxHeight} cm</span>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </motion.div>
