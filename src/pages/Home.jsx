@@ -857,7 +857,7 @@ const Home = () => {
                         .filter(Boolean)
                         .join(' ')
                         .toLowerCase();
-                    return /تي ?شيرت|تيشرت|t-?shirt|shirt/.test(searchable);
+                    return /تي ?شيرت|تيشرت|فنيلة|فنايل|فانيلة|t-?shirt|shirt|jersey|tee/.test(searchable);
                 });
                 return tShirtProducts.length > 0 ? (
                     <div className="w-full px-2 md:px-3" aria-label={language === 'ar' ? 'معلاق التيشرتات' : 'T-shirt rack'}>
