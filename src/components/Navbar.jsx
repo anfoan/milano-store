@@ -580,7 +580,7 @@ const Navbar = () => {
                                     </div>
 
                                     <div className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-center dark:bg-emerald-400/10">
-                                        <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-300">{language === 'ar' ? 'المقاس المقترح' : 'Suggested size'}{' '}<strong className="font-sans text-lg text-emerald-800 dark:text-emerald-200">{sizeGuideRecommendedSize}</strong></span>
+                                        <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-300">{language === 'ar' ? 'المقاس المقترح' : 'Suggested size'}<span aria-hidden="true">&nbsp;&nbsp;</span><strong className="font-sans text-lg text-emerald-800 dark:text-emerald-200">{sizeGuideRecommendedSize}</strong></span>
                                     </div>
                                     <div className="mt-3 overflow-hidden rounded-lg border border-gray-200 text-[9px] dark:border-white/10" dir="rtl">
                                         <div className="grid grid-cols-3 bg-gray-100 px-2 py-1 text-center font-black text-gray-500 dark:bg-white/10 dark:text-gray-300">
