@@ -583,13 +583,13 @@ const Navbar = () => {
                                         <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-300">{language === 'ar' ? 'المقاس المقترح' : 'Suggested size'}{' '}<strong className="font-sans text-lg text-emerald-800 dark:text-emerald-200">{sizeGuideRecommendedSize}</strong></span>
                                     </div>
                                     <div className="mt-3 overflow-hidden rounded-lg border border-gray-200 text-[9px] dark:border-white/10" dir="rtl">
-                                        <div className="grid grid-cols-3 bg-gray-100 px-2 py-1 font-black text-gray-500 dark:bg-white/10 dark:text-gray-300">
+                                        <div className="grid grid-cols-3 bg-gray-100 px-2 py-1 text-center font-black text-gray-500 dark:bg-white/10 dark:text-gray-300">
                                             <span>{language === 'ar' ? 'المقاس' : 'Size'}</span>
                                             <span>{language === 'ar' ? 'الوزن' : 'Weight'}</span>
                                             <span>{language === 'ar' ? 'الطول' : 'Height'}</span>
                                         </div>
                                         {SIZE_GUIDE_ROWS.map(row => (
-                                            <div key={row.size} className={`grid grid-cols-3 px-2 py-1 font-bold ${row.size === sizeGuideRecommendedSize ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-400/20 dark:text-emerald-200' : 'text-gray-500 dark:text-gray-400'}`}>
+                                            <div key={row.size} className={`grid grid-cols-3 px-2 py-1 text-center font-bold ${row.size === sizeGuideRecommendedSize ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-400/20 dark:text-emerald-200' : 'text-gray-500 dark:text-gray-400'}`}>
                                                 <span className="font-sans">{row.size}</span>
                                                 <span className="font-sans">{row.minWeight} - {row.maxWeight} kg</span>
                                                 <span className="font-sans">{row.minHeight} - {row.maxHeight} cm</span>
