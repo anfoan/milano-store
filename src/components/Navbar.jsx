@@ -503,7 +503,7 @@ const Navbar = () => {
                                 <button
                                     type="button"
                                     onClick={() => setIsSizeGuideOpen(false)}
-                                    className="absolute left-3 top-3 rounded-full p-1.5 text-gray-500 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-white/10"
+                                    className="absolute left-3 top-3 rounded-md border border-red-500/30 bg-red-500/15 p-1.5 text-red-600 transition hover:bg-red-500/25 dark:border-red-400/30 dark:bg-red-400/15 dark:text-red-300"
                                     aria-label={language === 'ar' ? 'إغلاق' : 'Close'}
                                 >
                                     <X size={18} />
@@ -521,42 +521,41 @@ const Navbar = () => {
                                     <div className="flex items-center justify-center gap-5" dir="rtl">
                                         <div className="flex min-w-0 flex-1 flex-col gap-4">
                                             <div className="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
-                                                <div className="mb-1 text-[10px] font-black text-gray-400">{language === 'ar' ? 'الطول' : 'Height'}</div>
+                                                <div className="mb-2 text-center text-sm font-black text-gray-500 dark:text-gray-300">{language === 'ar' ? 'الطول' : 'Height'}</div>
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <button type="button" onClick={() => setSizeGuideHeight(value => Math.min(220, value + 1))} className="text-lg font-black text-emerald-600" aria-label="زيادة الطول">+</button>
+                                                    <button type="button" onClick={() => setSizeGuideHeight(value => Math.min(220, value + 1))} className="h-7 w-7 rounded-lg bg-blue-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="زيادة الطول">+</button>
                                                     <strong className="font-sans text-2xl tabular-nums">{sizeGuideHeight}<span className="ml-1 text-xs font-bold text-gray-400">cm</span></strong>
-                                                    <button type="button" onClick={() => setSizeGuideHeight(value => Math.max(130, value - 1))} className="text-lg font-black text-gray-400" aria-label="إنقاص الطول">−</button>
+                                                    <button type="button" onClick={() => setSizeGuideHeight(value => Math.max(130, value - 1))} className="h-7 w-7 rounded-lg bg-red-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="إنقاص الطول">−</button>
                                                 </div>
                                             </div>
                                             <div className="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
-                                                <div className="mb-1 text-[10px] font-black text-gray-400">{language === 'ar' ? 'الوزن' : 'Weight'}</div>
+                                                <div className="mb-2 text-center text-sm font-black text-gray-500 dark:text-gray-300">{language === 'ar' ? 'الوزن' : 'Weight'}</div>
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <button type="button" onClick={() => setSizeGuideWeight(value => Math.min(180, value + 1))} className="text-lg font-black text-emerald-600" aria-label="زيادة الوزن">+</button>
+                                                    <button type="button" onClick={() => setSizeGuideWeight(value => Math.min(180, value + 1))} className="h-7 w-7 rounded-lg bg-blue-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="زيادة الوزن">+</button>
                                                     <strong className="font-sans text-2xl tabular-nums">{sizeGuideWeight}<span className="ml-1 text-xs font-bold text-gray-400">kg</span></strong>
-                                                    <button type="button" onClick={() => setSizeGuideWeight(value => Math.max(35, value - 1))} className="text-lg font-black text-gray-400" aria-label="إنقاص الوزن">−</button>
+                                                    <button type="button" onClick={() => setSizeGuideWeight(value => Math.max(35, value - 1))} className="h-7 w-7 rounded-lg bg-red-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="إنقاص الوزن">−</button>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div className="flex h-40 w-20 shrink-0 items-end justify-center rounded-xl bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-400/10 dark:to-transparent">
                                             <div
-                                                className="relative flex justify-center transition-all duration-200"
+                                                className="relative flex justify-center drop-shadow-md transition-all duration-75"
                                                 style={{ height: `${Math.max(78, Math.min(135, 78 + (sizeGuideHeight - 130) * 0.85))}px`, width: `${Math.max(28, Math.min(48, 28 + (sizeGuideWeight - 35) * 0.16))}px` }}
                                                 aria-label={language === 'ar' ? 'مجسم قياس متغير' : 'Responsive size figure'}
                                             >
-                                                <span className="absolute top-0 h-5 w-5 rounded-full bg-gray-900 dark:bg-white" />
-                                                <span className="absolute top-5 h-[calc(100%-20px)] w-[62%] rounded-[45%_45%_18%_18%] bg-gray-900 dark:bg-white" />
-                                                <span className="absolute top-7 -left-1 h-[48%] w-1 rounded-full bg-gray-900 dark:bg-white" />
-                                                <span className="absolute top-7 -right-1 h-[48%] w-1 rounded-full bg-gray-900 dark:bg-white" />
-                                                <span className="absolute bottom-0 left-[28%] h-[48%] w-1.5 rounded-full bg-gray-900 dark:bg-white" />
-                                                <span className="absolute bottom-0 right-[28%] h-[48%] w-1.5 rounded-full bg-gray-900 dark:bg-white" />
+                                                <span className="absolute top-0 h-6 w-6 rounded-full bg-gray-900 dark:bg-white" />
+                                                <span className="absolute top-6 h-[calc(100%-24px)] w-[64%] rounded-[48%_48%_16%_16%] bg-gray-900 dark:bg-white" />
+                                                <span className="absolute left-0 top-9 h-[42%] w-1.5 -rotate-6 rounded-full bg-gray-900 dark:bg-white" />
+                                                <span className="absolute right-0 top-9 h-[42%] w-1.5 rotate-6 rounded-full bg-gray-900 dark:bg-white" />
+                                                <span className="absolute bottom-0 left-[27%] h-[48%] w-2 -rotate-1 rounded-full bg-gray-900 dark:bg-white" />
+                                                <span className="absolute bottom-0 right-[27%] h-[48%] w-2 rotate-1 rounded-full bg-gray-900 dark:bg-white" />
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-center dark:bg-emerald-400/10">
-                                        <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-300">{language === 'ar' ? 'المقاس المقترح' : 'Suggested size'}</span>
-                                        <strong className="ml-2 font-sans text-lg text-emerald-800 dark:text-emerald-200">{sizeGuideWeight >= 95 ? 'XL' : sizeGuideWeight >= 80 ? 'L' : sizeGuideWeight >= 65 ? 'M' : 'S'}</strong>
+                                        <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-300">{language === 'ar' ? 'المقاس المقترح' : 'Suggested size'} <strong className="font-sans text-lg text-emerald-800 dark:text-emerald-200">{sizeGuideWeight >= 95 ? 'XL' : sizeGuideWeight >= 80 ? 'L' : sizeGuideWeight >= 65 ? 'M' : 'S'}</strong></span>
                                     </div>
                                 </div>
                             </motion.div>
