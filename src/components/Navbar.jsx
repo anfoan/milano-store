@@ -563,7 +563,7 @@ const Navbar = () => {
                                             </div>
                                         </div>
 
-                                        <div className="flex h-48 w-20 shrink-0 -translate-y-2 items-center justify-center rounded-xl bg-gradient-to-b from-emerald-100 via-emerald-50 to-emerald-100 dark:from-emerald-400/20 dark:via-emerald-400/10 dark:to-emerald-400/20">
+                                        <div className="flex h-40 w-20 shrink-0 -translate-y-2 items-center justify-center rounded-xl bg-gradient-to-b from-emerald-100 via-emerald-50 to-emerald-100 dark:from-emerald-400/20 dark:via-emerald-400/10 dark:to-emerald-400/20">
                                             <div
                                                 className="relative flex justify-center drop-shadow-md transition-all duration-75"
                                                 style={{ height: `${Math.max(78, Math.min(135, 78 + (sizeGuideHeight - 130) * 0.85))}px`, width: `${Math.max(28, Math.min(48, 28 + (sizeGuideWeight - 35) * 0.16))}px` }}
