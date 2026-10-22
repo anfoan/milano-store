@@ -64,6 +64,72 @@ const optimizeVideoUrl = (url) => {
 // creates a new module instance, which intentionally allows it to appear again.
 let newArrivalsShownForPageLoad = false;
 
+const HangingRackSection = ({ category, products, formatPrice, language }) => {
+    const [activeProductId, setActiveProductId] = useState(null);
+    const visibleProducts = products.filter(product => !product.hidden && (product.mainImage || product.gallery?.[0]));
+
+    if (visibleProducts.length === 0) return null;
+
+    return (
+        <section className="hanging-rack-section relative mt-5 overflow-hidden rounded-[24px] bg-white px-3 pb-4 pt-4 shadow-sm dark:bg-[#171a20]" dir="rtl">
+            <div className="mb-3 flex items-center justify-between gap-3 px-1">
+                <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">NEW COLLECTION</p>
+                    <h2 className="text-base font-black text-gray-900 dark:text-white">{category}</h2>
+                </div>
+                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500">{language === 'ar' ? 'معلاق المنتجات' : 'Hanging collection'}</span>
+            </div>
+
+            <div className="relative mb-2 h-3 px-2">
+                <div className="absolute inset-x-2 top-1/2 h-1 -translate-y-1/2 rounded-full bg-gray-400 shadow-[0_2px_0_rgba(0,0,0,0.14)] dark:bg-gray-600" />
+                <div className="absolute right-0 top-0 h-3 w-2 rounded-sm bg-gray-500 dark:bg-gray-700" />
+                <div className="absolute left-0 top-0 h-3 w-2 rounded-sm bg-gray-500 dark:bg-gray-700" />
+            </div>
+
+            <DraggableScrollContainer className="flex snap-x snap-mandatory items-start gap-1 overflow-x-auto px-1 pb-2 scrollbar-hide">
+                {visibleProducts.map((product) => {
+                    const price = product.priceAfterDiscount && product.priceAfterDiscount < product.price ? product.priceAfterDiscount : product.price;
+                    const isActive = activeProductId === product.id;
+                    return (
+                        <Link
+                            key={product.id}
+                            to={`/product/${product.id}`}
+                            className={`group relative flex min-w-[31%] snap-center flex-1 flex-col items-center pt-1 transition-opacity duration-200 ${activeProductId && !isActive ? 'opacity-55' : 'opacity-100'}`}
+                            onPointerEnter={() => setActiveProductId(product.id)}
+                            onPointerLeave={() => setActiveProductId(null)}
+                            onTouchStart={() => setActiveProductId(product.id)}
+                            draggable="false"
+                        >
+                            <div className="relative z-10 h-5 w-8">
+                                <div className="absolute left-1/2 top-0 h-4 w-px -translate-x-1/2 bg-gray-500 dark:bg-gray-400" />
+                                <div className="absolute left-1/2 top-2 h-3 w-5 -translate-x-1/2 rounded-t-full border-2 border-b-0 border-gray-500 dark:border-gray-400" />
+                            </div>
+                            <div className={`relative -mt-1 h-44 w-full overflow-visible transition-transform duration-300 ease-out md:h-56 ${isActive ? 'scale-105' : ''}`}>
+                                <div className="absolute left-1/2 top-2 h-full w-full -translate-x-1/2 overflow-hidden">
+                                    <img
+                                        src={optimizeImageUrl(product.mainImage || product.gallery?.[0], 360, product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds)}
+                                        alt={product.name || 'Product'}
+                                        className={`h-full w-full object-contain transition-all duration-300 ${isActive ? 'scale-x-100 drop-shadow-xl' : 'scale-x-[0.48] drop-shadow-md'}`}
+                                        draggable="false"
+                                        loading="lazy"
+                                    />
+                                </div>
+                                <span className="absolute left-1/2 top-0 z-20 -translate-x-1/2 -rotate-6 whitespace-nowrap rounded-sm bg-white px-1.5 py-0.5 text-[9px] font-black text-gray-800 shadow-md dark:bg-gray-100">
+                                    {formatPrice(price)}
+                                </span>
+                            </div>
+                            <p className="mt-1 line-clamp-1 w-full px-1 text-center text-[10px] font-black text-gray-800 dark:text-white">{product.name}</p>
+                        </Link>
+                    );
+                })}
+            </DraggableScrollContainer>
+            <div className="mt-1 flex justify-center gap-1" aria-hidden="true">
+                {visibleProducts.map((product, index) => <span key={product.id} className={`h-1 rounded-full transition-all ${index < 3 ? 'w-4 bg-gray-700 dark:bg-gray-300' : 'w-1 bg-gray-300 dark:bg-gray-600'}`} />)}
+            </div>
+        </section>
+    );
+};
+
 const Home = () => {
     // SECURITY & DATA FIX: Clear old cache if project has changed
     const currentProjectId = "milano-anfoan-store-2026";
@@ -1001,6 +1067,15 @@ const Home = () => {
                 </div>
             )
         }
+
+        {showProductSections && categories.length > 0 && (
+            <div className="w-full px-2 md:px-3" aria-label={language === 'ar' ? 'معلاق المنتجات' : 'Hanging products'}>
+                {categories.map((category) => {
+                    const rackProducts = products.filter(product => product.category === category && !product.hidden);
+                    return <HangingRackSection key={`hanging-${category}`} category={category} products={rackProducts} formatPrice={formatPrice} language={language} />;
+                })}
+            </div>
+        )}
 
         {promotionalVideos.length > 0 && (
             <section className="w-full px-2 md:px-3 mt-4 mb-0 pb-0" dir="rtl">
