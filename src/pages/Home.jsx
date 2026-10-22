@@ -98,6 +98,8 @@ const HangingRackSection = ({ category, products, formatPrice, language }) => {
                             onPointerEnter={() => setActiveProductId(product.id)}
                             onPointerLeave={() => setActiveProductId(null)}
                             onTouchStart={() => setActiveProductId(product.id)}
+                            onFocus={() => setActiveProductId(product.id)}
+                            onBlur={() => setActiveProductId(null)}
                             draggable="false"
                         >
                             <div className="relative z-10 h-5 w-8">
@@ -105,11 +107,16 @@ const HangingRackSection = ({ category, products, formatPrice, language }) => {
                                 <div className="absolute left-1/2 top-2 h-3 w-5 -translate-x-1/2 rounded-t-full border-2 border-b-0 border-gray-500 dark:border-gray-400" />
                             </div>
                             <div className={`relative -mt-1 h-44 w-full overflow-visible transition-transform duration-300 ease-out md:h-56 ${isActive ? 'scale-105' : ''}`}>
-                                <div className="absolute left-1/2 top-2 h-full w-full -translate-x-1/2 overflow-hidden">
+                                <div className="absolute left-1/2 top-2 h-full w-full -translate-x-1/2 overflow-visible [perspective:700px]">
                                     <img
                                         src={optimizeImageUrl(product.mainImage || product.gallery?.[0], 360, product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds)}
                                         alt={product.name || 'Product'}
-                                        className={`h-full w-full object-contain transition-all duration-300 ${isActive ? 'scale-x-100 drop-shadow-xl' : 'scale-x-[0.48] drop-shadow-md'}`}
+                                        className={`h-full w-full origin-top object-contain drop-shadow-md transition-[transform,filter] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] [backface-visibility:hidden] [transform-style:preserve-3d] ${isActive ? 'drop-shadow-xl' : ''}`}
+                                        style={{
+                                            transform: isActive
+                                                ? 'perspective(700px) rotateY(0deg) scaleX(1)'
+                                                : 'perspective(700px) rotateY(68deg) scaleX(0.72)',
+                                        }}
                                         draggable="false"
                                         loading="lazy"
                                     />
