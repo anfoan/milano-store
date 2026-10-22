@@ -30,9 +30,14 @@ const Navbar = () => {
     const [cartCount, setCartCount] = useState(0);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
-    const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+    const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
     const [sizeGuideHeight, setSizeGuideHeight] = useState(180);
     const [sizeGuideWeight, setSizeGuideWeight] = useState(89);
+    const sizeGuideRecommendedSize = (() => {
+        const heightSize = sizeGuideHeight >= 180 ? 3 : sizeGuideHeight >= 174 ? 2 : sizeGuideHeight >= 164 ? 1 : 0;
+        const weightSize = sizeGuideWeight > 85 ? 3 : sizeGuideWeight >= 70 ? 2 : sizeGuideWeight >= 56 ? 1 : 0;
+        return ['S', 'M', 'L', 'XL'][Math.max(heightSize, weightSize)];
+    })();
     const [walletDisplayCurrency, setWalletDisplayCurrency] = useState(activeCurrency);
     const cartRef = useRef(null);
     const currencyRef = useRef(null);
@@ -455,7 +460,7 @@ const Navbar = () => {
                                         <div className="mt-4 flex w-full justify-start px-2">
                                             <button
                                                 type="button"
-                                                onClick={() => setIsSizeGuideOpen(true)}
+                                                onClick={() => setSizeGuideOpen(true)}
                                                 className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-700 active:scale-95"
                                             >
                                                 {language === 'ar' ? 'معرفة مقاسي' : 'Find my size'}
@@ -482,13 +487,13 @@ const Navbar = () => {
                 </AnimatePresence>
 
                 <AnimatePresence>
-                    {isSizeGuideOpen && (
+                    {sizeGuideOpen && (
                         <motion.div
                             className="fixed inset-0 z-[220] flex items-center justify-center bg-black/60 px-5 backdrop-blur-sm"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            onClick={() => setIsSizeGuideOpen(false)}
+                            onClick={() => setSizeGuideOpen(false)}
                         >
                             <motion.div
                                 role="dialog"
@@ -502,7 +507,7 @@ const Navbar = () => {
                             >
                                 <button
                                     type="button"
-                                    onClick={() => setIsSizeGuideOpen(false)}
+                                    onClick={() => setSizeGuideOpen(false)}
                                     className="absolute left-3 top-3 rounded-md border border-red-500/30 bg-red-500/15 p-1.5 text-red-600 transition hover:bg-red-500/25 dark:border-red-400/30 dark:bg-red-400/15 dark:text-red-300"
                                     aria-label={language === 'ar' ? 'إغلاق' : 'Close'}
                                 >
@@ -523,22 +528,22 @@ const Navbar = () => {
                                             <div className="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
                                                 <div className="mb-2 text-center text-sm font-black text-gray-500 dark:text-gray-300">{language === 'ar' ? 'الطول' : 'Height'}</div>
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <button type="button" onClick={() => setSizeGuideHeight(value => Math.min(220, value + 1))} className="h-7 w-7 rounded-lg bg-blue-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="زيادة الطول">+</button>
+                                                    <button type="button" onClick={() => setSizeGuideHeight(value => value + 1)} className="h-7 w-7 rounded-lg bg-blue-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="زيادة الطول">+</button>
                                                     <strong className="font-sans text-2xl tabular-nums">{sizeGuideHeight}<span className="ml-1 text-xs font-bold text-gray-400">cm</span></strong>
-                                                    <button type="button" onClick={() => setSizeGuideHeight(value => Math.max(130, value - 1))} className="h-7 w-7 rounded-lg bg-red-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="إنقاص الطول">−</button>
+                                                    <button type="button" onClick={() => setSizeGuideHeight(value => value - 1)} className="h-7 w-7 rounded-lg bg-red-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="إنقاص الطول">−</button>
                                                 </div>
                                             </div>
                                             <div className="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
                                                 <div className="mb-2 text-center text-sm font-black text-gray-500 dark:text-gray-300">{language === 'ar' ? 'الوزن' : 'Weight'}</div>
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <button type="button" onClick={() => setSizeGuideWeight(value => Math.min(180, value + 1))} className="h-7 w-7 rounded-lg bg-blue-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="زيادة الوزن">+</button>
+                                                    <button type="button" onClick={() => setSizeGuideWeight(value => value + 1)} className="h-7 w-7 rounded-lg bg-blue-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="زيادة الوزن">+</button>
                                                     <strong className="font-sans text-2xl tabular-nums">{sizeGuideWeight}<span className="ml-1 text-xs font-bold text-gray-400">kg</span></strong>
-                                                    <button type="button" onClick={() => setSizeGuideWeight(value => Math.max(35, value - 1))} className="h-7 w-7 rounded-lg bg-red-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="إنقاص الوزن">−</button>
+                                                    <button type="button" onClick={() => setSizeGuideWeight(value => value - 1)} className="h-7 w-7 rounded-lg bg-red-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="إنقاص الوزن">−</button>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="flex h-40 w-20 shrink-0 items-end justify-center rounded-xl bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-400/10 dark:to-transparent">
+                                        <div className="flex h-40 w-20 shrink-0 -translate-y-2 items-center justify-center rounded-xl bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-400/10 dark:to-transparent">
                                             <div
                                                 className="relative flex justify-center drop-shadow-md transition-all duration-75"
                                                 style={{ height: `${Math.max(78, Math.min(135, 78 + (sizeGuideHeight - 130) * 0.85))}px`, width: `${Math.max(28, Math.min(48, 28 + (sizeGuideWeight - 35) * 0.16))}px` }}
@@ -555,7 +560,7 @@ const Navbar = () => {
                                     </div>
 
                                     <div className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-center dark:bg-emerald-400/10">
-                                        <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-300">{language === 'ar' ? 'المقاس المقترح' : 'Suggested size'} <strong className="font-sans text-lg text-emerald-800 dark:text-emerald-200">{sizeGuideWeight >= 95 ? 'XL' : sizeGuideWeight >= 80 ? 'L' : sizeGuideWeight >= 65 ? 'M' : 'S'}</strong></span>
+                                        <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-300">{language === 'ar' ? 'المقاس المقترح' : 'Suggested size'} <strong className="ml-1 font-sans text-lg text-emerald-800 dark:text-emerald-200">{sizeGuideRecommendedSize}</strong></span>
                                     </div>
                                 </div>
                             </motion.div>
