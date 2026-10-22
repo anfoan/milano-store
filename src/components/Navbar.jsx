@@ -39,8 +39,8 @@ const Navbar = () => {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
     const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
-    const [sizeGuideHeight, setSizeGuideHeight] = useState(180);
-    const [sizeGuideWeight, setSizeGuideWeight] = useState(89);
+    const [sizeGuideHeight, setSizeGuideHeight] = useState(165);
+    const [sizeGuideWeight, setSizeGuideWeight] = useState(70);
     const sizeGuideRecommendedSize = (() => {
         const matches = SIZE_GUIDE_ROWS.filter(row => (
             sizeGuideWeight >= row.minWeight && sizeGuideWeight <= row.maxWeight
