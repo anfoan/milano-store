@@ -30,6 +30,7 @@ const Navbar = () => {
     const [cartCount, setCartCount] = useState(0);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
+    const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
     const [walletDisplayCurrency, setWalletDisplayCurrency] = useState(activeCurrency);
     const cartRef = useRef(null);
     const currencyRef = useRef(null);
@@ -450,7 +451,7 @@ const Navbar = () => {
                                         </div>
 
                                         {/* Storefront-only language switcher inside the side categories drawer. */}
-                                        <div className="mt-[76px] flex translate-y-4 flex-col items-start px-2">
+                                        <div className="mt-[76px] flex translate-y-6 flex-col items-start px-2">
                                             <div className="w-fit">
                                                 <div className="flex items-center justify-end gap-1 text-[13px] font-black" dir="rtl">
                                                     <button type="button" onClick={() => setStoreLanguage('ar')} className={`rounded-md px-2 py-1 transition ${language === 'ar' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10'}`}>عربي</button>
@@ -460,10 +461,56 @@ const Navbar = () => {
                                                 <div className="mt-1 h-1 w-full rounded-full bg-blue-500"></div>
                                             </div>
                                         </div>
+
+                                        <div className="mt-8 flex w-full justify-end px-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsSizeGuideOpen(true)}
+                                                className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-700 active:scale-95"
+                                            >
+                                                {language === 'ar' ? 'معرفة مقاسي' : 'Find my size'}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </motion.div>
                         </div>
+                    )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                    {isSizeGuideOpen && (
+                        <motion.div
+                            className="fixed inset-0 z-[220] flex items-center justify-center bg-black/60 px-5 backdrop-blur-sm"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsSizeGuideOpen(false)}
+                        >
+                            <motion.div
+                                role="dialog"
+                                aria-modal="true"
+                                aria-labelledby="size-guide-title"
+                                className="relative w-full max-w-sm rounded-2xl bg-white p-5 text-gray-900 shadow-2xl dark:bg-zinc-900 dark:text-white"
+                                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                onClick={(event) => event.stopPropagation()}
+                            >
+                                <button
+                                    type="button"
+                                    onClick={() => setIsSizeGuideOpen(false)}
+                                    className="absolute left-3 top-3 rounded-full p-1.5 text-gray-500 transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-white/10"
+                                    aria-label={language === 'ar' ? 'إغلاق' : 'Close'}
+                                >
+                                    <X size={18} />
+                                </button>
+                                <h3 id="size-guide-title" className="text-center text-base font-black">
+                                    {language === 'ar' ? 'معرفة مقاسي' : 'Find my size'}
+                                </h3>
+                                <div className="mt-4 min-h-20 rounded-xl border border-dashed border-gray-200 dark:border-white/10" />
+                            </motion.div>
+                        </motion.div>
                     )}
                 </AnimatePresence>
             </nav>
