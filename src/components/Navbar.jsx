@@ -548,17 +548,17 @@ const Navbar = () => {
                                             <div className="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
                                                 <div className="mb-2 text-center text-sm font-black text-gray-500 dark:text-gray-300">{language === 'ar' ? 'الطول' : 'Height'}</div>
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <button type="button" onClick={() => setSizeGuideHeight(value => value + 1)} className="h-7 w-7 rounded-lg bg-blue-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="زيادة الطول">+</button>
+                                                    <button type="button" onClick={() => setSizeGuideHeight(value => value + 1)} className="text-lg font-black leading-none text-blue-600 transition active:scale-90" aria-label="زيادة الطول">+</button>
                                                     <strong className="font-sans text-2xl tabular-nums">{sizeGuideHeight}<span className="ml-1 text-xs font-bold text-gray-400">cm</span></strong>
-                                                    <button type="button" onClick={() => setSizeGuideHeight(value => value - 1)} className="h-7 w-7 rounded-lg bg-red-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="إنقاص الطول">−</button>
+                                                    <button type="button" onClick={() => setSizeGuideHeight(value => value - 1)} className="text-lg font-black leading-none text-red-600 transition active:scale-90" aria-label="إنقاص الطول">−</button>
                                                 </div>
                                             </div>
                                             <div className="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
                                                 <div className="mb-2 text-center text-sm font-black text-gray-500 dark:text-gray-300">{language === 'ar' ? 'الوزن' : 'Weight'}</div>
                                                 <div className="flex items-center justify-between gap-2">
-                                                    <button type="button" onClick={() => setSizeGuideWeight(value => value + 1)} className="h-7 w-7 rounded-lg bg-blue-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="زيادة الوزن">+</button>
+                                                    <button type="button" onClick={() => setSizeGuideWeight(value => value + 1)} className="text-lg font-black leading-none text-blue-600 transition active:scale-90" aria-label="زيادة الوزن">+</button>
                                                     <strong className="font-sans text-2xl tabular-nums">{sizeGuideWeight}<span className="ml-1 text-xs font-bold text-gray-400">kg</span></strong>
-                                                    <button type="button" onClick={() => setSizeGuideWeight(value => value - 1)} className="h-7 w-7 rounded-lg bg-red-600 text-lg font-black leading-none text-white transition active:scale-90" aria-label="إنقاص الوزن">−</button>
+                                                    <button type="button" onClick={() => setSizeGuideWeight(value => value - 1)} className="text-lg font-black leading-none text-red-600 transition active:scale-90" aria-label="إنقاص الوزن">−</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -580,7 +580,7 @@ const Navbar = () => {
                                     </div>
 
                                     <div className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-center dark:bg-emerald-400/10">
-                                        <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-300">{language === 'ar' ? 'المقاس المقترح' : 'Suggested size'} <strong className="ml-1 font-sans text-lg text-emerald-800 dark:text-emerald-200">{sizeGuideRecommendedSize}</strong></span>
+                                        <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-300">{language === 'ar' ? 'المقاس المقترح' : 'Suggested size'}{' '}<strong className="font-sans text-lg text-emerald-800 dark:text-emerald-200">{sizeGuideRecommendedSize}</strong></span>
                                     </div>
                                     <div className="mt-3 overflow-hidden rounded-lg border border-gray-200 text-[9px] dark:border-white/10" dir="rtl">
                                         <div className="grid grid-cols-3 bg-gray-100 px-2 py-1 font-black text-gray-500 dark:bg-white/10 dark:text-gray-300">
