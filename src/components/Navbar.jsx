@@ -518,7 +518,7 @@ const Navbar = () => {
                                 </h3>
                                 <div className="mt-4 rounded-xl border border-dashed border-gray-200 p-4 dark:border-white/10">
                                     <div className="mb-4 text-center">
-                                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
+                                        <p className="text-[12px] font-black uppercase tracking-[0.12em] text-gray-600 dark:text-gray-300">
                                             {language === 'ar' ? 'قياسك التقريبي' : 'Your approximate fit'}
                                         </p>
                                     </div>
