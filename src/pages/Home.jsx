@@ -850,6 +850,27 @@ const Home = () => {
 
             {/* Offers Section - Dynamic */}
             {/* Offers Section - Controlled by 'showOffersSection' */}
+            {(() => {
+                const tShirtProducts = products.filter(product => {
+                    if (product.hidden || !(product.mainImage || product.gallery?.[0])) return false;
+                    const searchable = [product.name, product.category, product.type, product.productType, ...(product.tags || [])]
+                        .filter(Boolean)
+                        .join(' ')
+                        .toLowerCase();
+                    return /تي ?شيرت|تيشرت|t-?shirt|shirt/.test(searchable);
+                });
+                return tShirtProducts.length > 0 ? (
+                    <div className="w-full px-2 md:px-3" aria-label={language === 'ar' ? 'معلاق التيشرتات' : 'T-shirt rack'}>
+                        <HangingRackSection
+                            category={language === 'ar' ? 'تيشرتات' : 'T-Shirts'}
+                            products={tShirtProducts}
+                            formatPrice={formatPrice}
+                            language={language}
+                        />
+                    </div>
+                ) : null;
+            })()}
+
             {showOffers && products.filter(p => (p.discount > 0 || p.oldPrice) && !p.hidden).length > 0 && (
                 <section className="w-full px-1 mb-5 mt-2">
                     <div className="flex items-center justify-between mb-2 px-3">
@@ -1067,15 +1088,6 @@ const Home = () => {
                 </div>
             )
         }
-
-        {showProductSections && categories.length > 0 && (
-            <div className="w-full px-2 md:px-3" aria-label={language === 'ar' ? 'معلاق المنتجات' : 'Hanging products'}>
-                {categories.map((category) => {
-                    const rackProducts = products.filter(product => product.category === category && !product.hidden);
-                    return <HangingRackSection key={`hanging-${category}`} category={category} products={rackProducts} formatPrice={formatPrice} language={language} />;
-                })}
-            </div>
-        )}
 
         {promotionalVideos.length > 0 && (
             <section className="w-full px-2 md:px-3 mt-4 mb-0 pb-0" dir="rtl">
