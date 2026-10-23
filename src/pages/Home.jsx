@@ -916,10 +916,6 @@ const Home = () => {
                 </div>
             </section>
 
-            <div className="w-full px-2 md:px-3">
-                <MerchantStoresSection stores={storefrontCards} language={language} />
-            </div>
-
             {/* Offers Section - Dynamic */}
             {/* Offers Section - Controlled by 'showOffersSection' */}
             {showOffers && products.filter(p => (p.discount > 0 || p.oldPrice) && !p.hidden).length > 0 && (
