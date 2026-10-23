@@ -152,7 +152,7 @@ const HangingRackSection = ({ category, products, formatPrice, language }) => {
 };
 
 const MerchantStoresSection = ({ stores, language }) => {
-    const visibleStores = stores.filter(store => store.active !== false && store.name && store.imageUrl);
+    const visibleStores = stores.filter(store => store.active !== false && store.name && (store.imageUrl || store.background));
     if (!visibleStores.length) return null;
 
     return (
@@ -167,7 +167,10 @@ const MerchantStoresSection = ({ stores, language }) => {
             <DraggableScrollContainer className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 scrollbar-hide">
                 {visibleStores.map(store => (
                     <Link key={store.id} to={store.category ? `/category/${encodeURIComponent(store.category)}` : '/'} className="group relative min-w-[72%] snap-center overflow-hidden rounded-[22px] border border-gray-100 bg-gray-50 shadow-sm transition-transform duration-300 hover:-translate-y-1 dark:border-white/10 dark:bg-white/5 sm:min-w-[44%] md:min-w-[31%]" draggable="false">
-                        <div className="aspect-[1.15/1] overflow-hidden bg-white dark:bg-gray-900"><img src={store.imageUrl} alt={store.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" /></div>
+                        <div className="relative aspect-[1.15/1] overflow-hidden bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900" style={store.background ? { background: store.background } : undefined}>
+                            {store.imageUrl && <img src={store.imageUrl} alt={store.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10" />
+                        </div>
                         <div className="flex items-center justify-between gap-2 bg-white px-4 py-3 dark:bg-[#20242b]"><div className="min-w-0"><h3 className="truncate text-base font-black text-gray-900 dark:text-white">{store.name}</h3>{store.description && <p className="mt-0.5 truncate text-[11px] font-bold text-gray-500">{store.description}</p>}</div><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xl text-gray-700 dark:bg-white/10 dark:text-white">←</span></div>
                     </Link>
                 ))}
@@ -301,16 +304,16 @@ const Home = () => {
         : 50;
     const storefrontFallbacks = allCategories
         .filter(category => category?.name && String(category.name).trim() !== 'كل ماهو جديد')
-        .map(category => {
-            const categoryProduct = products.find(product => !product.hidden && product.category === category.name && (product.mainImage || product.gallery?.[0]));
-            return categoryProduct ? {
+        .map((category, index) => ({
                 id: `category-store-${category.id || category.name}`,
                 name: category.name,
-                imageUrl: categoryProduct.mainImage || categoryProduct.gallery?.[0],
                 category: category.name,
-            } : null;
-        })
-        .filter(Boolean)
+                background: [
+                    'linear-gradient(145deg, #d2d2d2 0%, #9f9fa2 48%, #6f7074 100%)',
+                    'linear-gradient(145deg, #e8c4d7 0%, #bd91b6 48%, #8c6f91 100%)',
+                    'linear-gradient(145deg, #d8ddd8 0%, #9daaa4 48%, #65726e 100%)',
+                ][index % 3],
+            }))
         .slice(0, 6);
     const storefrontCards = merchantStores.length > 0 ? merchantStores : storefrontFallbacks;
     const hideOutOfStock = interfaceSettings?.hideOutOfStock;
