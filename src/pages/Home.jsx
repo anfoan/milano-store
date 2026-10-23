@@ -934,7 +934,7 @@ const Home = () => {
                             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
                             <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-400/20 rounded-full -ml-16 -mb-16 blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
 
-                            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-1.5 md:gap-8">
+                            <div className="relative z-10 flex flex-col items-center justify-center gap-1.5 md:flex-row md:justify-center md:gap-8">
                                 {/* Discount Box - Horizontal phrase */}
                                 <div className="flex items-center justify-center bg-white/10 backdrop-blur-md px-6 py-2 rounded-[24px] border border-white/20 min-w-fit shadow-inner">
                                     <span className="text-xl md:text-3xl font-black text-white drop-shadow-md">
@@ -943,11 +943,11 @@ const Home = () => {
                                 </div>
 
                                 {/* Text & Button Content */}
-                                <div className="text-center md:text-right flex-1 flex flex-col items-center md:items-start">
-                                    <h2 className="text-xl md:text-3xl font-black mb-0.5 leading-tight flex items-center justify-center md:justify-start">
+                                <div className="flex flex-1 flex-col items-center text-center">
+                                    <h2 className="mb-0.5 flex items-center justify-center text-xl font-black leading-tight md:text-3xl">
                                         {language === 'ar' ? 'عروض خاصة لا تفوت!' : "Special offers you can't miss!"}
                                     </h2>
-                                    <p className="text-pink-100 font-bold text-[13px] md:text-base mb-1.5 text-center md:text-right leading-relaxed">
+                                    <p className="mb-1.5 text-center text-[13px] font-bold leading-relaxed text-pink-100 md:text-base">
                                         {language === 'ar' ? 'استفد من تخفيضاتنا المميزة واغتنم فرصة التوفير.' : 'Enjoy our special discounts and save more.'}
                                     </p>
                                     <div className="inline-flex items-center gap-2 bg-yellow-400 text-gray-900 px-6 py-2 rounded-xl font-black text-xs md:text-sm hover:bg-yellow-300 transition-all hover:scale-105 shadow-lg shadow-yellow-400/20">
