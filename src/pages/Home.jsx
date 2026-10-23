@@ -151,6 +151,31 @@ const HangingRackSection = ({ category, products, formatPrice, language }) => {
     );
 };
 
+const MerchantStoresSection = ({ stores, language }) => {
+    const visibleStores = stores.filter(store => store.active !== false && store.name && store.imageUrl);
+    if (!visibleStores.length) return null;
+
+    return (
+        <section className="mt-5 w-full overflow-hidden rounded-[24px] bg-white px-3 pb-4 pt-4 shadow-sm dark:bg-[#171a20]" dir="rtl" aria-label={language === 'ar' ? 'تسوق حسب المتجر' : 'Shop by store'}>
+            <div className="mb-3 flex items-center justify-between px-1">
+                <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">SHOP BY STORE</p>
+                    <h2 className="text-xl font-black text-gray-900 dark:text-white">{language === 'ar' ? 'تسوق حسب المتجر' : 'Shop by Store'}</h2>
+                </div>
+                <span className="text-xl text-gray-400">▦</span>
+            </div>
+            <DraggableScrollContainer className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 scrollbar-hide">
+                {visibleStores.map(store => (
+                    <Link key={store.id} to={store.category ? `/category/${encodeURIComponent(store.category)}` : '/'} className="group relative min-w-[72%] snap-center overflow-hidden rounded-[22px] border border-gray-100 bg-gray-50 shadow-sm transition-transform duration-300 hover:-translate-y-1 dark:border-white/10 dark:bg-white/5 sm:min-w-[44%] md:min-w-[31%]" draggable="false">
+                        <div className="aspect-[1.15/1] overflow-hidden bg-white dark:bg-gray-900"><img src={store.imageUrl} alt={store.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" /></div>
+                        <div className="flex items-center justify-between gap-2 bg-white px-4 py-3 dark:bg-[#20242b]"><div className="min-w-0"><h3 className="truncate text-base font-black text-gray-900 dark:text-white">{store.name}</h3>{store.description && <p className="mt-0.5 truncate text-[11px] font-bold text-gray-500">{store.description}</p>}</div><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xl text-gray-700 dark:bg-white/10 dark:text-white">←</span></div>
+                    </Link>
+                ))}
+            </DraggableScrollContainer>
+        </section>
+    );
+};
+
 const Home = () => {
     // SECURITY & DATA FIX: Clear old cache if project has changed
     const currentProjectId = "milano-anfoan-store-2026";
@@ -173,6 +198,7 @@ const Home = () => {
         }
     });
     const [loading, setLoading] = useState(!products.length);
+    const [merchantStores, setMerchantStores] = useState([]);
     const [promotionalVideos, setPromotionalVideos] = useState(() => {
         try {
             const cached = localStorage.getItem('cached_promotional_videos');
@@ -496,11 +522,19 @@ const Home = () => {
             localStorage.setItem('cached_promotional_videos', JSON.stringify(activeVideos));
         }, err => console.error('Error fetching promotional videos:', err));
 
+        const unsubMerchantStores = onSnapshot(collection(db, 'merchant_stores'), (snapshot) => {
+            const stores = snapshot.docs.map(item => ({ id: item.id, ...item.data() }))
+                .filter(store => store.active !== false)
+                .sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
+            setMerchantStores(stores);
+        }, err => console.error('Error fetching merchant stores:', err));
+
         return () => {
             unsubscribeStatus();
             unsubCategories();
             unsubProducts();
             unsubPromotionalVideos();
+            unsubMerchantStores();
         };
     }, []);
 
@@ -869,41 +903,12 @@ const Home = () => {
                 </div>
             </section>
 
+            <div className="w-full px-2 md:px-3">
+                <MerchantStoresSection stores={merchantStores} language={language} />
+            </div>
+
             {/* Offers Section - Dynamic */}
             {/* Offers Section - Controlled by 'showOffersSection' */}
-            {(() => {
-                const getProductTime = (product) => {
-                    const value = product.updatedAt || product.createdAt;
-                    if (typeof value?.toMillis === 'function') return value.toMillis();
-                    if (value?.seconds) return value.seconds * 1000;
-                    if (typeof value === 'string') return new Date(value).getTime() || 0;
-                    return 0;
-                };
-                const eligibleJerseys = products.filter(product => {
-                    if (product.hidden || !(product.mainImage || product.gallery?.[0])) return false;
-                    return product.category === 'فنايل نسخة اللاعبين' || product.category === 'فنايل كلاسيك قديم';
-                });
-                const latestPlayerJerseys = eligibleJerseys
-                    .filter(product => product.category === 'فنايل نسخة اللاعبين')
-                    .sort((a, b) => getProductTime(b) - getProductTime(a))
-                    .slice(0, 10);
-                const latestClassicJerseys = eligibleJerseys
-                    .filter(product => product.category === 'فنايل كلاسيك قديم')
-                    .sort((a, b) => getProductTime(b) - getProductTime(a))
-                    .slice(0, 10);
-                const tShirtProducts = [...latestPlayerJerseys, ...latestClassicJerseys];
-                return tShirtProducts.length > 0 ? (
-                    <div className="w-full px-2 md:px-3" aria-label={language === 'ar' ? 'معلاق التيشرتات' : 'T-shirt rack'}>
-                        <HangingRackSection
-                            category={language === 'ar' ? 'تيشرتات' : 'T-Shirts'}
-                            products={tShirtProducts}
-                            formatPrice={formatPrice}
-                            language={language}
-                        />
-                    </div>
-                ) : null;
-            })()}
-
             {showOffers && products.filter(p => (p.discount > 0 || p.oldPrice) && !p.hidden).length > 0 && (
                 <section className="w-full px-1 mb-5 mt-2">
                     <div className="flex items-center justify-between mb-2 px-3">
