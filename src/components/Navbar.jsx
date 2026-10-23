@@ -428,9 +428,9 @@ const Navbar = () => {
                                 animate={{ x: 0 }}
                                 exit={{ x: direction === 'rtl' ? '-100%' : '100%' }}
                                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                                className="relative w-80 max-w-[85vw] bg-white dark:bg-zinc-950 h-full shadow-2xl overflow-y-auto"
+                                className="relative w-80 max-w-[85vw] bg-white dark:bg-zinc-950 h-dvh max-h-dvh shadow-2xl overflow-y-auto overscroll-contain"
                             >
-                                <div className="p-4 sm:p-6 pb-32 flex flex-col min-h-full text-start">
+                                <div className="p-4 sm:p-6 pb-8 flex flex-col min-h-full text-start">
                                     {/* Sidebar Header: Categories Icon & Text */}
                                     <div className="flex justify-between items-center mb-4 border-b border-gray-100 dark:border-white/5 pb-3 px-1">
                                         <div className="flex items-center gap-2.5">
