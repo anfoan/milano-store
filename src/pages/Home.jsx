@@ -299,6 +299,20 @@ const Home = () => {
     const maxDiscount = products.length > 0
         ? Math.max(...products.filter(p => !p.hidden).map(p => p.discount || 0), 0) || 50 // Skip hidden products
         : 50;
+    const storefrontFallbacks = allCategories
+        .filter(category => category?.name && !isNewArrivalsCategory(category))
+        .map(category => {
+            const categoryProduct = products.find(product => !product.hidden && product.category === category.name && (product.mainImage || product.gallery?.[0]));
+            return categoryProduct ? {
+                id: `category-store-${category.id || category.name}`,
+                name: category.name,
+                imageUrl: categoryProduct.mainImage || categoryProduct.gallery?.[0],
+                category: category.name,
+            } : null;
+        })
+        .filter(Boolean)
+        .slice(0, 6);
+    const storefrontCards = merchantStores.length > 0 ? merchantStores : storefrontFallbacks;
     const hideOutOfStock = interfaceSettings?.hideOutOfStock;
     const categoryScrollRef = useRef(null);
     const categoryTrackRef = useRef(null);
@@ -904,7 +918,7 @@ const Home = () => {
             </section>
 
             <div className="w-full px-2 md:px-3">
-                <MerchantStoresSection stores={merchantStores} language={language} />
+                <MerchantStoresSection stores={storefrontCards} language={language} />
             </div>
 
             {/* Offers Section - Dynamic */}
