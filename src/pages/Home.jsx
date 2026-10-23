@@ -308,7 +308,7 @@ const Home = () => {
                 id: `category-store-${category.id || category.name}`,
                 name: category.name,
                 category: category.name,
-                imageUrl: ['/store-backgrounds/apple.jpg?v=clean-awning-3', '/store-backgrounds/protein.jpg?v=clean-awning-3', '/store-backgrounds/dates.jpg?v=clean-awning-3'][index % 3],
+                imageUrl: ['/store-backgrounds/apple-blue.jpg?v=alternating-awning-4', '/store-backgrounds/protein-red.jpg?v=alternating-awning-4', '/store-backgrounds/dates-blue.jpg?v=alternating-awning-4'][index % 3],
             }))
         .slice(0, 6);
     const storefrontCards = merchantStores.length > 0 ? merchantStores : storefrontFallbacks;
