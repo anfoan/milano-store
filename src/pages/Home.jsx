@@ -300,7 +300,7 @@ const Home = () => {
         ? Math.max(...products.filter(p => !p.hidden).map(p => p.discount || 0), 0) || 50 // Skip hidden products
         : 50;
     const storefrontFallbacks = allCategories
-        .filter(category => category?.name && !isNewArrivalsCategory(category))
+        .filter(category => category?.name && String(category.name).trim() !== 'كل ماهو جديد')
         .map(category => {
             const categoryProduct = products.find(product => !product.hidden && product.category === category.name && (product.mainImage || product.gallery?.[0]));
             return categoryProduct ? {
