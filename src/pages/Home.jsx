@@ -164,11 +164,11 @@ const MerchantStoresSection = ({ stores, language }) => {
                 </div>
                 <span className="text-xl text-gray-400">▦</span>
             </div>
-            <DraggableScrollContainer className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1 scrollbar-hide">
+            <DraggableScrollContainer className="flex snap-x snap-mandatory justify-center gap-3 overflow-x-auto px-0 pb-1 scrollbar-hide">
                 {visibleStores.map(store => (
-                    <Link key={store.id} to={store.category ? `/category/${encodeURIComponent(store.category)}` : '/'} className="group relative min-w-[58%] snap-center overflow-hidden rounded-[18px] border border-gray-100 bg-gray-50 shadow-sm transition-transform duration-300 hover:-translate-y-1 dark:border-white/10 dark:bg-white/5 sm:min-w-[32%] md:min-w-[24%]" draggable="false">
-                        <div className="relative aspect-[0.82/1] overflow-hidden bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900" style={store.background ? { background: store.background } : undefined}>
-                            {store.imageUrl && <img src={store.imageUrl} alt={store.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />}
+                    <Link key={store.id} to={store.category ? `/category/${encodeURIComponent(store.category)}` : '/'} className="group relative w-[calc(50%_-_6px)] min-w-[calc(50%_-_6px)] shrink-0 snap-center overflow-hidden rounded-[18px] border border-gray-100 bg-gray-50 shadow-sm transition-transform duration-300 hover:-translate-y-1 dark:border-white/10 dark:bg-white/5 sm:w-[calc(33.333%_-_8px)] sm:min-w-[calc(33.333%_-_8px)] md:w-[calc(25%_-_9px)] md:min-w-[calc(25%_-_9px)]" draggable="false">
+                        <div className="relative aspect-[0.78/1] overflow-hidden bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900" style={store.background ? { background: store.background } : undefined}>
+                            {store.imageUrl && <img src={store.imageUrl} alt={store.name} className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" loading="lazy" />}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10" />
                         </div>
                         <div className="flex items-center justify-between gap-2 bg-white px-4 py-3 dark:bg-[#20242b]"><div className="min-w-0"><h3 className="truncate text-base font-black text-gray-900 dark:text-white">{store.name}</h3>{store.description && <p className="mt-0.5 truncate text-[11px] font-bold text-gray-500">{store.description}</p>}</div><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xl text-gray-700 dark:bg-white/10 dark:text-white">←</span></div>
