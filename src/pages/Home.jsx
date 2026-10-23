@@ -614,7 +614,7 @@ const Home = () => {
             });
         };
         keepVideosPlaying();
-        const timer = window.setInterval(keepVideosPlaying, 1200);
+        const timer = window.setInterval(keepVideosPlaying, 5000);
         return () => window.clearInterval(timer);
     }, [promotionalVideos.length, selectedPromotionalVideo]);
 
@@ -1147,7 +1147,7 @@ const Home = () => {
                         <div ref={videoTrackRef} className="promotional-video-track ml-auto flex w-max gap-2 md:gap-3 will-change-transform">
                         {[...promotionalVideos].reverse().map((video, index) => (
                             <div data-promotional-card key={video.id} onClick={() => { setSelectedPromotionalVideo(video); setSelectedVideoMuted(false); setIsVideoFullscreen(false); }} className="relative shrink-0 w-[190px] min-w-[190px] md:w-[250px] md:min-w-[250px] lg:w-[270px] lg:min-w-[270px] aspect-[9/14] snap-center overflow-hidden rounded-[20px] bg-transparent shadow-md ring-1 ring-black/10 dark:ring-white/10 cursor-pointer">
-                                <video ref={(node) => { if (node) { node.muted = true; node.defaultMuted = true; node.controls = false; node.setAttribute('playsinline', ''); node.setAttribute('webkit-playsinline', ''); node.play().catch(() => {}); } }} src={optimizeVideoUrl(video.url)} muted autoPlay loop playsInline controls={false} controlsList="nodownload noplaybackrate" disablePictureInPicture disableRemotePlayback preload="auto" onCanPlay={(event) => event.currentTarget.play().catch(() => {})} onLoadedData={(event) => event.currentTarget.play().catch(() => {})} onPause={(event) => { if (!event.currentTarget.ended) event.currentTarget.play().catch(() => {}); }} onEnded={(event) => { event.currentTarget.currentTime = 0; event.currentTarget.play().catch(() => {}); }} className="promotional-video-external w-full h-full object-cover rounded-[20px]" aria-label={video.title || `فيديو المتجر ${index + 1}`} />
+                                <video ref={(node) => { if (node) { node.muted = true; node.defaultMuted = true; node.controls = false; node.setAttribute('playsinline', ''); node.setAttribute('webkit-playsinline', ''); } }} src={optimizeVideoUrl(video.url)} muted autoPlay loop playsInline controls={false} controlsList="nodownload noplaybackrate" disablePictureInPicture disableRemotePlayback preload="metadata" onCanPlay={(event) => event.currentTarget.play().catch(() => {})} onLoadedData={(event) => event.currentTarget.play().catch(() => {})} className="promotional-video-external w-full h-full object-cover rounded-[20px]" aria-label={video.title || `فيديو المتجر ${index + 1}`} />
                                 <button type="button" aria-label="الفيديو صامت" onClick={(event) => { event.stopPropagation(); setSelectedPromotionalVideo(video); setSelectedVideoMuted(false); setIsVideoFullscreen(false); }} className="absolute left-1.5 bottom-3 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm"><VolumeX size={14} strokeWidth={2.5} /></button>
                             </div>
                         ))}
