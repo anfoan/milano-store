@@ -12,6 +12,7 @@ import { getLocalizedCurrency } from '../lib/currencyUtils';
 import { getCustomerWalletId, getPhoneWalletId, hashWalletPin, normalizePhone, walletNumber } from '../lib/wallet';
 import { buildCustomerOrderHistory, customerOrderHistoryRef } from '../lib/customerOrderHistory';
 import { getSizeStock, toStockNumber } from '../lib/stockUtils';
+import { getNextInvoiceNumber } from '../lib/invoiceNumber';
 
 const Checkout = () => {
     const { t, direction, language } = useLanguage();
@@ -468,7 +469,7 @@ const Checkout = () => {
         }
 
         // Prepare Order Data
-        const newOrderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
+        const newOrderId = await getNextInvoiceNumber(db);
         // Never block order completion on an optional third-party IP lookup.
         // On weak Wi-Fi this request could stay pending and leave the submit UI loading forever.
         const ipAddress = 'غير متوفر';
