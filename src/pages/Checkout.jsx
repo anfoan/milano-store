@@ -13,6 +13,7 @@ import { getCustomerWalletId, getPhoneWalletId, hashWalletPin, normalizePhone, w
 import { buildCustomerOrderHistory, customerOrderHistoryRef } from '../lib/customerOrderHistory';
 import { getSizeStock, toStockNumber } from '../lib/stockUtils';
 import { getNextInvoiceNumber } from '../lib/invoiceNumber';
+import { isValidYemenPhone } from '../lib/phoneValidation';
 
 const Checkout = () => {
     const { t, direction, language } = useLanguage();
@@ -390,6 +391,11 @@ const Checkout = () => {
 
     const handleConfirm = async (e) => {
         e.preventDefault();
+
+        if (formData.phone.trim() && !isValidYemenPhone(formData.phone)) {
+            alert(language === 'ar' ? 'يجب أن يبدأ رقم العميل بـ 77 أو 78 أو 73 أو 71 أو 70' : 'The customer number must start with 77, 78, 73, 71, or 70');
+            return;
+        }
 
         // 🔒 SECURITY BLOCK START: Payment & Price Verification
         try {
