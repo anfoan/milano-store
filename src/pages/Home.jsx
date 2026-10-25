@@ -649,7 +649,7 @@ const Home = () => {
         };
         keepVideosPlaying();
         return undefined;
-    }, [promotionalVideos.length, selectedPromotionalVideo]);
+    }, [promotionalVideos.length, isVideoSectionVisible, selectedPromotionalVideo]);
 
     useEffect(() => {
         window.dispatchEvent(new CustomEvent('milano-video-preview', { detail: { open: Boolean(selectedPromotionalVideo) } }));
