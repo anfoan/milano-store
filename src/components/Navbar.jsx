@@ -13,6 +13,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import { getCustomerWalletId } from '../lib/wallet';
+import { safeLocalGet, safeJsonParse } from '../lib/safeStorage';
 
 const isNewArrivalsCategory = (category) => {
     const name = typeof category === 'string' ? category : category?.name;
@@ -63,7 +64,7 @@ const Navbar = () => {
     const currencyRef = useRef(null);
     const [categories, setCategories] = useState(() => {
         try {
-            const cached = JSON.parse(localStorage.getItem('cached_all_categories') || localStorage.getItem('cached_categories') || '[]');
+            const cached = safeJsonParse(safeLocalGet('cached_all_categories') || safeLocalGet('cached_categories'), []);
             return Array.isArray(cached) ? cached.filter(category => !isNewArrivalsCategory(category)) : [];
         } catch {
             return [];
@@ -152,8 +153,8 @@ const Navbar = () => {
     // Listen for cart updates
     const updateCartCount = () => {
         try {
-            const stored = localStorage.getItem('cart');
-            const cart = stored ? JSON.parse(stored) : [];
+            const stored = safeLocalGet('cart');
+            const cart = safeJsonParse(stored, []);
             if (!Array.isArray(cart)) throw new Error("Invalid cart format");
 
             const count = cart.reduce((total, item) => total + (item.quantity || 1), 0);

@@ -2,11 +2,12 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { translations } from '../utils/translations';
+import { safeLocalGet, safeLocalSet } from '../lib/safeStorage';
 
 const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
-    const localOverride = typeof window !== 'undefined' ? window.localStorage.getItem('storeLanguageOverride') : null;
+    const localOverride = safeLocalGet('storeLanguageOverride');
     const initialLanguage = localOverride === 'en' || localOverride === 'ar' ? localOverride : 'ar';
     const [language, setLanguage] = useState(initialLanguage);
     const [direction, setDirection] = useState(initialLanguage === 'ar' ? 'rtl' : 'ltr');
@@ -17,11 +18,11 @@ export const LanguageProvider = ({ children }) => {
         const unsubscribe = onSnapshot(doc(db, "settings", "language"), (doc) => {
             if (doc.exists()) {
                 const data = doc.data();
-                const currentOverride = window.localStorage.getItem('storeLanguageOverride');
+                const currentOverride = safeLocalGet('storeLanguageOverride');
                 const newLang = currentOverride === 'en' || currentOverride === 'ar' ? currentOverride : 'ar';
                 setLanguage(newLang);
                 setDirection(newLang === 'ar' ? 'rtl' : 'ltr');
-                window.localStorage.setItem('storeLanguage', newLang);
+                safeLocalSet('storeLanguage', newLang);
 
                 // Update Document Attributes
                 document.documentElement.lang = newLang;
@@ -61,8 +62,8 @@ export const LanguageProvider = ({ children }) => {
 
     const setStoreLanguage = (nextLanguage) => {
         const next = nextLanguage === 'en' ? 'en' : 'ar';
-        window.localStorage.setItem('storeLanguageOverride', next);
-        window.localStorage.setItem('storeLanguage', next);
+        safeLocalSet('storeLanguageOverride', next);
+        safeLocalSet('storeLanguage', next);
         setLanguage(next);
         setDirection(next === 'ar' ? 'rtl' : 'ltr');
         document.documentElement.lang = next;

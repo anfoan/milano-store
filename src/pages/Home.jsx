@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { ShoppingBag, Star, MapPin, Search, Clock, ShieldCheck, Info, Facebook, Instagram, Music2, Share2, Map as MapIcon, Package, ArrowRight, VolumeX, X, Maximize2, ArrowLeftRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { db } from '../lib/firebase';
+import { safeLocalGet, safeLocalSet, safeLocalRemove, safeSessionGet, safeSessionSet, safeJsonParse } from '../lib/safeStorage';
 import { collection, query, doc, onSnapshot, setDoc, increment, serverTimestamp } from 'firebase/firestore';
 import { useSettings } from '../hooks/useSettings';
 import { useLanguage } from '../context/LanguageContext';
@@ -182,19 +183,20 @@ const MerchantStoresSection = ({ stores, language }) => {
 const Home = () => {
     // SECURITY & DATA FIX: Clear old cache if project has changed
     const currentProjectId = "milano-anfoan-store-2026";
-    const storedProjectId = localStorage.getItem('active_project_id');
+    const storedProjectId = safeLocalGet('active_project_id');
+    const hasCurrentProjectCache = storedProjectId === currentProjectId;
 
-    if (storedProjectId !== currentProjectId) {
-        localStorage.removeItem('cached_products');
-        localStorage.removeItem('cached_categories');
-        localStorage.setItem('active_project_id', currentProjectId);
-    }
-
+    useEffect(() => {
+        if (storedProjectId === currentProjectId) return;
+        safeLocalRemove('cached_products');
+        safeLocalRemove('cached_categories');
+        safeLocalSet('active_project_id', currentProjectId);
+    }, [storedProjectId, currentProjectId]);
     const [storeStatus, setStoreStatus] = useState('open');
     const [products, setProducts] = useState(() => {
         try {
-            const cached = localStorage.getItem('cached_products');
-            return cached ? JSON.parse(cached) : [];
+            const cached = hasCurrentProjectCache ? safeLocalGet('cached_products') : null;
+            return safeJsonParse(cached, []);
         } catch (e) {
             console.error("Cache error:", e);
             return [];
@@ -204,8 +206,8 @@ const Home = () => {
     const [merchantStores, setMerchantStores] = useState([]);
     const [promotionalVideos, setPromotionalVideos] = useState(() => {
         try {
-            const cached = localStorage.getItem('cached_promotional_videos');
-            return cached ? JSON.parse(cached) : [];
+            const cached = hasCurrentProjectCache ? safeLocalGet('cached_promotional_videos') : null;
+            return safeJsonParse(cached, []);
         } catch {
             return [];
         }
@@ -221,16 +223,16 @@ const Home = () => {
     const selectedVideoContainerRef = useRef(null);
     const [categories, setCategories] = useState(() => {
         try {
-            const cached = localStorage.getItem('cached_categories');
-            return cached ? JSON.parse(cached) : [];
+            const cached = hasCurrentProjectCache ? safeLocalGet('cached_categories') : null;
+            return safeJsonParse(cached, []);
         } catch (e) {
             return [];
         }
     });
     const [allCategories, setAllCategories] = useState(() => {
         try {
-            const cached = localStorage.getItem('cached_all_categories');
-            return cached ? orderStoreCategories(JSON.parse(cached)) : [];
+            const cached = hasCurrentProjectCache ? safeLocalGet('cached_all_categories') : null;
+            return orderStoreCategories(safeJsonParse(cached, []));
         } catch (e) {
             return [];
         }
@@ -352,7 +354,7 @@ const Home = () => {
         }
 
         // Initial check: if no saved pos, we are not restoring
-        if (!sessionStorage.getItem('home_scroll_pos')) {
+        if (!safeSessionGet('home_scroll_pos')) {
             isRestoring.current = false;
         }
 
@@ -364,19 +366,19 @@ const Home = () => {
             // CRITICAL 2: Don't save if we have already navigated away
             if (window.location.pathname !== '/') return;
 
-            sessionStorage.setItem('home_scroll_pos', window.scrollY.toString());
+            safeSessionSet('home_scroll_pos', window.scrollY.toString());
 
             // SAVE EXACT COMPONENT HEIGHT
             if (containerRef.current) {
-                sessionStorage.setItem('home_container_height', containerRef.current.offsetHeight.toString());
+                safeSessionSet('home_container_height', containerRef.current.offsetHeight.toString());
             }
         };
         window.addEventListener('scroll', saveScroll, { passive: true });
 
         // Try to restore
         const restoreScroll = () => {
-            const saved = sessionStorage.getItem('home_scroll_pos');
-            const savedHeight = sessionStorage.getItem('home_container_height');
+            const saved = safeSessionGet('home_scroll_pos');
+            const savedHeight = safeSessionGet('home_container_height');
 
             if (saved) {
                 const hasData = products.length > 0;
@@ -495,7 +497,7 @@ const Home = () => {
 
         // 2. Visitor Tracking (Once per session)
         const trackVisitor = async () => {
-            const hasVisited = sessionStorage.getItem('visited_today');
+            const hasVisited = safeSessionGet('visited_today');
             if (!hasVisited) {
                 try {
                     const todayDate = new Date().toISOString().split('T')[0];
@@ -507,7 +509,7 @@ const Home = () => {
                         date: serverTimestamp()
                     }, { merge: true });
 
-                    sessionStorage.setItem('visited_today', 'true');
+                    safeSessionSet('visited_today', 'true');
                     console.log("Visitor tracked for:", todayDate);
                 } catch (error) {
                     console.error("Error tracking visitor:", error);
@@ -521,7 +523,7 @@ const Home = () => {
             const rawCats = catSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
             const sortedCats = orderStoreCategories(rawCats);
             setAllCategories(sortedCats);
-            localStorage.setItem('cached_all_categories', JSON.stringify(sortedCats));
+            safeLocalSet('cached_all_categories', JSON.stringify(sortedCats));
             window.dispatchEvent(new CustomEvent('milano-categories-updated', { detail: sortedCats }));
         }, (err) => console.error("Error fetching categories:", err));
 
@@ -532,7 +534,7 @@ const Home = () => {
             })).sort((a, b) => (a.order || 999999) - (b.order || 999999));
 
             setProducts(items);
-            localStorage.setItem('cached_products', JSON.stringify(items));
+            safeLocalSet('cached_products', JSON.stringify(items));
             setLoading(false);
 
             // Update Categories list based on active products (Filtering out hidden ones)
@@ -546,7 +548,7 @@ const Home = () => {
                     }
                 });
                 setCategories(finalCategories);
-                localStorage.setItem('cached_categories', JSON.stringify(finalCategories));
+                safeLocalSet('cached_categories', JSON.stringify(finalCategories));
                 return prevCats;
             });
         }, (err) => {
@@ -565,7 +567,7 @@ const Home = () => {
                 });
             const activeVideos = active.filter(video => video.active !== false);
             setPromotionalVideos(activeVideos);
-            localStorage.setItem('cached_promotional_videos', JSON.stringify(activeVideos));
+            safeLocalSet('cached_promotional_videos', JSON.stringify(activeVideos));
         }, err => console.error('Error fetching promotional videos:', err));
 
         const unsubMerchantStores = onSnapshot(collection(db, 'merchant_stores'), (snapshot) => {
