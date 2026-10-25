@@ -1,3 +1,4 @@
+import { safeSessionGet } from '../../lib/safeStorage';
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -11,7 +12,7 @@ const ProtectedAdminRoute = ({ children }) => {
     // A manager Firebase session always takes precedence over any stale worker flag.
     const ownerEmails = new Set(['anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']);
     const isOwnerSession = ownerEmails.has(String(currentUser?.email || '').toLowerCase());
-    const isWorker = !isOwnerSession && sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
+    const isWorker = !isOwnerSession && safeSessionGet('isPOSWorkerAuthenticated') === 'true';
 
     useEffect(() => {
         let mounted = true;

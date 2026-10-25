@@ -1,3 +1,4 @@
+import { safeLocalGet, safeLocalSet } from '../../lib/safeStorage';
 import { useState, useEffect, useRef } from 'react';
 import { Bell, Check, ShoppingBag, Clock, MessageSquare, X } from 'lucide-react';
 import { db } from '../../lib/firebase';
@@ -16,13 +17,13 @@ const AdminNotifications = ({ lang: propLang }) => {
     // Counters to prevent sound/toast looping
     const lastOrderCount = useRef(0);
     const lastMessageCount = useRef(0);
-    const lastNotifiedId = useRef(localStorage.getItem('milano_last_notified_order_id') || '');
+    const lastNotifiedId = useRef(safeLocalGet('milano_last_notified_order_id') || '');
 
-    const [lang, setLang] = useState(propLang || localStorage.getItem('adminLang') || 'ar');
+    const [lang, setLang] = useState(propLang || safeLocalGet('adminLang') || 'ar');
     const isRTL = lang === 'ar';
 
     useEffect(() => {
-        setLang(propLang || localStorage.getItem('adminLang') || 'ar');
+        setLang(propLang || safeLocalGet('adminLang') || 'ar');
     }, [propLang]);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
@@ -68,7 +69,7 @@ const AdminNotifications = ({ lang: propLang }) => {
             if (latestOrder.id !== lastNotifiedId.current) {
                 showToast(latestOrder);
                 lastNotifiedId.current = latestOrder.id;
-                localStorage.setItem('milano_last_notified_order_id', latestOrder.id);
+                safeLocalSet('milano_last_notified_order_id', latestOrder.id);
             }
             lastOrderCount.current = snapshot.size;
 

@@ -1,3 +1,4 @@
+import { safeLocalGet, safeLocalSet, safeLocalRemove } from '../lib/safeStorage';
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Send, Paperclip, X, ArrowRight, ArrowLeft } from 'lucide-react';
@@ -37,17 +38,17 @@ const CustomerChat = () => {
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    const deviceKey = localStorage.getItem('milano_chat_device_key');
-                    const activeChatId = localStorage.getItem('milano_active_chat');
+                    const deviceKey = safeLocalGet('milano_chat_device_key');
+                    const activeChatId = safeLocalGet('milano_active_chat');
                     const ownsChat = data.deviceKey === deviceKey || (!data.deviceKey && activeChatId === chatId);
                     if (!ownsChat) {
                         setChatAccess('denied');
-                        if (activeChatId === chatId) localStorage.removeItem('milano_active_chat');
+                        if (activeChatId === chatId) safeLocalRemove('milano_active_chat');
                         navigate('/contact', { replace: true });
                         return;
                     }
                     if (!data.deviceKey && deviceKey) await updateDoc(docRef, { deviceKey });
-                    localStorage.setItem('milano_active_chat', chatId);
+                    safeLocalSet('milano_active_chat', chatId);
                     setChatDetails(data);
                     setChatAccess('allowed');
                 } else {

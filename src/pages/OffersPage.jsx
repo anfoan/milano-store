@@ -1,3 +1,4 @@
+import { safeLocalGet, safeJsonParse } from '../lib/safeStorage';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingBag, ArrowRight, Percent } from 'lucide-react';
@@ -20,7 +21,7 @@ const OffersPage = () => {
     useEffect(() => {
         window.scrollTo(0, 0);
         try {
-            const cached = JSON.parse(localStorage.getItem('cached_products') || '[]');
+            const cached = safeJsonParse(safeLocalGet('cached_products'), []);
             if (Array.isArray(cached)) {
                 const cachedOffers = cached.filter(p => !p.hidden && !p.isOfferPaused && (Number(p.discount || 0) > 0 || Number(p.priceAfterDiscount || 0) < Number(p.price || 0)));
                 setProducts(cachedOffers);

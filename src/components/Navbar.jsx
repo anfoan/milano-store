@@ -13,7 +13,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import { getCustomerWalletId } from '../lib/wallet';
-import { safeLocalGet, safeJsonParse } from '../lib/safeStorage';
+import { safeLocalGet, safeJsonParse, safeLocalRemove } from '../lib/safeStorage';
 
 const isNewArrivalsCategory = (category) => {
     const name = typeof category === 'string' ? category : category?.name;
@@ -162,7 +162,7 @@ const Navbar = () => {
             setCartItems(cart);
         } catch (error) {
             console.error("Cart data corrupted, resetting:", error);
-            localStorage.removeItem('cart');
+            safeLocalRemove('cart');
             setCartCount(0);
             setCartItems([]);
         }

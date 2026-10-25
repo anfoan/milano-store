@@ -1,3 +1,4 @@
+import { safeSessionSet, safeSessionRemove } from '../lib/safeStorage';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Lock, Mail, User, ShieldCheck, Loader2 } from 'lucide-react';
@@ -47,9 +48,9 @@ const AdminLogin = () => {
                     });
                     
                     if (foundWorker) {
-                        sessionStorage.setItem('isPOSWorkerAuthenticated', 'true');
-                        sessionStorage.setItem('posWorkerId', foundWorker.id);
-                        sessionStorage.setItem('posWorkerName', foundWorker.username || '');
+                        safeSessionSet('isPOSWorkerAuthenticated', 'true');
+                        safeSessionSet('posWorkerId', foundWorker.id);
+                        safeSessionSet('posWorkerName', foundWorker.username || '');
                         const perms = {
                             allowDiscount: foundWorker.allowDiscount || false,
                             allowChangePayment: foundWorker.allowChangePayment || false,
@@ -59,8 +60,8 @@ const AdminLogin = () => {
                             allowManualOrder: foundWorker.allowManualOrder || false,
                             allowBonds: foundWorker.allowBonds || false
                         };
-                        sessionStorage.setItem('posWorkerPermissions', JSON.stringify(perms));
-                        sessionStorage.removeItem('isOwnerAdmin');
+                        safeSessionSet('posWorkerPermissions', JSON.stringify(perms));
+                        safeSessionRemove('isOwnerAdmin');
                         navigate('/milano-dashboard-vault-77');
                     } else {
                         setError('اسم المستخدم أو كلمة المرور غير صحيحة');
@@ -118,11 +119,11 @@ const AdminLogin = () => {
                 }
 
                 // مسح أي جلسة موظف قديمة من نفس التبويب حتى لا يتعامل التطبيق مع الأدمن كموظف
-                sessionStorage.removeItem('isPOSWorkerAuthenticated');
-                sessionStorage.removeItem('posWorkerId');
-                sessionStorage.removeItem('posWorkerName');
-                sessionStorage.removeItem('posWorkerPermissions');
-                sessionStorage.setItem('isOwnerAdmin', 'true');
+                safeSessionRemove('isPOSWorkerAuthenticated');
+                safeSessionRemove('posWorkerId');
+                safeSessionRemove('posWorkerName');
+                safeSessionRemove('posWorkerPermissions');
+                safeSessionSet('isOwnerAdmin', 'true');
 
                 navigate('/milano-dashboard-vault-77');
             }

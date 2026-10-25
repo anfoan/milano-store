@@ -1,17 +1,18 @@
+import { safeLocalGet, safeLocalSet, safeLocalRemove } from './safeStorage';
 const DEVICE_ID_KEY = 'milano_customer_wallet_device_id';
 const PHONE_WALLET_ID_KEY = 'milano_customer_wallet_phone_id';
 
 export const getCustomerWalletId = () => {
     if (typeof window === 'undefined') return '';
-    const phoneWalletId = localStorage.getItem(PHONE_WALLET_ID_KEY);
+    const phoneWalletId = safeLocalGet(PHONE_WALLET_ID_KEY);
     if (phoneWalletId) return phoneWalletId;
-    let deviceId = localStorage.getItem(DEVICE_ID_KEY);
+    let deviceId = safeLocalGet(DEVICE_ID_KEY);
     if (!deviceId) {
         const random = typeof crypto?.randomUUID === 'function'
             ? crypto.randomUUID()
             : `wallet-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
         deviceId = `milano-${random}`;
-        localStorage.setItem(DEVICE_ID_KEY, deviceId);
+        safeLocalSet(DEVICE_ID_KEY, deviceId);
     }
     return deviceId;
 };
@@ -30,16 +31,16 @@ export const getPhoneWalletId = (value = '') => {
 export const setCustomerPhoneWalletId = (value = '') => {
     const walletId = getPhoneWalletId(value);
     if (walletId && typeof window !== 'undefined') {
-        const previousWalletId = localStorage.getItem(PHONE_WALLET_ID_KEY);
+        const previousWalletId = safeLocalGet(PHONE_WALLET_ID_KEY);
         // Never carry a previous customer's local workspace into another phone account.
         // Durable invoices remain in Firebase and are reloaded for the new phone below.
         if (previousWalletId !== walletId) {
-            localStorage.removeItem('cart');
-            localStorage.removeItem('cart_coupon');
-            localStorage.removeItem('myOrders');
+            safeLocalRemove('cart');
+            safeLocalRemove('cart_coupon');
+            safeLocalRemove('myOrders');
             window.dispatchEvent(new CustomEvent('cart-updated'));
         }
-        localStorage.setItem(PHONE_WALLET_ID_KEY, walletId);
+        safeLocalSet(PHONE_WALLET_ID_KEY, walletId);
         window.dispatchEvent(new Event('milano-wallet-session-changed'));
     }
     return walletId;
@@ -47,7 +48,7 @@ export const setCustomerPhoneWalletId = (value = '') => {
 
 export const clearCustomerPhoneWalletId = () => {
     if (typeof window !== 'undefined') {
-        localStorage.removeItem(PHONE_WALLET_ID_KEY);
+        safeLocalRemove(PHONE_WALLET_ID_KEY);
         window.dispatchEvent(new Event('milano-wallet-session-changed'));
     }
     return getCustomerWalletId();

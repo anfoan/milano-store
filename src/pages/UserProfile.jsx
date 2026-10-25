@@ -1,3 +1,4 @@
+import { safeLocalGet, safeLocalSet, safeJsonParse } from '../lib/safeStorage';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
@@ -37,7 +38,7 @@ const UserProfile = () => {
         const walletId = getCustomerWalletId();
         let savedOrders = [];
         try {
-            const stored = JSON.parse(localStorage.getItem('myOrders') || '[]');
+            const stored = safeJsonParse(safeLocalGet('myOrders'), []);
             savedOrders = Array.isArray(stored)
                 ? stored.filter(order => Boolean(walletId) && order?.customerWalletId === walletId)
                 : [];
@@ -75,7 +76,7 @@ const UserProfile = () => {
             const merged = mergeOrders(remoteOrders);
             setOrders(merged);
             try {
-                localStorage.setItem('myOrders', JSON.stringify(merged.map(order => ({
+                safeLocalSet('myOrders', JSON.stringify(merged.map(order => ({
                     ...order,
                     createdAt: typeof order.createdAt?.toDate === 'function' ? order.createdAt.toDate().toISOString() : order.createdAt,
                     updatedAt: typeof order.updatedAt?.toDate === 'function' ? order.updatedAt.toDate().toISOString() : order.updatedAt,

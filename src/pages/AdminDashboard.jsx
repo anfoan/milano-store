@@ -1,3 +1,4 @@
+import { safeLocalGet, safeLocalSet, safeLocalRemove, safeSessionGet, safeSessionRemove, safeJsonParse } from '../lib/safeStorage';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
@@ -42,7 +43,7 @@ const AdminDashboard = () => {
     const [isEditMode, setIsEditMode] = useState(false); // For Detail Page Edit Mode
     const [selectedChatId, setSelectedChatId] = useState(null); // For Admin Chat
     const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768); // Open by default on desktop
-    const [lang, setLang] = useState(localStorage.getItem('adminLang') || 'ar'); // Admin Language
+    const [lang, setLang] = useState(safeLocalGet('adminLang') || 'ar'); // Admin Language
     const [generalSettings, setGeneralSettings] = useState({ currency: 'YER' });
     const [unreadCount, setUnreadCount] = useState(0); // For Inbox Badge
     const [newOrdersCount, setNewOrdersCount] = useState(0); // For New Orders Badge
@@ -53,11 +54,11 @@ const AdminDashboard = () => {
 
     // Worker Check: a Firebase owner session always overrides stale worker flags.
     const ownerEmails = new Set(['anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']);
-    const isOwnerSession = sessionStorage.getItem('isOwnerAdmin') === 'true'
+    const isOwnerSession = safeSessionGet('isOwnerAdmin') === 'true'
         || ownerEmails.has(String(auth.currentUser?.email || '').toLowerCase())
         || Boolean(auth.currentUser?.email);
-    const isWorker = !isOwnerSession && sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
-    const workerPerms = isWorker ? JSON.parse(sessionStorage.getItem('posWorkerPermissions') || '{}') : {};
+    const isWorker = !isOwnerSession && safeSessionGet('isPOSWorkerAuthenticated') === 'true';
+    const workerPerms = isWorker ? safeJsonParse(safeSessionGet('posWorkerPermissions'), {}) : {};
 
     // Define allowed tabs for workers
     const workerAllowedTabs = [];
@@ -188,7 +189,7 @@ const AdminDashboard = () => {
     const toggleLang = () => {
         const newLang = lang === 'ar' ? 'en' : 'ar';
         setLang(newLang);
-        localStorage.setItem('adminLang', newLang);
+        safeLocalSet('adminLang', newLang);
         // Optional: Dispatch event if other components listed need it, though props flow is better
         window.dispatchEvent(new Event('adminLangChange'));
     };
@@ -248,7 +249,7 @@ const AdminDashboard = () => {
 
     // Strict Access Control
     useEffect(() => {
-        const isWorker = !isOwnerSession && sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
+        const isWorker = !isOwnerSession && safeSessionGet('isPOSWorkerAuthenticated') === 'true';
         if (isWorker) return; // Allow workers through session
 
         const unsubscribe = auth.onAuthStateChanged(user => {
@@ -263,13 +264,13 @@ const AdminDashboard = () => {
     // ... (existing imports, but make sure to include auth and signOut if not just relying on local storage)
 
     const handleLogout = async () => {
-        const isWorker = !isOwnerSession && sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
+        const isWorker = !isOwnerSession && safeSessionGet('isPOSWorkerAuthenticated') === 'true';
         
         if (isWorker) {
-            sessionStorage.removeItem('isPOSWorkerAuthenticated');
-            sessionStorage.removeItem('posWorkerId');
-            sessionStorage.removeItem('posWorkerName');
-            sessionStorage.removeItem('posWorkerPermissions');
+            safeSessionRemove('isPOSWorkerAuthenticated');
+            safeSessionRemove('posWorkerId');
+            safeSessionRemove('posWorkerName');
+            safeSessionRemove('posWorkerPermissions');
             // Sign out from Firebase Auth too so it doesn't conflict with admin
             try { await signOut(auth); } catch(e) {}
             navigate('/milano-secure-gate-99');
@@ -278,7 +279,7 @@ const AdminDashboard = () => {
 
         try {
             await signOut(auth);
-            localStorage.removeItem('isAdminAuthenticated');
+            safeLocalRemove('isAdminAuthenticated');
             navigate('/milano-secure-gate-99');
         } catch (error) {
             console.error("Logout Error:", error);

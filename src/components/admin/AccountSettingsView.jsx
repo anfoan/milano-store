@@ -1,3 +1,4 @@
+import { safeLocalRemove, safeSessionGet } from '../../lib/safeStorage';
 import React, { useState, useEffect } from 'react';
 import { Settings, Lock, Shield, Clock, Trash2, Loader2, Check, AlertTriangle, Monitor, Smartphone, Globe } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -10,7 +11,7 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('general');
-    const isOwnerAccount = sessionStorage.getItem('isOwnerAdmin') === 'true' || ['anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']
+    const isOwnerAccount = safeSessionGet('isOwnerAdmin') === 'true' || ['anfoan7370@gmail.com', 'anfoan730@gmail.com', 'afoan7370@gmail.com']
         .includes(String(currentUser?.email || '').toLowerCase());
 
     // Forms State
@@ -371,7 +372,7 @@ const AccountSettingsView = ({ lang = 'ar' }) => {
         try {
             // In a real app, delete Firestore user data here if needed
             await deleteUser(currentUser);
-            localStorage.removeItem('isAdminAuthenticated');
+            safeLocalRemove('isAdminAuthenticated');
             navigate('/');
         } catch (error) {
             handleAuthError(error);

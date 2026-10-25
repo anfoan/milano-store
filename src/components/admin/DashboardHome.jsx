@@ -1,3 +1,4 @@
+import { safeLocalGet } from '../../lib/safeStorage';
 import React, { useState, useEffect, useRef } from 'react';
 import {
     CheckCircle, Clock, DollarSign, MessageSquare,
@@ -411,7 +412,7 @@ const DashboardHome = ({ onViewOrder, setActiveTab, lang, generalSettings }) => 
             setDashboardStats(prev => ({ ...prev, allTimeVisitors: total }));
         });
 
-        const savedStatus = localStorage.getItem('store_status');
+        const savedStatus = safeLocalGet('store_status');
         if (savedStatus) setStoreOpen(savedStatus === 'open');
 
         return () => {

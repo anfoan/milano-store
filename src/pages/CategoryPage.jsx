@@ -1,3 +1,4 @@
+import { safeLocalGet, safeJsonParse } from '../lib/safeStorage';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { db } from '../lib/firebase';
@@ -43,7 +44,7 @@ const CategoryPage = () => {
                 // Use the Home cache for instant navigation, then refresh only this category.
                 let allProducts = [];
                 try {
-                    const cached = JSON.parse(localStorage.getItem('cached_products') || '[]');
+                    const cached = safeJsonParse(safeLocalGet('cached_products'), []);
                     if (Array.isArray(cached)) allProducts = cached;
                 } catch { /* network fetch below remains the source of truth */ }
                 if (allProducts.length > 0) {
