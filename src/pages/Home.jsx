@@ -583,7 +583,6 @@ const Home = () => {
         }, err => console.error('Error fetching merchant stores:', err));
 
         return () => {
-            window.clearTimeout(visitorTimer);
             unsubscribeStatus();
             unsubCategories();
             unsubProducts();
