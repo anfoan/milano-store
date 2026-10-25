@@ -1,4 +1,3 @@
-import { safeLocalGet, safeLocalSet, safeJsonParse } from '../lib/safeStorage';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
@@ -54,7 +53,7 @@ const ProductDetail = () => {
                 setLoading(true);
                 // Render the product from the Home cache immediately on direct navigation.
                 try {
-                    const cachedProducts = safeJsonParse(safeLocalGet('cached_products'), []);
+                    const cachedProducts = JSON.parse(localStorage.getItem('cached_products') || '[]');
                     const cachedProduct = Array.isArray(cachedProducts) ? cachedProducts.find(item => item.id === id) : null;
                     if (cachedProduct) {
                         setProduct(cachedProduct);
@@ -201,7 +200,7 @@ const ProductDetail = () => {
     useEffect(() => {
         const checkLimit = () => {
             if (cartSettings?.enableMaxCount && cartSettings?.maxProductCount) {
-                const stored = safeLocalGet('cart');
+                const stored = localStorage.getItem('cart');
                 const cart = stored ? JSON.parse(stored) : [];
                 const currentTotalItems = Array.isArray(cart) ? cart.reduce((acc, item) => acc + item.quantity, 0) : 0;
                 // Only mark as reached if it ALREADY exceeds the limit (shouldn't happen with our guard)
@@ -242,7 +241,7 @@ const ProductDetail = () => {
     const productAvailable = hasAvailableStock(product);
     const existingCartQuantity = (() => {
         try {
-            const stored = safeJsonParse(safeLocalGet('cart'), []);
+            const stored = JSON.parse(localStorage.getItem('cart') || '[]');
             const match = Array.isArray(stored) && stored.find(item =>
                 item.id === product.id && item.size === selectedSize && item.color === selectedColor
             );
@@ -255,7 +254,7 @@ const ProductDetail = () => {
         if (quantity <= 0) return;
         let cart = [];
         try {
-            const stored = safeLocalGet('cart');
+            const stored = localStorage.getItem('cart');
             cart = stored ? JSON.parse(stored) : [];
             if (!Array.isArray(cart)) cart = [];
         } catch (e) {
@@ -303,7 +302,7 @@ const ProductDetail = () => {
             cart.push(newItem);
         }
 
-        safeLocalSet('cart', JSON.stringify(cart));
+        localStorage.setItem('cart', JSON.stringify(cart));
         window.dispatchEvent(new CustomEvent('cart-updated'));
 
         // Visual Feedback

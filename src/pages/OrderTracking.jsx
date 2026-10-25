@@ -1,4 +1,3 @@
-import { safeLocalGet, safeJsonParse } from '../lib/safeStorage';
 import { formatOrderId } from '../lib/orderUtils';
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
@@ -42,7 +41,7 @@ const OrderTracking = () => {
                 const uniqueIds = [...new Set(possibleIds.filter(Boolean))];
 
                 try {
-                    const deviceOrders = safeJsonParse(safeLocalGet('myOrders'), []);
+                    const deviceOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
                     localOrder = Array.isArray(deviceOrders)
                         ? deviceOrders.find(item => uniqueIds.includes(String(item.orderId || item.id || '').trim()))
                         : null;

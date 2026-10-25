@@ -1,4 +1,3 @@
-import { safeSessionGet, safeJsonParse } from '../../lib/safeStorage';
 import React, { useState, useEffect } from 'react';
 import { db } from '../../lib/firebase';
 import {
@@ -21,8 +20,8 @@ import { getLocalizedCurrency } from '../../lib/currencyUtils';
 const ExpensesView = ({ lang = 'ar', generalSettings }) => {
     const currency = generalSettings?.currency || 'YER';
     const isRTL = lang === 'ar';
-    const isWorker = safeSessionGet('isPOSWorkerAuthenticated') === 'true';
-    const workerPerms = isWorker ? safeJsonParse(safeSessionGet('posWorkerPermissions'), {}) : {};
+    const isWorker = sessionStorage.getItem('isPOSWorkerAuthenticated') === 'true';
+    const workerPerms = isWorker ? JSON.parse(sessionStorage.getItem('posWorkerPermissions') || '{}') : {};
 
     // State for Expenses
     const [expenses, setExpenses] = useState([]);

@@ -1,4 +1,3 @@
-import { safeLocalGet, safeLocalSet, safeLocalRemove, safeJsonParse } from '../lib/safeStorage';
 import { useState, useEffect } from 'react';
 import { Trash2, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -31,7 +30,7 @@ const Cart = () => {
         window.scrollTo(0, 0);
         let storedCart = [];
         try {
-            const stored = safeLocalGet('cart');
+            const stored = localStorage.getItem('cart');
             storedCart = stored ? JSON.parse(stored) : [];
             if (!Array.isArray(storedCart)) storedCart = [];
         } catch (e) {
@@ -58,7 +57,7 @@ const Cart = () => {
         loadStock();
 
         // Restore applied coupon if exists
-        const storedCoupon = safeJsonParse(safeLocalGet('cart_coupon'), null);
+        const storedCoupon = JSON.parse(localStorage.getItem('cart_coupon') || 'null');
         if (storedCoupon) {
             setAppliedCoupon(storedCoupon);
             setCouponCode(storedCoupon.code);
@@ -78,7 +77,7 @@ const Cart = () => {
 
     const updateCart = (newItems) => {
         setItems(newItems);
-        safeLocalSet('cart', JSON.stringify(newItems));
+        localStorage.setItem('cart', JSON.stringify(newItems));
         window.dispatchEvent(new CustomEvent('cart-updated'));
     };
 
@@ -163,7 +162,7 @@ const Cart = () => {
             const couponObj = { id: couponId, ...couponData };
             setAppliedCoupon(couponObj);
             setCouponSuccess(couponSuccessText(couponObj, currentTotal));
-            safeLocalSet('cart_coupon', JSON.stringify(couponObj));
+            localStorage.setItem('cart_coupon', JSON.stringify(couponObj));
         } catch (error) {
             console.error("Error applying coupon:", error);
             setCouponError(t('common.error'));
@@ -174,7 +173,7 @@ const Cart = () => {
         setAppliedCoupon(null);
         setCouponCode('');
         setCouponSuccess('');
-        safeLocalRemove('cart_coupon');
+        localStorage.removeItem('cart_coupon');
     };
 
     const displaySubtotal = items.reduce((acc, item) => acc + ((item.originalPrice || item.price) * item.quantity), 0);

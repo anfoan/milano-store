@@ -1,4 +1,3 @@
-import { safeLocalGet, safeLocalSet, safeLocalRemove } from '../lib/safeStorage';
 import { useState, useEffect } from 'react';
 import { ChevronDown, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -21,10 +20,10 @@ const Contact = () => {
     const [socialLinks, setSocialLinks] = useState({});
 
     const getChatDeviceKey = () => {
-        const existingKey = safeLocalGet('milano_chat_device_key');
+        const existingKey = localStorage.getItem('milano_chat_device_key');
         if (existingKey) return existingKey;
         const newKey = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        safeLocalSet('milano_chat_device_key', newKey);
+        localStorage.setItem('milano_chat_device_key', newKey);
         return newKey;
     };
 
@@ -48,7 +47,7 @@ const Contact = () => {
         // window.scrollTo(0, 0); // Handled globally by ScrollToTop
 
         const checkActiveSession = async () => {
-            const activeChatId = safeLocalGet('milano_active_chat');
+            const activeChatId = localStorage.getItem('milano_active_chat');
             if (activeChatId) {
                 try {
                     const deviceKey = getChatDeviceKey();
@@ -61,11 +60,11 @@ const Contact = () => {
                             setMessageId(activeChatId);
                             setSubmitted(true);
                         } else if (data.status === 'closed' || data.status === 'closed_by_buyer' || data.deviceKey !== deviceKey) {
-                            safeLocalRemove('milano_active_chat');
+                            localStorage.removeItem('milano_active_chat');
                         }
                     } else {
                         // If chat doesn't exist in DB, clear local session
-                        safeLocalRemove('milano_active_chat');
+                        localStorage.removeItem('milano_active_chat');
                     }
                 } catch (error) {
                     console.error("Error checking session:", error);
@@ -98,7 +97,7 @@ const Contact = () => {
             });
 
             // Persist session locally
-            safeLocalSet('milano_active_chat', docRef.id);
+            localStorage.setItem('milano_active_chat', docRef.id);
 
             setMessageId(docRef.id);
             setSubmitted(true);

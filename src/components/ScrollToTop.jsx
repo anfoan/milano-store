@@ -1,4 +1,3 @@
-import { safeSessionSet } from '../lib/safeStorage';
 import { useEffect, useLayoutEffect } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 
@@ -15,7 +14,7 @@ const ScrollToTop = () => {
 
         const saveScrollPosition = () => {
             if (pathname === '/') {
-                safeSessionSet('home_scroll_position', window.scrollY.toString());
+                sessionStorage.setItem('home_scroll_position', window.scrollY.toString());
             }
         };
 

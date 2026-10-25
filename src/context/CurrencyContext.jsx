@@ -1,4 +1,3 @@
-import { safeLocalGet, safeLocalSet } from '../lib/safeStorage';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const CurrencyContext = createContext();
@@ -14,14 +13,14 @@ export const useCurrency = () => {
 export const CurrencyProvider = ({ children }) => {
     // Default to YER as requested
     const [activeCurrency, setActiveCurrency] = useState(() => {
-        return safeLocalGet('activeCurrency') || 'YER';
+        return localStorage.getItem('activeCurrency') || 'YER';
     });
 
     // Exchange rate: 1 SAR = 140 YER
     const exchangeRate = 140;
 
     useEffect(() => {
-        safeLocalSet('activeCurrency', activeCurrency);
+        localStorage.setItem('activeCurrency', activeCurrency);
     }, [activeCurrency]);
 
     const toggleCurrency = (code) => {
@@ -54,7 +53,7 @@ export const CurrencyProvider = ({ children }) => {
     const formatPrice = (priceInYER, targetCurrency) => {
         const currency = targetCurrency || activeCurrency || 'YER';
         const converted = convertPrice(priceInYER, currency);
-        const isRTL = document.documentElement.dir === 'rtl' || safeLocalGet('adminLang') === 'ar' || safeLocalGet('i18nextLng') === 'ar';
+        const isRTL = document.documentElement.dir === 'rtl' || localStorage.getItem('adminLang') === 'ar' || localStorage.getItem('i18nextLng') === 'ar';
         const symbol = currency === 'SAR' ? (isRTL ? 'ريال سعودي' : 'SAR') : (isRTL ? 'ريال يمني' : 'YER');
         
         // Customer-facing prices use complete currency units only. Calculations

@@ -1,4 +1,3 @@
-import { safeLocalGet, safeLocalSet } from '../lib/safeStorage';
 import { useEffect, useState } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -38,7 +37,7 @@ const DEFAULTS = {
 
 const getCached = (key, defaultValue) => {
     try {
-        const cached = safeLocalGet(key);
+        const cached = localStorage.getItem(key);
         return cached ? JSON.parse(cached) : defaultValue;
     } catch {
         return defaultValue;
@@ -64,7 +63,7 @@ const updateSetting = (key, data, cacheKey) => {
         ...sharedSettings,
         [key]: { ...sharedSettings[key], ...data }
     };
-    try { safeLocalSet(cacheKey, JSON.stringify(sharedSettings[key])); } catch { /* cache is optional */ }
+    try { localStorage.setItem(cacheKey, JSON.stringify(sharedSettings[key])); } catch { /* cache is optional */ }
     notify();
 };
 
@@ -93,7 +92,7 @@ const startSharedListeners = () => {
     onSnapshot(doc(db, 'settings', 'social_links'), snapshot => {
         if (!snapshot.exists()) return;
         sharedSettings = { ...sharedSettings, socialLinks: snapshot.data() };
-        try { safeLocalSet(CACHE_KEYS.SOCIAL, JSON.stringify(snapshot.data())); } catch { /* cache is optional */ }
+        try { localStorage.setItem(CACHE_KEYS.SOCIAL, JSON.stringify(snapshot.data())); } catch { /* cache is optional */ }
         notify();
     }, error => console.error('Social links error:', error));
 };

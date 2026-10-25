@@ -1,4 +1,3 @@
-import { safeLocalGet, safeLocalSet, safeLocalRemove, safeJsonParse } from '../lib/safeStorage';
 import { useState, useEffect } from 'react';
 import { ChevronDown, CheckCircle2, ChevronLeft, AlertTriangle, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -210,7 +209,7 @@ const Checkout = () => {
         window.scrollTo(0, 0);
         let cart = [];
         try {
-            const stored = safeLocalGet('cart');
+            const stored = localStorage.getItem('cart');
             cart = stored ? JSON.parse(stored) : [];
             if (!Array.isArray(cart)) cart = [];
         } catch (e) {
@@ -228,7 +227,7 @@ const Checkout = () => {
         setCartTotal(originalSubtotal); // We use originalSubtotal as the display subtotal
 
         // Load coupon
-        const storedCoupon = safeJsonParse(safeLocalGet('cart_coupon'), null);
+        const storedCoupon = JSON.parse(localStorage.getItem('cart_coupon') || 'null');
         if (storedCoupon) {
             setAppliedCoupon(storedCoupon);
         }
@@ -266,7 +265,7 @@ const Checkout = () => {
                 setCartItems(newCart);
                 const newOriginalSubtotal = newCart.reduce((acc, item) => acc + ((item.originalPrice || item.price) * (item.quantity || 1)), 0);
                 setCartTotal(newOriginalSubtotal);
-                safeLocalSet('cart', JSON.stringify(newCart));
+                localStorage.setItem('cart', JSON.stringify(newCart));
             }
         };
 
@@ -424,7 +423,7 @@ const Checkout = () => {
 
             // 0.5 Daily Order Limit Verification
             const today = new Date().toISOString().split('T')[0];
-            const storedDaily = safeJsonParse(safeLocalGet('daily_orders'), {});
+            const storedDaily = JSON.parse(localStorage.getItem('daily_orders') || '{}');
             // Reset count if new day
             if (storedDaily.date !== today) {
                 storedDaily.date = today;
@@ -563,7 +562,7 @@ const Checkout = () => {
 
                     if (!currentCoupon.isUnlimited && currentCoupon.usedCount >= currentCoupon.maxUses) {
                         alert("عذراً، لقد انتهت صلاحية هذا الكوبون للتو!");
-                        safeLocalRemove('cart_coupon');
+                        localStorage.removeItem('cart_coupon');
                         setLoading(false);
                         window.location.reload();
                         return;
@@ -575,7 +574,7 @@ const Checkout = () => {
                         expiry.setHours(23, 59, 59, 999);
                         if (today > expiry) {
                             alert("عذراً، لقد انتهى تاريخ صلاحية هذا الكوبون!");
-                            safeLocalRemove('cart_coupon');
+                            localStorage.removeItem('cart_coupon');
                             setLoading(false);
                             window.location.reload();
                             return;
@@ -589,14 +588,14 @@ const Checkout = () => {
 
                     if (currentCoupon.minOrderAmount && currentSubTotal < currentCoupon.minOrderAmount) {
                         alert(`عذراً، هذا الكوبون يتطلب مشتريات (قبل الخصم) بحد أدنى ${formatPrice(currentCoupon.minOrderAmount)}!`);
-                        safeLocalRemove('cart_coupon');
+                        localStorage.removeItem('cart_coupon');
                         setLoading(false);
                         window.location.reload();
                         return;
                     }
                 } else {
                     alert("عذراً، هذا الكوبون لم يعد متاحاً.");
-                    safeLocalRemove('cart_coupon');
+                    localStorage.removeItem('cart_coupon');
                     setLoading(false);
                     window.location.reload();
                     return;
@@ -703,7 +702,7 @@ const Checkout = () => {
 
 
             // 2. Save to LocalStorage
-            const existingOrders = safeJsonParse(safeLocalGet('myOrders'), []);
+            const existingOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
             const orderForStorage = {
                 ...orderData,
                 sourceOrderId: orderRef.id,
@@ -712,19 +711,19 @@ const Checkout = () => {
                 timestamp: Date.now()
             };
             existingOrders.unshift(orderForStorage);
-            safeLocalSet('myOrders', JSON.stringify(existingOrders));
+            localStorage.setItem('myOrders', JSON.stringify(existingOrders));
 
             // Update Daily Order Count
-            const currentDaily = safeJsonParse(safeLocalGet('daily_orders'), {});
+            const currentDaily = JSON.parse(localStorage.getItem('daily_orders') || '{}');
             if (currentDaily.date !== today) {
-                safeLocalSet('daily_orders', JSON.stringify({ date: today, count: 1 }));
+                localStorage.setItem('daily_orders', JSON.stringify({ date: today, count: 1 }));
             } else {
-                safeLocalSet('daily_orders', JSON.stringify({ date: today, count: (currentDaily.count || 0) + 1 }));
+                localStorage.setItem('daily_orders', JSON.stringify({ date: today, count: (currentDaily.count || 0) + 1 }));
             }
 
             // 3. Clear cart & coupon
-            safeLocalRemove('cart');
-            safeLocalRemove('cart_coupon');
+            localStorage.removeItem('cart');
+            localStorage.removeItem('cart_coupon');
             window.dispatchEvent(new CustomEvent('cart-updated'));
 
             // 4. Navigate (DIRECTLY to Tracking Page as per user request to be the "permalink")
@@ -735,7 +734,7 @@ const Checkout = () => {
             console.error("Error placing order:", error);
             if (error.message === "COUPON_LIMIT_REACHED") {
                 alert(language === 'ar' ? "عذراً، انتهت كمية استخدام هذا الكوبون." : "Sorry, this coupon has reached its usage limit.");
-                safeLocalRemove('cart_coupon');
+                localStorage.removeItem('cart_coupon');
                 setLoading(false);
                 return;
             }
@@ -768,11 +767,11 @@ const Checkout = () => {
                         const history = buildCustomerOrderHistory(pendingOrder, orderRef.id);
                         if (customerHistoryRef && history) transaction.set(customerHistoryRef, history);
                     });
-                    const existingOrders = safeJsonParse(safeLocalGet('myOrders'), []);
+                    const existingOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
                     existingOrders.unshift({ ...orderData, sourceOrderId: orderRef.id, historyVersion: 1, inventorySyncPending: true, walletDebitPending: walletApplied > 0, couponUsagePending: Boolean(appliedCoupon?.id), createdAt: new Date().toISOString(), timestamp: Date.now() });
-                    safeLocalSet('myOrders', JSON.stringify(existingOrders));
-                    safeLocalRemove('cart');
-                    safeLocalRemove('cart_coupon');
+                    localStorage.setItem('myOrders', JSON.stringify(existingOrders));
+                    localStorage.removeItem('cart');
+                    localStorage.removeItem('cart_coupon');
                     window.dispatchEvent(new CustomEvent('cart-updated'));
                     navigate(`/order-tracking/${newOrderId.replace('#', '')}`);
                     return;
