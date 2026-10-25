@@ -477,7 +477,7 @@ const Home = () => {
             cancelAnimationFrame(frameId);
             track.style.transform = '';
         };
-    }, [allCategories.length]);
+    }, [allCategories.length, isCategoryCarouselVisible]);
 
     useEffect(() => {
         // 1. Real-time Store Status Sync
