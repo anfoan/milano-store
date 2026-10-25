@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { ShoppingBag, Star, MapPin, Search, Clock, ShieldCheck, Info, Facebook, Instagram, Music2, Share2, Map as MapIcon, Package, ArrowRight, VolumeX, X, Maximize2, ArrowLeftRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { db } from '../lib/firebase';
@@ -254,7 +254,7 @@ const Home = () => {
     const showCategoriesGrid = interfaceSettings?.showCategories ?? true; // Keep categories visible unless explicitly disabled
     const showProductSections = true; // Always show product rows to ensure content visibility
 
-    const newArrivalSlides = [...products]
+    const newArrivalSlides = useMemo(() => [...products]
         .filter(product => !product.hidden && (product.mainImage || product.gallery?.[0]))
         .sort((a, b) => {
             const getTime = (product) => {
@@ -268,7 +268,7 @@ const Home = () => {
             };
             return getTime(b) - getTime(a);
         })
-        .slice(0, 10);
+        .slice(0, 10), [products]);
 
     useEffect(() => {
         if (!newArrivalsShownForPageLoad && products.length > 0 && newArrivalSlides.length > 0) {
@@ -299,10 +299,10 @@ const Home = () => {
     };
 
     // Calculate max discount for the banner
-    const maxDiscount = products.length > 0
-        ? Math.max(...products.filter(p => !p.hidden).map(p => p.discount || 0), 0) || 50 // Skip hidden products
-        : 50;
-    const storefrontFallbacks = allCategories
+    const maxDiscount = useMemo(() => products.length > 0
+        ? Math.max(...products.filter(p => !p.hidden).map(p => p.discount || 0), 0) || 50
+        : 50, [products]);
+    const storefrontFallbacks = useMemo(() => allCategories
         .filter(category => category?.name && String(category.name).trim() !== 'كل ماهو جديد')
         .map((category, index) => ({
                 id: `category-store-${category.id || category.name}`,
@@ -310,8 +310,8 @@ const Home = () => {
                 category: category.name,
                 imageUrl: ['/store-backgrounds/apple-blue.jpg?v=alternating-awning-4', '/store-backgrounds/protein-red.jpg?v=alternating-awning-4', '/store-backgrounds/dates-blue.jpg?v=alternating-awning-4'][index % 3],
             }))
-        .slice(0, 6);
-    const storefrontCards = merchantStores.length > 0 ? merchantStores : storefrontFallbacks;
+        .slice(0, 6), [allCategories]);
+    const storefrontCards = useMemo(() => merchantStores.length > 0 ? merchantStores : storefrontFallbacks, [merchantStores, storefrontFallbacks]);
     const hideOutOfStock = interfaceSettings?.hideOutOfStock;
     const categoryScrollRef = useRef(null);
     const categoryTrackRef = useRef(null);
@@ -324,11 +324,23 @@ const Home = () => {
     const videoDirectionRef = useRef(1);
     const videoTouchStartRef = useRef(null);
     const categoryDragTargetRef = useRef(0);
+    const [isCategoryCarouselVisible, setIsCategoryCarouselVisible] = useState(false);
+    const [isVideoSectionVisible, setIsVideoSectionVisible] = useState(false);
     const [isDesktopView, setIsDesktopView] = useState(window.innerWidth >= 768);
 
     const [minHeightShim, setMinHeightShim] = useState('100vh');
     const isRestoring = useRef(true); // Guard against overwriting storage with 0 on load
     const containerRef = useRef(null);
+    const productsByCategory = useMemo(() => {
+        const grouped = new Map();
+        products.forEach((product) => {
+            if (product.hidden || !product.category) return;
+            const items = grouped.get(product.category) || [];
+            items.push(product);
+            grouped.set(product.category, items);
+        });
+        return grouped;
+    }, [products]);
 
     useEffect(() => {
         const handleResize = () => setIsDesktopView(window.innerWidth >= 768);
@@ -403,12 +415,32 @@ const Home = () => {
 
 
 
+    useEffect(() => {
+        const element = categoryScrollRef.current;
+        if (!element || typeof IntersectionObserver === 'undefined') {
+            return undefined;
+        }
+        const observer = new IntersectionObserver(([entry]) => setIsCategoryCarouselVisible(entry.isIntersecting), { rootMargin: '160px 0px' });
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, [allCategories.length]);
+
+    useEffect(() => {
+        const element = videoScrollRef.current;
+        if (!element || typeof IntersectionObserver === 'undefined') {
+            return undefined;
+        }
+        const observer = new IntersectionObserver(([entry]) => setIsVideoSectionVisible(entry.isIntersecting), { rootMargin: '280px 0px' });
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, [promotionalVideos.length]);
+
     // Move the right-aligned track directly so the motion cannot stall
     // because of browser-specific RTL scroll or animation behavior.
     useEffect(() => {
         const container = categoryScrollRef.current;
         const track = categoryTrackRef.current;
-        if (!container || !track || allCategories.length < 2) return undefined;
+        if (!container || !track || allCategories.length < 2 || !isCategoryCarouselVisible) return undefined;
 
         let frameId;
         let lastTime = performance.now();
@@ -490,6 +522,7 @@ const Home = () => {
             const sortedCats = orderStoreCategories(rawCats);
             setAllCategories(sortedCats);
             localStorage.setItem('cached_all_categories', JSON.stringify(sortedCats));
+            window.dispatchEvent(new CustomEvent('milano-categories-updated', { detail: sortedCats }));
         }, (err) => console.error("Error fetching categories:", err));
 
         const unsubProducts = onSnapshot(query(collection(db, "products")), (productSnapshot) => {
@@ -543,6 +576,7 @@ const Home = () => {
         }, err => console.error('Error fetching merchant stores:', err));
 
         return () => {
+            window.clearTimeout(visitorTimer);
             unsubscribeStatus();
             unsubCategories();
             unsubProducts();
@@ -554,7 +588,7 @@ const Home = () => {
     useEffect(() => {
         const viewport = videoScrollRef.current;
         const track = videoTrackRef.current;
-        if (!viewport || !track || promotionalVideos.length <= 1) return undefined;
+        if (!viewport || !track || promotionalVideos.length <= 1 || !isVideoSectionVisible) return undefined;
         let frameId;
         let lastTime = performance.now();
         const speed = 22;
@@ -602,10 +636,10 @@ const Home = () => {
             track.style.transform = '';
             videoPositionRef.current = 0;
         };
-    }, [promotionalVideos.length]);
+    }, [promotionalVideos.length, isVideoSectionVisible]);
 
     useEffect(() => {
-        if (!promotionalVideos.length || selectedPromotionalVideo) return undefined;
+        if (!promotionalVideos.length || !isVideoSectionVisible || selectedPromotionalVideo) return undefined;
         const keepVideosPlaying = () => {
             document.querySelectorAll('.promotional-video-external').forEach((video) => {
                 video.muted = true;
@@ -614,8 +648,7 @@ const Home = () => {
             });
         };
         keepVideosPlaying();
-        const timer = window.setInterval(keepVideosPlaying, 5000);
-        return () => window.clearInterval(timer);
+        return undefined;
     }, [promotionalVideos.length, selectedPromotionalVideo]);
 
     useEffect(() => {
@@ -1049,11 +1082,7 @@ const Home = () => {
                 showProductSections && (
                     <div className="w-full px-0 space-y-0 md:space-y-2 mt-2 md:mt-4 pt-1">
                         {categories.map((cat, catIdx) => {
-                            const categoryProducts = products.filter(p => {
-                                const matchesCategory = p.category === cat;
-                                const isVisible = !p.hidden;
-                                return matchesCategory && isVisible;
-                            });
+                            const categoryProducts = productsByCategory.get(cat) || [];
 
                             if (categoryProducts.length === 0 && !loading) return null;
 
@@ -1145,9 +1174,9 @@ const Home = () => {
                 <div className="relative -mx-2 w-[calc(100%+1rem)] overflow-hidden rounded-none border-0 bg-transparent px-0 shadow-none md:-mx-3 md:w-[calc(100%+1.5rem)]" style={{ marginLeft: 'auto' }}>
                     <div ref={videoScrollRef} dir="ltr" onTouchStart={(event) => { document.querySelectorAll('.promotional-video-external').forEach((video) => { video.muted = true; video.play().catch(() => {}); }); videoTouchStartRef.current = event.touches[0]?.clientX ?? null; }} onPointerDown={() => { document.querySelectorAll('.promotional-video-external').forEach((video) => { video.muted = true; video.play().catch(() => {}); }); }} onTouchEnd={(event) => { const start = videoTouchStartRef.current; const end = event.changedTouches[0]?.clientX; videoTouchStartRef.current = null; if (start == null || end == null || Math.abs(end - start) < 24) return; videoDirectionRef.current = end > start ? -1 : 1; }} className="relative w-full overflow-hidden py-0">
                         <div ref={videoTrackRef} className="promotional-video-track ml-auto flex w-max gap-2 md:gap-3 will-change-transform">
-                        {[...promotionalVideos].reverse().map((video, index) => (
+                        {isVideoSectionVisible && [...promotionalVideos].reverse().map((video, index) => (
                             <div data-promotional-card key={video.id} onClick={() => { setSelectedPromotionalVideo(video); setSelectedVideoMuted(false); setIsVideoFullscreen(false); }} className="relative shrink-0 w-[190px] min-w-[190px] md:w-[250px] md:min-w-[250px] lg:w-[270px] lg:min-w-[270px] aspect-[9/14] snap-center overflow-hidden rounded-[20px] bg-transparent shadow-md ring-1 ring-black/10 dark:ring-white/10 cursor-pointer">
-                                <video ref={(node) => { if (node) { node.muted = true; node.defaultMuted = true; node.controls = false; node.setAttribute('playsinline', ''); node.setAttribute('webkit-playsinline', ''); } }} src={optimizeVideoUrl(video.url)} muted autoPlay loop playsInline controls={false} controlsList="nodownload noplaybackrate" disablePictureInPicture disableRemotePlayback preload="metadata" onCanPlay={(event) => event.currentTarget.play().catch(() => {})} onLoadedData={(event) => event.currentTarget.play().catch(() => {})} className="promotional-video-external w-full h-full object-cover rounded-[20px]" aria-label={video.title || `فيديو المتجر ${index + 1}`} />
+                                <video ref={(node) => { if (node) { node.muted = true; node.defaultMuted = true; node.controls = false; node.setAttribute('playsinline', ''); node.setAttribute('webkit-playsinline', ''); } }} src={optimizeVideoUrl(video.url)} muted autoPlay loop playsInline controls={false} controlsList="nodownload noplaybackrate" disablePictureInPicture disableRemotePlayback preload="none" onCanPlay={(event) => event.currentTarget.play().catch(() => {})} onLoadedData={(event) => event.currentTarget.play().catch(() => {})} className="promotional-video-external w-full h-full object-cover rounded-[20px]" aria-label={video.title || `فيديو المتجر ${index + 1}`} />
                                 <button type="button" aria-label="الفيديو صامت" onClick={(event) => { event.stopPropagation(); setSelectedPromotionalVideo(video); setSelectedVideoMuted(false); setIsVideoFullscreen(false); }} className="absolute left-1.5 bottom-3 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm"><VolumeX size={14} strokeWidth={2.5} /></button>
                             </div>
                         ))}

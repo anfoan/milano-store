@@ -119,8 +119,14 @@ const Navbar = () => {
         loadSearchProducts().catch(error => console.error("Search preload error:", error));
     }, [isSearchOpen]);
 
-    // Fetch categories from Firestore
+    // Reuse the Home page category listener when already on the storefront.
     useEffect(() => {
+        const handleCategoryUpdate = (event) => {
+            const next = Array.isArray(event.detail) ? event.detail : [];
+            setCategories(next.filter(category => !isNewArrivalsCategory(category)));
+        };
+        window.addEventListener('milano-categories-updated', handleCategoryUpdate);
+        if (location.pathname === '/') return () => window.removeEventListener('milano-categories-updated', handleCategoryUpdate);
         const fetchCategories = async () => {
             try {
                 const querySnapshot = await getDocs(collection(db, "categories"));
@@ -137,7 +143,8 @@ const Navbar = () => {
             }
         };
         fetchCategories();
-    }, []);
+        return () => window.removeEventListener('milano-categories-updated', handleCategoryUpdate);
+    }, [location.pathname]);
 
     const [cartItems, setCartItems] = useState([]);
 
