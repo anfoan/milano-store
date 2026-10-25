@@ -54,6 +54,27 @@
 
 <body>
   <div id="root"></div>
+  <script>
+    window.addEventListener('vite:preloadError', (event) => {
+      event.preventDefault();
+      const recoveryKey = 'milano-vite-preload-recovery';
+      let alreadyRecovered = false;
+      try {
+        alreadyRecovered = sessionStorage.getItem(recoveryKey) === '1';
+        if (!alreadyRecovered) sessionStorage.setItem(recoveryKey, '1');
+      } catch (_) {}
+      if (alreadyRecovered) return;
+      const reload = () => window.location.reload();
+      if (navigator.serviceWorker?.getRegistrations) {
+        navigator.serviceWorker.getRegistrations()
+          .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+          .catch(() => {})
+          .finally(reload);
+      } else {
+        reload();
+      }
+    });
+  </script>
   <script type="module" src="/src/main.jsx"></script>
   <script>
     if ('serviceWorker' in navigator) {

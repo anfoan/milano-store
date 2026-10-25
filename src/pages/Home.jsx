@@ -447,6 +447,11 @@ const Home = () => {
         let frameId;
         let lastTime = performance.now();
         const speed = 26;
+        const initialDistance = Math.max(0, track.scrollWidth - container.clientWidth);
+        categoryPositionRef.current = initialDistance;
+        categoryDragTargetRef.current = initialDistance;
+        categoryDirectionRef.current = -1;
+        track.style.transform = `translate3d(${initialDistance}px, 0, 0)`;
         const tick = (now) => {
             const delta = Math.min((now - lastTime) / 1000, 0.05);
             lastTime = now;
