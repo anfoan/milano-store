@@ -1,42 +1,49 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
+import { safeSessionGet, safeSessionSet } from '../lib/safeStorage';
+
+const scrollKey = (pathname) => `store_scroll:${pathname}`;
+
+const readScrollPosition = (pathname) => {
+    const value = Number.parseInt(safeSessionGet(scrollKey(pathname)) || '', 10);
+    return Number.isFinite(value) && value > 0 ? value : 0;
+};
 
 const ScrollToTop = () => {
     const { pathname } = useLocation();
     const navType = useNavigationType();
 
-    // Save scroll position BEFORE leaving the page
     useEffect(() => {
-        // Force manual scroll restoration to prevent browser interference (Crucial for iPhone)
         if ('scrollRestoration' in window.history) {
             window.history.scrollRestoration = 'manual';
         }
 
-        const saveScrollPosition = () => {
-            if (pathname === '/') {
-                sessionStorage.setItem('home_scroll_position', window.scrollY.toString());
-            }
+        const savePosition = () => {
+            safeSessionSet(scrollKey(window.location.pathname), String(window.scrollY));
         };
 
-        // Save on any scroll
-        window.addEventListener('scroll', saveScrollPosition);
+        window.addEventListener('scroll', savePosition, { passive: true });
+        return () => window.removeEventListener('scroll', savePosition);
+    }, []);
+
+    useLayoutEffect(() => {
+        const savedPosition = navType === 'POP' ? readScrollPosition(pathname) : 0;
+        let frameId;
+        let retryId;
+
+        const restore = () => {
+            window.scrollTo({ top: savedPosition, left: 0, behavior: 'auto' });
+        };
+
+        // Keep PUSH navigation at the top, while POP navigation returns the
+        // customer to the exact place where they were browsing before.
+        frameId = window.requestAnimationFrame(restore);
+        retryId = window.setTimeout(restore, navType === 'POP' ? 120 : 0);
 
         return () => {
-            window.removeEventListener('scroll', saveScrollPosition);
-            // Optional: reset to auto if needed, but keeping manual is safer for SPA
+            window.cancelAnimationFrame(frameId);
+            window.clearTimeout(retryId);
         };
-    }, [pathname]);
-
-    // Restore or reset scroll position
-    useLayoutEffect(() => {
-        // POP = Going back/forward
-        if (navType === 'POP') {
-            // Do nothing here, let individual pages (like Home) handle their own smart restoration
-            // to ensure content is loaded first.
-        } else {
-            // PUSH or REPLACE = Going to a new page -> Scroll to top
-            if (window.scrollY !== 0) window.scrollTo(0, 0);
-        }
     }, [pathname, navType]);
 
     return null;

@@ -334,9 +334,6 @@ const Home = () => {
     const [isVideoSectionVisible, setIsVideoSectionVisible] = useState(false);
     const [isDesktopView, setIsDesktopView] = useState(window.innerWidth >= 768);
 
-    const [minHeightShim, setMinHeightShim] = useState('100vh');
-    const isRestoring = useRef(true); // Guard against overwriting storage with 0 on load
-    const containerRef = useRef(null);
     const productsByCategory = useMemo(() => {
         const grouped = new Map();
         products.forEach((product) => {
@@ -351,73 +348,8 @@ const Home = () => {
     useEffect(() => {
         const handleResize = () => setIsDesktopView(window.innerWidth >= 768);
         window.addEventListener('resize', handleResize);
-
-        // CRITICAL: Force browser to STOP messing with scroll
-        if ('scrollRestoration' in window.history) {
-            window.history.scrollRestoration = 'manual';
-        }
-
-        // Initial check: if no saved pos, we are not restoring
-        if (!safeSessionGet('home_scroll_pos')) {
-            isRestoring.current = false;
-        }
-
-        // Manual Scroll Restoration Logic inside Home
-        const saveScroll = () => {
-            // CRITICAL 1: Don't save if we are still trying to restore the old position
-            if (isRestoring.current) return;
-
-            // CRITICAL 2: Don't save if we have already navigated away
-            if (window.location.pathname !== '/') return;
-
-            safeSessionSet('home_scroll_pos', window.scrollY.toString());
-
-            // SAVE EXACT COMPONENT HEIGHT
-            if (containerRef.current) {
-                safeSessionSet('home_container_height', containerRef.current.offsetHeight.toString());
-            }
-        };
-        window.addEventListener('scroll', saveScroll, { passive: true });
-
-        // Try to restore
-        const restoreScroll = () => {
-            const saved = safeSessionGet('home_scroll_pos');
-            const savedHeight = safeSessionGet('home_container_height');
-
-            if (saved) {
-                const hasData = products.length > 0;
-                if (!hasData) return;
-
-                const y = parseInt(saved, 10);
-
-                // Perfect Shim: Use exact component height
-                let shimHeight = y + 1000;
-                if (savedHeight) {
-                    shimHeight = parseInt(savedHeight, 10);
-                }
-
-                setMinHeightShim(`${shimHeight}px`);
-
-                requestAnimationFrame(() => {
-                    window.scrollTo(0, y);
-                });
-
-                setTimeout(() => {
-                    setMinHeightShim('100vh');
-                    isRestoring.current = false;
-                }, 500);
-            } else {
-                isRestoring.current = false;
-            }
-        };
-
-        restoreScroll();
-
-        return () => {
-            window.removeEventListener('resize', handleResize);
-            window.removeEventListener('scroll', saveScroll);
-        };
-    }, [products.length]); // Re-run when products load
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
 
 
@@ -777,9 +709,7 @@ const Home = () => {
 
         return (
         <div
-            ref={containerRef}
             className="w-full bg-gray-50 dark:bg-[#111317] min-h-screen text-gray-900 dark:text-white pb-0 font-['Cairo'] transition-colors duration-300"
-            style={{ minHeight: minHeightShim }}
         >
             {newArrivalsOpen && newArrivalSlides.length > 0 && (
                 <div
