@@ -118,7 +118,7 @@ const OffersPage = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1">
-                        {products.map((product) => (
+                        {products.map((product, productIndex) => (
                             <Link
                                 to={`/product/${product.id}`}
                                 key={product.id}
@@ -130,7 +130,8 @@ const OffersPage = () => {
                                         <ImageWithFallback
                                             src={product.mainImage}
                                             alt={product.name}
-                                            loading="lazy"
+                                            loading={productIndex < 6 ? "eager" : "lazy"}
+                                            fetchPriority={productIndex < 2 ? "high" : "auto"}
                                             decoding="async"
                                             className="absolute inset-0 w-full h-full object-cover"
                                         />

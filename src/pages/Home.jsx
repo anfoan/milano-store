@@ -123,14 +123,16 @@ const HangingRackSection = ({ category, products, formatPrice, language }) => {
                                                     aria-hidden="true"
                                                     className={`absolute inset-0 h-full w-full object-contain drop-shadow-md transition-opacity duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] ${isActive ? 'opacity-0' : 'opacity-100'}`}
                                                     draggable="false"
-                                                    loading="lazy"
+                                                    loading={productIndex < 6 ? "eager" : "lazy"}
+                                                    decoding="async"
                                                 />
                                                 <img
                                                     src={optimizeImageUrl(frontImage, 360, imageVersion)}
                                                     alt={product.name || 'Product'}
                                                     className={`absolute inset-0 h-full w-full object-contain drop-shadow-md transition-opacity duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] ${isActive ? 'opacity-100 drop-shadow-xl' : 'opacity-0'}`}
                                                     draggable="false"
-                                                    loading="lazy"
+                                                    loading={productIndex < 6 ? "eager" : "lazy"}
+                                                    decoding="async"
                                                 />
                                             </>
                                         );
@@ -166,10 +168,10 @@ const MerchantStoresSection = ({ stores, language }) => {
                 <span className="text-xl text-gray-400">▦</span>
             </div>
             <DraggableScrollContainer className="flex snap-x snap-mandatory justify-center gap-3 overflow-x-auto px-0 pb-1 scrollbar-hide">
-                {visibleStores.map(store => (
+                {visibleStores.map((store, storeIndex) => (
                     <Link key={store.id} to={store.category ? `/category/${encodeURIComponent(store.category)}` : '/'} className="group relative w-[calc(50%_-_6px)] min-w-[calc(50%_-_6px)] shrink-0 snap-center overflow-hidden rounded-[18px] border border-gray-100 bg-gray-50 shadow-sm transition-transform duration-300 hover:-translate-y-1 dark:border-white/10 dark:bg-white/5 sm:w-[calc(33.333%_-_8px)] sm:min-w-[calc(33.333%_-_8px)] md:w-[calc(25%_-_9px)] md:min-w-[calc(25%_-_9px)]" draggable="false">
                         <div className="relative aspect-[0.78/1] overflow-hidden bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900" style={store.background ? { background: store.background } : undefined}>
-                            {store.imageUrl && <img src={store.imageUrl} alt={store.name} className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" loading="lazy" />}
+                            {store.imageUrl && <img src={store.imageUrl} alt={store.name} className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" loading={storeIndex < 4 ? "eager" : "lazy"} decoding="async" />}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10" />
                         </div>
                         <div className="flex items-center justify-between gap-2 bg-white px-4 py-3 dark:bg-[#20242b]"><div className="min-w-0"><h3 className="truncate text-base font-black text-gray-900 dark:text-white">{store.name}</h3>{store.description && <p className="mt-0.5 truncate text-[11px] font-bold text-gray-500">{store.description}</p>}</div><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xl text-gray-700 dark:bg-white/10 dark:text-white">←</span></div>
@@ -781,11 +783,13 @@ const Home = () => {
                                     className={`absolute inset-0 transition-all duration-500 ${index === newArrivalIndex ? 'pointer-events-auto translate-x-0 opacity-100' : 'pointer-events-none translate-x-2 opacity-0'}`}
                                 >
                                     <img
-                                        src={optimizeImageUrl(product.mainImage || product.gallery?.[0], 700, product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds)}
-                                        alt={product.name || 'منتج جديد'}
-                                        className="h-full w-full object-cover"
-                                        draggable="false"
-                                    />
+                                    src={optimizeImageUrl(product.mainImage || product.gallery?.[0], 700, product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds)}
+                                    alt={product.name || 'منتج جديد'}
+                                    className="h-full w-full object-cover"
+                                    draggable="false"
+                                    loading={index === newArrivalIndex ? "eager" : "lazy"}
+                                    decoding="async"
+                                />
                                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent px-4 pb-4 pt-12 text-right">
                                         <p className="text-sm font-black text-white sm:text-base">{product.name || 'منتج جديد'}</p>
                                     </div>
@@ -1125,8 +1129,8 @@ const Home = () => {
                                                                 alt={product.name}
                                                                 className="absolute inset-0 w-full h-full object-cover"
                                                                 draggable="false"
-                                                                loading="lazy"
-                                                                fetchPriority={productIndex === 0 ? "high" : "auto"}
+                                                                loading={productIndex < 6 ? "eager" : "lazy"}
+                                                                fetchPriority={productIndex < 2 ? "high" : "auto"}
                                                                 decoding="async"
                                                             />
 

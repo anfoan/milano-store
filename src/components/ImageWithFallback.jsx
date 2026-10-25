@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ShoppingBag } from 'lucide-react';
 import { optimizeProductImage } from '../lib/imageUtils';
 
-const ImageWithFallback = ({ src, alt, className, loading = "lazy", decoding = "async" }) => {
+const ImageWithFallback = ({ src, alt, className, loading = "lazy", fetchPriority = "auto", decoding = "async" }) => {
     const [error, setError] = useState(false);
 
     if (!src || error) {
@@ -19,6 +19,7 @@ const ImageWithFallback = ({ src, alt, className, loading = "lazy", decoding = "
             alt={alt}
             className={className}
             loading={loading}
+            fetchPriority={fetchPriority}
             decoding={decoding}
             onError={() => setError(true)}
             draggable="false"

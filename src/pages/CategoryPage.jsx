@@ -116,7 +116,7 @@ const CategoryPage = () => {
                     </div>
                 ) : products.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
-                        {products.map((product) => (
+                        {products.map((product, productIndex) => (
                             <Link
                                 to={`/product/${product.id}`}
                                 key={product.id}
@@ -131,7 +131,8 @@ const CategoryPage = () => {
                                             alt={product.name}
                                             className="absolute inset-0 w-full h-full object-cover"
                                             draggable="false"
-                                            loading="lazy"
+                                            loading={productIndex < 6 ? "eager" : "lazy"}
+                                            fetchPriority={productIndex < 2 ? "high" : "auto"}
                                             decoding="async"
                                         />
 
