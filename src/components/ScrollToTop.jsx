@@ -35,7 +35,7 @@ const ScrollToTop = () => {
             // to ensure content is loaded first.
         } else {
             // PUSH or REPLACE = Going to a new page -> Scroll to top
-            window.scrollTo(0, 0);
+            if (window.scrollY !== 0) window.scrollTo(0, 0);
         }
     }, [pathname, navType]);
 
@@ -43,4 +43,3 @@ const ScrollToTop = () => {
 };
 
 export default ScrollToTop;
-

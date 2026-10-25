@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './layouts/Layout';
 import Home from './pages/Home'; // Eager load Home for instant First Contentful Paint
@@ -30,8 +30,27 @@ import { CurrencyProvider } from './context/CurrencyContext';
 import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute'; // Add Import
 const CategoryPage = lazy(() => import('./pages/CategoryPage')); // Lazy load
 
+const preloadCommonStoreRoutes = () => {
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (connection?.saveData || ['slow-2g', '2g'].includes(connection?.effectiveType)) return;
+
+  // Warm only the small, frequently visited storefront chunks; admin/POS chunks stay deferred.
+  void Promise.all([
+    import('./pages/CategoryPage'),
+    import('./pages/ProductDetail'),
+    import('./pages/OffersPage'),
+    import('./pages/Cart')
+  ]);
+};
 
 function App() {
+  useEffect(() => {
+    const schedule = window.requestIdleCallback || ((callback) => window.setTimeout(callback, 1400));
+    const cancel = window.cancelIdleCallback || window.clearTimeout;
+    const task = schedule(preloadCommonStoreRoutes, { timeout: 2200 });
+    return () => cancel(task);
+  }, []);
+
   return (
     <CurrencyProvider>
       <PageMetadataHandler />
