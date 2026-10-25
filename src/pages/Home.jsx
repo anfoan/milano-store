@@ -88,7 +88,7 @@ const HangingRackSection = ({ category, products, formatPrice, language }) => {
             </div>
 
             <DraggableScrollContainer className="flex snap-x snap-mandatory items-start gap-1 overflow-x-auto px-1 pb-2 scrollbar-hide">
-                {visibleProducts.map((product) => {
+                {visibleProducts.map((product, productIndex) => {
                     const price = product.priceAfterDiscount && product.priceAfterDiscount < product.price ? product.priceAfterDiscount : product.price;
                     const isActive = activeProductId === product.id;
                     return (
@@ -321,6 +321,8 @@ const Home = () => {
     const categoryTrackRef = useRef(null);
     const categoryPositionRef = useRef(0);
     const categoryDirectionRef = useRef(1);
+    const productsSignatureRef = useRef('');
+    const categoriesSignatureRef = useRef('');
     const categoryDragRef = useRef({ active: false, moved: false, startX: 0, startPosition: 0 });
     const videoScrollRef = useRef(null);
     const videoTrackRef = useRef(null);
@@ -529,6 +531,14 @@ const Home = () => {
         const unsubCategories = onSnapshot(collection(db, "categories"), (catSnapshot) => {
             const rawCats = catSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
             const sortedCats = orderStoreCategories(rawCats);
+            const categoriesSignature = sortedCats.map(category => [
+                category.id,
+                category.name || '',
+                category.image || '',
+                category.order ?? ''
+            ].join('~')).join('|');
+            if (categoriesSignatureRef.current === categoriesSignature) return;
+            categoriesSignatureRef.current = categoriesSignature;
             setAllCategories(sortedCats);
             safeLocalSet('cached_all_categories', JSON.stringify(sortedCats));
             window.dispatchEvent(new CustomEvent('milano-categories-updated', { detail: sortedCats }));
@@ -539,6 +549,26 @@ const Home = () => {
                 id: doc.id,
                 ...doc.data()
             })).sort((a, b) => (a.order || 999999) - (b.order || 999999));
+
+            const getVersion = (value) => {
+                if (typeof value?.toMillis === 'function') return value.toMillis();
+                if (value?.seconds) return `${value.seconds}.${value.nanoseconds || 0}`;
+                return value || '';
+            };
+            const productsSignature = items.map(product => [
+                product.id,
+                product.hidden ? 1 : 0,
+                product.category || '',
+                product.order ?? '',
+                product.mainImage || '',
+                product.gallery?.[0] || '',
+                product.gallery?.length || 0,
+                product.price ?? '',
+                product.priceAfterDiscount ?? '',
+                getVersion(product.updatedAt)
+            ].join('~')).join('|');
+            if (productsSignatureRef.current === productsSignature) return;
+            productsSignatureRef.current = productsSignature;
 
             setProducts(items);
             safeLocalSet('cached_products', JSON.stringify(items));
