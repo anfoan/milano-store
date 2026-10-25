@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { useSettings } from '../hooks/useSettings';
@@ -6,6 +6,7 @@ import { useSettings } from '../hooks/useSettings';
 const PageMetadataHandler = () => {
     const location = useLocation();
     const { generalSettings, imageSettings, storeUrl } = useSettings();
+    const visualMetadataSignatureRef = useRef('');
 
     useEffect(() => {
         // Initial Routing Labels
@@ -13,6 +14,7 @@ const PageMetadataHandler = () => {
         let pageDesc = "";
 
         const path = location.pathname;
+        const isAdminRoute = path.startsWith('/milano-secure-gate-99') || path.startsWith('/milano-dashboard-vault-77');
         if (path === '/') {
            const storeName = generalSettings?.storeName || "متجر ميلانو";
             pageTitle = storeName; // Added this line to ensure pageTitle is set
@@ -126,7 +128,6 @@ const PageMetadataHandler = () => {
         schemaScript.textContent = JSON.stringify(schemaData);
 
         // Security: Inject noindex for admin routes
-        const isAdminRoute = path.startsWith('/milano-secure-gate-99') || path.startsWith('/milano-dashboard-vault-77');
         if (isAdminRoute) {
             updateMeta('robots', 'noindex, nofollow');
         } else {
@@ -205,9 +206,6 @@ const PageMetadataHandler = () => {
             iconLinks.forEach(existing => { existing.href = iconHref; });
         };
 
-        // Initial Call
-        updateFavicon();
-
         // 3. Dynamic PWA Manifest Selection
         const updateManifest = () => {
             const isAdmin = location.pathname.startsWith('/milano-secure-gate-99') ||
@@ -246,7 +244,16 @@ const PageMetadataHandler = () => {
             if (!appleIcon) { appleIcon = document.createElement('link'); appleIcon.rel = 'apple-touch-icon'; document.head.appendChild(appleIcon); }
             appleIcon.href = currentInstallIcon;
         };
-        updateManifest();
+        const visualMetadataSignature = [
+            isAdminRoute ? 'admin' : 'store',
+            isAdminRoute ? '/admin-icon-192.png' : (imageSettings?.navLogo || ''),
+            generalSettings?.storeName || ''
+        ].join('|');
+        if (visualMetadataSignatureRef.current !== visualMetadataSignature) {
+            updateFavicon();
+            updateManifest();
+            visualMetadataSignatureRef.current = visualMetadataSignature;
+        }
 
         // Listen for system theme changes
         const matcher = window.matchMedia('(prefers-color-scheme: dark)');
@@ -255,7 +262,7 @@ const PageMetadataHandler = () => {
         return () => {
             matcher.removeEventListener('change', updateFavicon);
         };
-    }, [location, generalSettings, imageSettings]);
+    }, [location.pathname, storeUrl, generalSettings?.storeName, generalSettings?.storePhone, imageSettings?.navLogo]);
 
     return null; // This component renders nothing
 };
