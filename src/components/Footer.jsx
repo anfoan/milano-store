@@ -66,37 +66,37 @@ const Footer = () => {
     };
 
     const ColumnHeader = ({ title, className = "text-center" }) => (
-        <div className={`mb-8 w-full ${className}`}>
+        <div className={`mb-2 md:mb-8 w-full ${className}`}>
             <div className="inline-block">
-                <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2 tracking-wider whitespace-nowrap">
+                <h3 className="text-xs sm:text-base md:text-2xl font-black text-gray-900 dark:text-white mb-1 md:mb-2 tracking-wider whitespace-nowrap">
                     {title}
                 </h3>
-                <div className="h-1.5 w-full bg-red-600 rounded-full"></div>
+                <div className="h-0.5 md:h-1.5 w-full bg-red-600 rounded-full"></div>
             </div>
         </div>
     );
 
     return (
-        <footer className="bg-white dark:bg-[#0d0d0e] border-t border-gray-100 dark:border-white/5 py-16 px-6 transition-colors duration-300 font-['Cairo']" dir={isRTL ? "rtl" : "ltr"}>
-            <div className="max-w-7xl mx-auto grid grid-cols-3 gap-16 items-start">
+        <footer className="bg-white dark:bg-[#0d0d0e] border-t border-gray-100 dark:border-white/5 pt-0 pb-4 md:py-16 px-4 md:px-6 transition-colors duration-300 font-['Cairo']" dir={isRTL ? "rtl" : "ltr"}>
+            <div className="max-w-7xl mx-auto grid grid-cols-3 gap-3 md:gap-16 items-start">
                 
                 {/* Section 1: Payment Methods */}
-                <div className={`flex flex-col items-center ${isRTL ? 'order-1' : 'order-3'} pl-8`}>
+                <div className={`flex flex-col items-start md:items-center ${isRTL ? 'order-1' : 'order-3'} pe-3 md:pe-0 md:pl-8`}>
                     <ColumnHeader
                         title={isRTL ? (footerData.paymentSection?.title || "طرق الدفع") : "Payment Methods"}
-                        className={isRTL ? "relative left-4 text-end pl-56" : "relative self-start text-start pl-0"}
+                        className={isRTL ? "relative left-4 text-end pl-5 md:pl-56" : "relative self-start text-start pl-0 md:pl-0"}
                     />
-                    <div className="flex flex-col space-y-2 items-start w-full">
+                    <div className="flex flex-col space-y-0.5 md:space-y-2 items-start w-full">
                         {footerData.paymentSection?.items?.map((item, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => setSelectedDetail({ title: item.text, content: item.details })}
-                                className="flex items-center justify-start gap-1.5 w-full min-h-[30px] text-gray-800 dark:text-gray-200 hover:text-red-600 dark:hover:text-red-500 transition-colors group overflow-hidden"
+                                className="flex items-center justify-start gap-1 md:gap-1.5 w-full min-h-[24px] md:min-h-[24px] md:min-h-[30px] text-gray-800 dark:text-gray-200 hover:text-red-600 dark:hover:text-red-500 transition-colors group overflow-hidden"
                             >
                                 <span className={`shrink-0 transition-transform group-hover:scale-110 ${colorClasses[item.color] ? colorClasses[item.color].split(' ')[1] : ''}`}>
-                                     {iconMap[item.icon] ? React.cloneElement(iconMap[item.icon], { size: 14, className: "w-[14px] h-[14px]" }) : <CreditCard size={14} className="w-[14px] h-[14px]" />}
+                                     {iconMap[item.icon] ? React.cloneElement(iconMap[item.icon], { size: 14, className: "w-[12px] h-[12px] sm:w-[14px] sm:h-[14px]" }) : <CreditCard size={14} className="w-[12px] h-[12px] sm:w-[14px] sm:h-[14px]" />}
                                 </span>
-                                <span className="shrink font-bold text-xs leading-snug tracking-tight text-right">{localizeFooterLabel(item.text)}</span>
+                                <span className="shrink font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight text-right">{localizeFooterLabel(item.text)}</span>
                             </button>
                         ))}
                     </div>
@@ -108,15 +108,15 @@ const Footer = () => {
                         title={isRTL ? (footerData.faqSection?.title || "الأسئلة الشائعة") : "FAQ"}
                         className="text-center"
                     />
-                    <div className="flex flex-col space-y-2 items-start w-full">
+                    <div className="flex flex-col space-y-0.5 md:space-y-2 items-start w-full">
                         {footerData.faqSection?.items?.map((item, idx) => (
                             <button 
                                 key={idx}
                                 onClick={() => setSelectedDetail({ title: item.question, content: item.answer })}
-                                className={`flex items-center justify-between w-full min-h-[30px] text-gray-800 dark:text-gray-200 hover:text-red-600 dark:hover:text-red-500 transition-colors group overflow-hidden`}
+                                className={`flex items-center justify-between w-full min-h-[24px] md:min-h-[30px] text-gray-800 dark:text-gray-200 hover:text-red-600 dark:hover:text-red-500 transition-colors group overflow-hidden`}
                             >
-                                <div className={`w-2 h-2 shrink-0 rounded-full transition-all bg-gray-400 dark:bg-gray-500 group-hover:bg-red-600`}></div>
-                                <span className="shrink font-bold text-xs leading-snug tracking-tight whitespace-nowrap overflow-hidden text-ellipsis ${isRTL ? 'text-right' : 'text-left'}">{localizeFooterLabel(item.question)}</span>
+                                <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 rounded-full transition-all bg-gray-400 dark:bg-gray-500 group-hover:bg-red-600`}></div>
+                                <span className="shrink font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight whitespace-nowrap overflow-hidden text-ellipsis ${isRTL ? 'text-right' : 'text-left'}">{localizeFooterLabel(item.question)}</span>
                                 <ChevronRight size={12} className={`shrink-0 opacity-40 group-hover:opacity-100 transition-all ${isRTL ? 'rotate-180 group-hover:translate-x-1' : 'group-hover:-translate-x-1'}`} />
                             </button>
                         ))}
@@ -124,30 +124,30 @@ const Footer = () => {
                 </div>
 
                 {/* Section 3: Store Info (LEFT in Arabic) */}
-                <div className={`relative left-4 flex flex-col items-end ${isRTL ? 'order-3' : 'order-1'} pr-24`}>
+                <div className={`relative left-4 flex flex-col ${isRTL ? 'items-end' : 'items-start'} md:items-end ${isRTL ? 'order-3' : 'order-1'} md:pr-24`}>
                     <div style={isRTL ? {paddingLeft: '20px'} : {}}>
                     <ColumnHeader 
                         title={isRTL ? (footerData.storeSection?.title || "متجر ميلانو") : "Milano Store"}
-                        className={`relative -left-2 ${isRTL ? 'text-start' : 'text-start pl-24'}`}
+                        className={`relative -left-2 ${isRTL ? 'text-start' : 'text-start pl-8 md:pl-24'}`}
                     />
                     </div>
-                    <div className={`space-y-2 flex flex-col items-end w-full ps-28`}>
-<div className="space-y-2 flex flex-col items-end w-full">
-                            <div className="flex items-center justify-between w-full min-h-[30px] gap-2 group"><ShieldCheck size={13} className="shrink-0 text-cyan-400 " /><span className="shrink whitespace-nowrap text-gray-800 dark:text-gray-200 font-bold text-xs leading-snug tracking-tight text-right flex-1">{footerData.storeSection?.qualityStatement}</span></div>
-                            <div className="flex items-center justify-between w-full min-h-[30px] gap-2 group"><MapPin size={13} className="shrink-0 text-red-600 " /><span className="shrink text-gray-800 dark:text-gray-200 font-bold text-xs leading-snug tracking-tight text-right flex-1">{footerData.storeSection?.address}</span></div>
-                            <div className="flex items-center justify-between w-full min-h-[30px] gap-2 group"><Phone size={13} className="shrink-0 text-green-500 " /><span className="shrink text-gray-800 dark:text-gray-200 font-bold text-xs leading-snug tracking-tight text-right flex-1">{footerData.storeSection?.phone}</span></div>
+                    <div className={`space-y-0.5 md:space-y-2 flex flex-col ${isRTL ? 'items-end' : 'items-start'} md:items-end w-full ps-3 md:ps-28`}>
+<div className={`space-y-0.5 md:space-y-2 flex flex-col ${isRTL ? 'items-end' : 'items-start'} md:items-end w-full`}>
+                            <div className="flex items-center justify-between w-full min-h-[24px] md:min-h-[30px] gap-0.5 md:gap-2 group"><ShieldCheck size={13} className="shrink-0 text-cyan-400 sm:w-[16px] sm:h-[16px]" /><span className="shrink whitespace-nowrap text-gray-800 dark:text-gray-200 font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight text-right flex-1">{footerData.storeSection?.qualityStatement}</span></div>
+                            <div className="flex items-center justify-between w-full min-h-[24px] md:min-h-[30px] gap-0.5 md:gap-2 group"><MapPin size={13} className="shrink-0 text-red-600 sm:w-[16px] sm:h-[16px]" /><span className="shrink text-gray-800 dark:text-gray-200 font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight text-right flex-1">{footerData.storeSection?.address}</span></div>
+                            <div className="flex items-center justify-between w-full min-h-[24px] md:min-h-[30px] gap-0.5 md:gap-2 group"><Phone size={13} className="shrink-0 text-green-500 sm:w-[16px] sm:h-[16px]" /><span className="shrink text-gray-800 dark:text-gray-200 font-bold text-[10px] sm:text-[11px] md:text-xs leading-snug tracking-tight text-right flex-1">{footerData.storeSection?.phone}</span></div>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Bottom Copyright Section */}
-            <div className={`mt-16 pt-6 border-t border-gray-100 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-8`}>
-                <div className={`flex items-center gap-8 text-sm font-bold text-gray-400`}>
+            <div className={`mt-3 md:mt-16 pt-3 md:pt-6 border-t border-gray-100 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8`}>
+                <div className={`flex items-center gap-4 md:gap-8 text-xs md:text-sm font-bold text-gray-400`}>
                     <Link to="/terms" className="hover:text-red-600 transition-colors tracking-tight uppercase">{t('footer.terms')}</Link>
                     <Link to="/privacy" className="hover:text-red-600 transition-colors tracking-tight uppercase">{t('footer.privacy')}</Link>
                 </div>
-                <p className={`text-[10px] text-gray-400 dark:text-gray-600 font-bold tracking-widest uppercase text-center md:text-start`}>
+                <p className={`text-[9px] md:text-[10px] text-gray-400 dark:text-gray-600 font-bold tracking-widest uppercase text-center md:text-start`}>
                     © 2026 {t('footer.rights')}
                 </p>
             </div>
