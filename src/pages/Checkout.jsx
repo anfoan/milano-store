@@ -53,7 +53,8 @@ const Checkout = () => {
         maxDailyOrders: 3
     });
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [settingsLoading, setSettingsLoading] = useState(true);
     const deviceWalletId = getCustomerWalletId();
     const [customerWallet, setCustomerWallet] = useState(null);
     const [walletSettings, setWalletSettings] = useState({ enabled: true });
@@ -93,7 +94,7 @@ const Checkout = () => {
             } catch (err) {
                 console.error("Error fetching settings:", err);
             } finally {
-                setLoading(false);
+                setSettingsLoading(false);
             }
         };
         fetchData();
@@ -1083,7 +1084,7 @@ const Checkout = () => {
                                         </p>
                                     </div>
                                 ) : (
-                                    loading ? (
+                                    settingsLoading ? (
                                         <div className="text-center py-4 text-gray-400">{language === 'ar' ? 'جاري تحميل طرق الدفع...' : 'Loading payment methods...'}</div>
                                     ) : (
                                         <>
