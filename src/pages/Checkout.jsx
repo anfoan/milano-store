@@ -495,21 +495,35 @@ const Checkout = () => {
         const ipAddress = 'غير متوفر';
 
         // Fetch current costPrices and current stock for inventory logic
-        const cartItemsWithDetails = await Promise.all(cartItems.map(async (item) => {
-            try {
-                const pDoc = await getDoc(doc(db, "products", item.id));
-                const data = pDoc.exists() ? pDoc.data() : {};
-                const cost = Number(data.costPrice || 0);
-                const hasSizeStocks = data.sizeStocks && Object.keys(data.sizeStocks).length > 0;
-                const currentStock = hasSizeStocks
-                    ? Object.values(data.sizeStocks).reduce((sum, quantity) => sum + Math.max(0, toStockNumber(quantity)), 0)
-                    : Math.max(0, toStockNumber(data.stock));
-                return { ...item, costPrice: cost, currentStock, sizeStocks: data.sizeStocks || null };
-            } catch (err) {
-                console.error("Error fetching details for", item.id, err);
-                return { ...item, costPrice: 0, currentStock: 0 };
-            }
-        }));
+        let cartItemsWithDetails;
+        try {
+            cartItemsWithDetails = await Promise.race([
+                Promise.all(cartItems.map(async (item) => {
+                    try {
+                        const pDoc = await getDoc(doc(db, "products", item.id));
+                        const data = pDoc.exists() ? pDoc.data() : {};
+                        const cost = Number(data.costPrice || 0);
+                        const hasSizeStocks = data.sizeStocks && Object.keys(data.sizeStocks).length > 0;
+                        const currentStock = hasSizeStocks
+                            ? Object.values(data.sizeStocks).reduce((sum, quantity) => sum + Math.max(0, toStockNumber(quantity)), 0)
+                            : Math.max(0, toStockNumber(data.stock));
+                        return { ...item, costPrice: cost, currentStock, sizeStocks: data.sizeStocks || null };
+                    } catch (err) {
+                        console.error("Error fetching details for", item.id, err);
+                        return { ...item, costPrice: 0, currentStock: Number.POSITIVE_INFINITY, sizeStocks: null };
+                    }
+                })),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('PRODUCT_DETAILS_TIMEOUT')), 6000))
+            ]);
+        } catch (detailsError) {
+            console.warn('Product details were delayed during checkout; continuing to the atomic stock check.', detailsError);
+            cartItemsWithDetails = cartItems.map(item => ({
+                ...item,
+                costPrice: Number(item.costPrice || 0),
+                currentStock: Number.POSITIVE_INFINITY,
+                sizeStocks: null
+            }));
+        }
 
         // Always validate the requested quantity against the latest inventory.
         const invalidStockItem = cartItemsWithDetails.find(item => {
