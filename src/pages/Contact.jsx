@@ -118,7 +118,7 @@ const Contact = () => {
                         onClick={() => navigate('/')}
                         className="w-10 h-10 rounded-full bg-white dark:bg-white/5 backdrop-blur-md flex items-center justify-center text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all border border-gray-200 dark:border-white/5 shadow-sm dark:shadow-2xl"
                     >
-                        <ArrowRight size={20} className="flip-rtl" />
+                        <ArrowRight size={20} />
                     </button>
                 </div>
 
@@ -186,7 +186,7 @@ const Contact = () => {
                         onClick={() => navigate(-1)}
                         className="w-10 h-10 rounded-full bg-gray-200/50 dark:bg-white/10 backdrop-blur-md flex items-center justify-center text-gray-900 dark:text-white hover:bg-gray-300/50 dark:hover:bg-white/20 transition-all shadow-sm border border-gray-200 dark:border-white/5"
                     >
-                        <ArrowRight size={20} className="flip-rtl" />
+                        <ArrowRight size={20} />
                     </button>
                     <h1 className="text-3xl font-black">
                         {t('contact.title')} <span className="text-[#06b6d4]">{t('contact.seller')}</span>

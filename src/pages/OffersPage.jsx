@@ -87,7 +87,7 @@ const OffersPage = () => {
                     onClick={() => navigate(-1)}
                     className={`absolute top-6 z-10 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-all shadow-sm border border-white/10 ${direction === 'rtl' ? 'right-6' : 'left-6'}`}
                 >
-                    <ArrowRight size={20} className="flip-rtl" />
+                    <ArrowRight size={20} />
                 </button>
                 <div className="w-full text-center">
                     <motion.div
