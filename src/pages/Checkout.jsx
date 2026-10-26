@@ -53,8 +53,7 @@ const Checkout = () => {
         maxDailyOrders: 3
     });
 
-    const [loading, setLoading] = useState(false);
-    const [settingsLoading, setSettingsLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
     const deviceWalletId = getCustomerWalletId();
     const [customerWallet, setCustomerWallet] = useState(null);
     const [walletSettings, setWalletSettings] = useState({ enabled: true });
@@ -94,7 +93,7 @@ const Checkout = () => {
             } catch (err) {
                 console.error("Error fetching settings:", err);
             } finally {
-                setSettingsLoading(false);
+                setLoading(false);
             }
         };
         fetchData();
@@ -477,18 +476,7 @@ const Checkout = () => {
         }
 
         // Prepare Order Data
-        const newOrderId = await Promise.race([
-            getNextInvoiceNumber(db),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('INVOICE_COUNTER_TIMEOUT')), 8000))
-        ]).catch(() => {
-            // Storefront visitors cannot reserve the admin-only Firestore counter.
-            // Keep checkout moving with a device-local fallback sequence instead of leaving the button spinning.
-            const counterKey = 'milano_checkout_invoice_sequence';
-            const current = Math.max(119100, Number(localStorage.getItem(counterKey) || 119100));
-            const next = current + 1;
-            localStorage.setItem(counterKey, String(next));
-            return String(next).padStart(6, '0');
-        });
+        const newOrderId = await getNextInvoiceNumber(db);
         // Never block order completion on an optional third-party IP lookup.
         // On weak Wi-Fi this request could stay pending and leave the submit UI loading forever.
         const ipAddress = 'غير متوفر';
@@ -1095,7 +1083,7 @@ const Checkout = () => {
                                         </p>
                                     </div>
                                 ) : (
-                                    settingsLoading ? (
+                                    loading ? (
                                         <div className="text-center py-4 text-gray-400">{language === 'ar' ? 'جاري تحميل طرق الدفع...' : 'Loading payment methods...'}</div>
                                     ) : (
                                         <>
