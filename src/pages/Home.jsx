@@ -329,6 +329,8 @@ const Home = () => {
     const videoPositionRef = useRef(0);
     const videoDirectionRef = useRef(1);
     const videoTouchStartRef = useRef(null);
+    const videoDragRef = useRef({ active: false, moved: false, startX: 0, startPosition: 0, lastX: 0 });
+    const videoDragTargetRef = useRef(0);
     const categoryDragTargetRef = useRef(0);
     const [isCategoryCarouselVisible, setIsCategoryCarouselVisible] = useState(false);
     const [isVideoSectionVisible, setIsVideoSectionVisible] = useState(false);
@@ -572,7 +574,12 @@ const Home = () => {
             lastTime = now;
             const distance = getDistance() + entryOffset;
             if (distance > 0) {
-                let position = videoPositionRef.current + videoDirectionRef.current * speed * delta;
+                let position = videoPositionRef.current;
+                if (videoDragRef.current.active) {
+                    position += (videoDragTargetRef.current - position) * 0.32;
+                } else {
+                    position += videoDirectionRef.current * speed * delta;
+                }
                 if (position >= distance) {
                     position = distance;
                     videoDirectionRef.current = -1;
@@ -598,6 +605,8 @@ const Home = () => {
             resizeObserver.disconnect();
             track.style.transform = '';
             videoPositionRef.current = 0;
+            videoDragRef.current.active = false;
+            videoDragTargetRef.current = 0;
         };
     }, [promotionalVideos.length, isVideoSectionVisible]);
 
@@ -1135,10 +1144,10 @@ const Home = () => {
                     <span className="text-xs md:text-sm font-black text-gray-500 dark:text-gray-300">إعلانات ميلانو</span>
                 </div>
                 <div className="relative -mx-2 w-[calc(100%+1rem)] overflow-hidden rounded-none border-0 bg-transparent px-0 shadow-none md:-mx-3 md:w-[calc(100%+1.5rem)]" style={{ marginLeft: 'auto' }}>
-                    <div ref={videoScrollRef} dir="ltr" onTouchStart={(event) => { document.querySelectorAll('.promotional-video-external').forEach((video) => { video.muted = true; video.play().catch(() => {}); }); videoTouchStartRef.current = event.touches[0]?.clientX ?? null; }} onPointerDown={() => { document.querySelectorAll('.promotional-video-external').forEach((video) => { video.muted = true; video.play().catch(() => {}); }); }} onTouchEnd={(event) => { const start = videoTouchStartRef.current; const end = event.changedTouches[0]?.clientX; videoTouchStartRef.current = null; if (start == null || end == null || Math.abs(end - start) < 24) return; videoDirectionRef.current = end > start ? -1 : 1; }} className="relative w-full overflow-hidden py-0">
+                    <div ref={videoScrollRef} dir="ltr" onPointerDown={(event) => { document.querySelectorAll('.promotional-video-external').forEach((video) => { video.muted = true; video.play().catch(() => {}); }); const drag = videoDragRef.current; drag.active = true; drag.moved = false; drag.startX = event.clientX; drag.lastX = event.clientX; drag.startPosition = videoPositionRef.current; videoDragTargetRef.current = videoPositionRef.current; event.currentTarget.setPointerCapture?.(event.pointerId); }} onPointerMove={(event) => { const drag = videoDragRef.current; if (!drag.active) return; const distance = Math.max(0, (videoTrackRef.current?.scrollWidth || 0) - (videoScrollRef.current?.clientWidth || 0)); const delta = event.clientX - drag.startX; if (Math.abs(delta) > 5) drag.moved = true; drag.lastX = event.clientX; videoDragTargetRef.current = Math.max(0, Math.min(distance, drag.startPosition - delta)); }} onPointerUp={(event) => { const drag = videoDragRef.current; if (!drag.active) return; const delta = event.clientX - drag.startX; videoDirectionRef.current = delta > 0 ? -1 : 1; drag.active = false; videoTouchStartRef.current = null; if (event.currentTarget.hasPointerCapture?.(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); window.setTimeout(() => { drag.moved = false; }, 80); }} onPointerCancel={(event) => { const drag = videoDragRef.current; drag.active = false; if (event.currentTarget.hasPointerCapture?.(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); }} className="relative w-full overflow-hidden py-0 touch-pan-y select-none">
                         <div ref={videoTrackRef} className="promotional-video-track ml-auto flex w-max gap-2 md:gap-3 will-change-transform">
                         {isVideoSectionVisible && [...promotionalVideos].reverse().map((video, index) => (
-                            <div data-promotional-card key={video.id} onClick={() => { setSelectedPromotionalVideo(video); setSelectedVideoMuted(false); setIsVideoFullscreen(false); }} className="relative shrink-0 w-[190px] min-w-[190px] md:w-[250px] md:min-w-[250px] lg:w-[270px] lg:min-w-[270px] aspect-[9/14] snap-center overflow-hidden rounded-[20px] bg-transparent shadow-md ring-1 ring-black/10 dark:ring-white/10 cursor-pointer">
+                            <div data-promotional-card key={video.id} onClick={() => { if (videoDragRef.current.moved) return; setSelectedPromotionalVideo(video); setSelectedVideoMuted(false); setIsVideoFullscreen(false); }} className="relative shrink-0 w-[190px] min-w-[190px] md:w-[250px] md:min-w-[250px] lg:w-[270px] lg:min-w-[270px] aspect-[9/14] snap-center overflow-hidden rounded-[20px] bg-transparent shadow-md ring-1 ring-black/10 dark:ring-white/10 cursor-pointer">
                                 <video ref={(node) => { if (node) { node.muted = true; node.defaultMuted = true; node.controls = false; node.setAttribute('playsinline', ''); node.setAttribute('webkit-playsinline', ''); } }} src={optimizeVideoUrl(video.url)} muted autoPlay loop playsInline controls={false} controlsList="nodownload noplaybackrate" disablePictureInPicture disableRemotePlayback preload="none" onCanPlay={(event) => event.currentTarget.play().catch(() => {})} onLoadedData={(event) => event.currentTarget.play().catch(() => {})} className="promotional-video-external w-full h-full object-cover rounded-[20px]" aria-label={video.title || `فيديو المتجر ${index + 1}`} />
                                 <button type="button" aria-label="الفيديو صامت" onClick={(event) => { event.stopPropagation(); setSelectedPromotionalVideo(video); setSelectedVideoMuted(false); setIsVideoFullscreen(false); }} className="absolute left-1.5 bottom-3 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm"><VolumeX size={14} strokeWidth={2.5} /></button>
                             </div>
