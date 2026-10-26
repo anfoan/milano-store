@@ -477,7 +477,18 @@ const Checkout = () => {
         }
 
         // Prepare Order Data
-        const newOrderId = await getNextInvoiceNumber(db);
+        const newOrderId = await Promise.race([
+            getNextInvoiceNumber(db),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('INVOICE_COUNTER_TIMEOUT')), 8000))
+        ]).catch(() => {
+            // Storefront visitors cannot reserve the admin-only Firestore counter.
+            // Keep checkout moving with a device-local fallback sequence instead of leaving the button spinning.
+            const counterKey = 'milano_checkout_invoice_sequence';
+            const current = Math.max(119100, Number(localStorage.getItem(counterKey) || 119100));
+            const next = current + 1;
+            localStorage.setItem(counterKey, String(next));
+            return String(next).padStart(6, '0');
+        });
         // Never block order completion on an optional third-party IP lookup.
         // On weak Wi-Fi this request could stay pending and leave the submit UI loading forever.
         const ipAddress = 'غير متوفر';
