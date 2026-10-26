@@ -56,6 +56,7 @@ const Footer = () => {
             'تحويل محفظة جيب': 'Jeeb wallet transfer',
             'تحويل صرافة محلية': 'Local exchange transfer',
             'تم شراء البضاعة على جودة': 'Quality-guaranteed products',
+            'تم شراء البضاعة بأعلى جودة': 'Quality-guaranteed products',
             'شميلة شارع السفينة': 'Shamila Ship St.',
             'خيارات التوصيل': 'Delivery options',
             'سياسة الاستبدال': 'Exchange policy',
