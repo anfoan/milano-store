@@ -1035,7 +1035,7 @@ const Home = () => {
                                             src={optimizeImageUrl(cat.image || "/catalog.png", 440)}
                                             alt={cat.name}
                                             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                                            loading={catIndex < 4 ? "eager" : "lazy"}
+                                            loading={catIndex < 10 ? "eager" : "lazy"}
                                             fetchPriority={catIndex === 0 ? "high" : "auto"}
                                             decoding="async"
                                         />
@@ -1091,7 +1091,7 @@ const Home = () => {
                                                                 alt={product.name}
                                                                 className="absolute inset-0 w-full h-full object-cover"
                                                                 draggable="false"
-                                                                loading={productIndex < 6 ? "eager" : "lazy"}
+                                                                loading={productIndex < 12 ? "eager" : "lazy"}
                                                                 fetchPriority={productIndex < 2 ? "high" : "auto"}
                                                                 decoding="async"
                                                             />

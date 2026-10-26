@@ -28,22 +28,10 @@ const ScrollToTop = () => {
 
     useLayoutEffect(() => {
         const savedPosition = navType === 'POP' ? readScrollPosition(pathname) : 0;
-        let frameId;
-        let retryId;
-
-        const restore = () => {
-            window.scrollTo({ top: savedPosition, left: 0, behavior: 'auto' });
-        };
 
         // Keep PUSH navigation at the top, while POP navigation returns the
         // customer to the exact place where they were browsing before.
-        frameId = window.requestAnimationFrame(restore);
-        retryId = window.setTimeout(restore, navType === 'POP' ? 120 : 0);
-
-        return () => {
-            window.cancelAnimationFrame(frameId);
-            window.clearTimeout(retryId);
-        };
+        window.scrollTo({ top: savedPosition, left: 0, behavior: 'auto' });
     }, [pathname, navType]);
 
     return null;
