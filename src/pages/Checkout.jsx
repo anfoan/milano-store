@@ -476,7 +476,20 @@ const Checkout = () => {
         }
 
         // Prepare Order Data
-        const newOrderId = await getNextInvoiceNumber(db);
+        let newOrderId;
+        try {
+            newOrderId = await Promise.race([
+                getNextInvoiceNumber(db),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('INVOICE_COUNTER_TIMEOUT')), 2500))
+            ]);
+        } catch (invoiceError) {
+            console.warn('Invoice counter unavailable during storefront checkout; using local fallback.', invoiceError);
+            const counterKey = 'milano_checkout_invoice_sequence';
+            const storedCounter = Number(localStorage.getItem(counterKey) || 119100);
+            const nextCounter = Math.max(119100, Number.isFinite(storedCounter) ? storedCounter : 119100) + 1;
+            localStorage.setItem(counterKey, String(nextCounter));
+            newOrderId = String(nextCounter).padStart(6, '0');
+        }
         // Never block order completion on an optional third-party IP lookup.
         // On weak Wi-Fi this request could stay pending and leave the submit UI loading forever.
         const ipAddress = 'غير متوفر';
