@@ -322,7 +322,7 @@ const ProductDetail = () => {
                         onClick={() => navigate(-1)}
                         className="w-10 h-10 rounded-full bg-gray-200/50 dark:bg-white/10 backdrop-blur-md flex items-center justify-center text-gray-900 dark:text-white hover:bg-gray-300/50 dark:hover:bg-white/20 transition-all shadow-sm border border-gray-200 dark:border-white/5"
                     >
-                        <ArrowRight size={20} className="flip-rtl" />
+                        <ArrowRight size={20} />
                     </button>
                     <h2 className="text-lg md:text-xl font-black text-gray-900 dark:text-white line-clamp-1">
                         {product.name}
