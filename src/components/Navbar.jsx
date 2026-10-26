@@ -489,14 +489,14 @@ const Navbar = () => {
                                             <button
                                                 type="button"
                                                 onClick={() => setSizeGuideOpen(true)}
-                                                className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-700 active:scale-95"
+                                                className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-700 active:scale-95"
                                             >
                                                 {language === 'ar' ? 'معرفة مقاسي' : 'Find my size'}
                                             </button>
                                         </div>
 
                                         {/* Storefront-only language switcher inside the side categories drawer. */}
-                                        <div className="mt-[76px] flex -translate-y-1 w-full flex-col items-center px-2">
+                                        <div className="mt-[76px] flex -translate-x-2 -translate-y-6 w-full flex-col items-center px-2">
                                             <div className="w-fit">
                                                 <div className="flex items-center justify-end gap-1 text-[13px] font-black" dir="rtl">
                                                     <button type="button" onClick={() => setStoreLanguage('ar')} className={`rounded-md px-2 py-1 transition ${language === 'ar' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10'}`}>عربي</button>
