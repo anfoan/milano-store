@@ -494,7 +494,7 @@ const Navbar = ({ onCategoryDrawerChange }) => {
                                             <button
                                                 type="button"
                                                 onClick={() => setSizeGuideOpen(true)}
-                                                className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-700 active:scale-95"
+                                                className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-700 active:scale-95"
                                             >
                                                 {language === 'ar' ? 'معرفة مقاسي' : 'Find my size'}
                                             </button>
@@ -551,8 +551,8 @@ const Navbar = ({ onCategoryDrawerChange }) => {
                                 </h3>
                                 <div className="mt-4 rounded-xl border border-dashed border-gray-200 p-4 dark:border-white/10">
                                     <div className="mb-4 text-center">
-                                        <p className="text-[12px] font-black uppercase tracking-[0.12em] text-gray-600 dark:text-gray-300">
-                                            {language === 'ar' ? 'قياسك التقريبي للتيشرتات' : 'Your approximate T-shirt fit'}
+                                        <p className="text-[13px] font-black leading-relaxed text-gray-700 dark:text-gray-200">
+                                            {language === 'ar' ? 'اختر مقاسك التقريبي للتيشرت' : 'Choose your approximate T-shirt size'}
                                         </p>
                                     </div>
 
