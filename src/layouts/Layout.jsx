@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Suspense, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -8,6 +8,8 @@ import ScrollToTop from '../components/ScrollToTop';
 
 const Layout = () => {
     const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false);
+    const location = useLocation();
+    const isCategoryPage = location.pathname.startsWith('/category/');
 
     return (
         <div className="min-h-screen flex flex-col bg-brand-gray dark:bg-[#0f1218]">
@@ -24,7 +26,7 @@ const Layout = () => {
                 </Suspense>
             </main>
             <Footer />
-            <WhatsAppButton hidden={categoryDrawerOpen} />
+            <WhatsAppButton hidden={categoryDrawerOpen && !isCategoryPage} />
         </div>
     );
 };

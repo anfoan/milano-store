@@ -84,6 +84,7 @@ const Navbar = ({ onCategoryDrawerChange }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const isProductPage = location.pathname.startsWith('/product');
+    const isCategoryPage = location.pathname.startsWith('/category/');
 
     // Close sidebar/cart on route change
     useEffect(() => {
@@ -500,7 +501,7 @@ const Navbar = ({ onCategoryDrawerChange }) => {
                                         </div>
 
                                         {/* Storefront-only language switcher inside the side categories drawer. */}
-                                        <div className="mt-[76px] flex -translate-x-2 -translate-y-11 w-full flex-col items-start px-2" dir="ltr">
+                                        {!isCategoryPage && <div className="mt-[76px] flex -translate-x-2 -translate-y-11 w-full flex-col items-start px-2" dir="ltr">
                                             <div className="w-fit">
                                                 <div className="flex items-center justify-end gap-1 text-[13px] font-black" dir="rtl">
                                                     <button type="button" onClick={() => setStoreLanguage('ar')} className={`rounded-md px-2 py-1 transition ${language === 'ar' ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10'}`}>عربي</button>
@@ -509,7 +510,7 @@ const Navbar = ({ onCategoryDrawerChange }) => {
                                                 </div>
                                                 <div className="mt-1 h-1 w-full rounded-full bg-blue-500"></div>
                                             </div>
-                                        </div>
+                                        </div>}
 
                                     </div>
                                 </div>
@@ -551,7 +552,7 @@ const Navbar = ({ onCategoryDrawerChange }) => {
                                 <div className="mt-4 rounded-xl border border-dashed border-gray-200 p-4 dark:border-white/10">
                                     <div className="mb-4 text-center">
                                         <p className="text-[12px] font-black uppercase tracking-[0.12em] text-gray-600 dark:text-gray-300">
-                                            {language === 'ar' ? 'قياسك التقريبي' : 'Your approximate fit'}
+                                            {language === 'ar' ? 'قياسك التقريبي للتيشرتات' : 'Your approximate T-shirt fit'}
                                         </p>
                                     </div>
 
