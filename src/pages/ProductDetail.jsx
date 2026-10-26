@@ -473,7 +473,7 @@ const ProductDetail = () => {
                     </div>
 
                     {/* RIGHT COLUMN (Desktop): Product Content */}
-                    <div className="lg:col-span-8 order-1 lg:order-1 space-y-2 md:space-y-4">
+                    <div className="lg:col-span-8 order-1 lg:order-1 space-y-1 md:space-y-2 lg:space-y-4">
                         {/* Section Headers - Desktop Only */}
                         <div className="hidden lg:grid grid-cols-12 px-8 mb-2">
                             <div className="col-span-7 flex justify-start">
@@ -486,7 +486,7 @@ const ProductDetail = () => {
                         </div>
 
                         {/* Product Summary Card */}
-                        <div className="bg-transparent md:bg-transparent rounded-[24px] p-3 md:p-4 lg:p-6 lg:px-10 border border-gray-400/70 dark:border-[#2d323e] relative overflow-visible transition-colors duration-300 shadow-md">
+                        <div className="bg-transparent md:bg-transparent rounded-[24px] p-3 pb-1 md:p-4 md:pb-2 lg:p-6 lg:px-10 lg:pb-6 border border-gray-400/70 dark:border-[#2d323e] relative overflow-visible transition-colors duration-300 shadow-md">
                             {/* Desktop Layout */}
                             <div className="hidden lg:grid grid-cols-12 items-center w-full">
                                 <div className="col-span-7 flex items-center justify-start gap-6 px-2 order-1">
@@ -583,7 +583,7 @@ const ProductDetail = () => {
                                     </div>
                                 </div>
 
-                                <div className="relative w-full z-40 flex justify-start py-0.5 pl-0 -translate-y-4" dir="ltr">
+                                <div className="relative w-full z-40 flex justify-start py-0.5 pl-0 -translate-y-7" dir="ltr">
                                     <QuantityStepper
                                         value={quantity}
                                         min={0}
