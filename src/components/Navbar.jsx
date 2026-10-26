@@ -485,7 +485,7 @@ const Navbar = () => {
                                             </div>
                                         </div>
 
-                                        <div className="mt-3 flex w-full justify-end px-2">
+                                        <div className="mt-3 flex w-full justify-end px-2" dir="ltr">
                                             <button
                                                 type="button"
                                                 onClick={() => setSizeGuideOpen(true)}
