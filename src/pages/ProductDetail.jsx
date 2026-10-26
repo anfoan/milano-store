@@ -385,7 +385,7 @@ const ProductDetail = () => {
                             </div>
 
                             {/* Quantity Row */}
-                            <div className="flex flex-row justify-between items-center px-0.5 md:px-1 gap-3">
+                            <div className="hidden lg:flex flex-row justify-between items-center px-0.5 md:px-1 gap-3">
                                 <span className="text-gray-900 dark:text-white font-black text-sm md:text-base text-right">{t('product.quantity')}</span>
                                 <QuantityStepper
                                     value={quantity}
@@ -486,7 +486,7 @@ const ProductDetail = () => {
                         </div>
 
                         {/* Product Summary Card */}
-                        <div className="bg-transparent md:bg-transparent rounded-[24px] p-4 md:p-6 md:px-10 border border-gray-400/70 dark:border-[#2d323e] relative overflow-visible transition-colors duration-300 shadow-md">
+                        <div className="bg-transparent md:bg-transparent rounded-[24px] p-3 md:p-4 lg:p-6 lg:px-10 border border-gray-400/70 dark:border-[#2d323e] relative overflow-visible transition-colors duration-300 shadow-md">
                             {/* Desktop Layout */}
                             <div className="hidden lg:grid grid-cols-12 items-center w-full">
                                 <div className="col-span-7 flex items-center justify-start gap-6 px-2 order-1">
@@ -570,8 +570,8 @@ const ProductDetail = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex justify-start px-0 mt-0 -translate-y-1">
-                                    <div className="flex flex-col items-start">
+                                <div className="flex w-full justify-start px-0 mt-0 -translate-y-1" dir="ltr">
+                                    <div className="flex flex-col items-start text-left">
                                         {product.priceAfterDiscount && product.priceAfterDiscount < product.price && (
                                             <span className="text-gray-500 dark:text-white/60 text-[10px] line-through font-bold mb-0.5">
                                                 {formatPrice(Number(product.price) * quantity)}
