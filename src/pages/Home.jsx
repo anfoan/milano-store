@@ -450,10 +450,11 @@ const Home = () => {
                         date: serverTimestamp()
                     }, { merge: true });
 
-                    safeSessionSet('visited_today', 'true');
-                    console.log("Visitor tracked for:", todayDate);
                 } catch (error) {
-                    console.error("Error tracking visitor:", error);
+                    // Visitor statistics are optional; a denied write must not
+                    // create noisy retries or affect storefront navigation.
+                } finally {
+                    safeSessionSet('visited_today', 'true');
                 }
             }
         };
@@ -539,19 +540,11 @@ const Home = () => {
             safeLocalSet('cached_promotional_videos', JSON.stringify(activeVideos));
         }, err => console.error('Error fetching promotional videos:', err));
 
-        const unsubMerchantStores = onSnapshot(collection(db, 'merchant_stores'), (snapshot) => {
-            const stores = snapshot.docs.map(item => ({ id: item.id, ...item.data() }))
-                .filter(store => store.active !== false)
-                .sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
-            setMerchantStores(stores);
-        }, err => console.error('Error fetching merchant stores:', err));
-
         return () => {
             unsubscribeStatus();
             unsubCategories();
             unsubProducts();
             unsubPromotionalVideos();
-            unsubMerchantStores();
         };
     }, []);
 

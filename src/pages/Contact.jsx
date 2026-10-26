@@ -101,7 +101,6 @@ const Contact = () => {
 
             setMessageId(docRef.id);
             setSubmitted(true);
-            window.scrollTo(0, 0);
         } catch (error) {
             console.error("Error submitting form:", error);
             alert(t('contact.error'));

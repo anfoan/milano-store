@@ -86,7 +86,7 @@ const CategoryPage = () => {
         if (decodedCategoryName) {
             fetchCategoryProducts();
         }
-    }, [decodedCategoryName, interfaceSettings]);
+    }, [decodedCategoryName]);
 
     const isClosed = false; // Simplified for this view, or use storeStatus hook if needed
 

@@ -168,8 +168,7 @@ const ProductDetail = () => {
             }
         };
         fetchProductAndRelated();
-        window.scrollTo(0, 0);
-    }, [id, interfaceSettings]);
+    }, [id]);
 
     const renderDescription = (text) => {
         if (!text) return null;
@@ -476,7 +475,7 @@ const ProductDetail = () => {
                     {/* RIGHT COLUMN (Desktop): Product Content */}
                     <div className="lg:col-span-8 order-1 lg:order-1 space-y-2 md:space-y-4">
                         {/* Section Headers - Desktop Only */}
-                        <div className="hidden md:grid grid-cols-12 px-8 mb-2">
+                        <div className="hidden lg:grid grid-cols-12 px-8 mb-2">
                             <div className="col-span-7 flex justify-start">
                                 <h3 className="text-gray-400 font-bold text-sm">{t('product.product_title')}</h3>
                             </div>
@@ -489,7 +488,7 @@ const ProductDetail = () => {
                         {/* Product Summary Card */}
                         <div className="bg-transparent md:bg-transparent rounded-[24px] p-4 md:p-6 md:px-10 border border-gray-400/70 dark:border-[#2d323e] relative overflow-visible transition-colors duration-300 shadow-md">
                             {/* Desktop Layout */}
-                            <div className="hidden md:grid grid-cols-12 items-center w-full">
+                            <div className="hidden lg:grid grid-cols-12 items-center w-full">
                                 <div className="col-span-7 flex items-center justify-start gap-6 px-2 order-1">
                                     <div
                                         className="w-16 md:w-24 h-16 md:h-24 bg-gray-100 dark:bg-[#2b2d31] rounded-2xl overflow-hidden border border-gray-200 dark:border-white/5 shrink-0 cursor-pointer relative"
@@ -548,7 +547,7 @@ const ProductDetail = () => {
                             </div>
 
                             {/* Mobile Layout */}
-                            <div className="flex md:hidden flex-col gap-4">
+                            <div className="flex lg:hidden flex-col gap-2 pb-1">
                                 <div className="flex justify-start items-center w-full gap-4">
                                     <div
                                         className="w-24 h-24 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-[#1a1d23] shrink-0"
@@ -571,18 +570,7 @@ const ProductDetail = () => {
                                     </div>
                                 </div>
 
-                                <div className="relative w-full z-40 flex justify-center py-2">
-                                    <QuantityStepper
-                                        value={quantity}
-                                        min={0}
-                                        max={maxAddableQuantity}
-                                        onChange={setQuantity}
-                                        disabled={maxAddableQuantity <= 0}
-                                        label={t('product.quantity')}
-                                    />
-                                </div>
-
-                                <div className="flex justify-start px-2 mt-2">
+                                <div className="flex justify-start px-0 mt-0 -translate-y-1">
                                     <div className="flex flex-col items-start">
                                         {product.priceAfterDiscount && product.priceAfterDiscount < product.price && (
                                             <span className="text-gray-500 dark:text-white/60 text-[10px] line-through font-bold mb-0.5">
@@ -593,6 +581,17 @@ const ProductDetail = () => {
                                             {formatPrice(Number((product.priceAfterDiscount && product.priceAfterDiscount < product.price) ? product.priceAfterDiscount : product.price) * quantity)}
                                         </span>
                                     </div>
+                                </div>
+
+                                <div className="relative w-full z-40 flex justify-start py-0.5 pl-0" dir="ltr">
+                                    <QuantityStepper
+                                        value={quantity}
+                                        min={0}
+                                        max={maxAddableQuantity}
+                                        onChange={setQuantity}
+                                        disabled={maxAddableQuantity <= 0}
+                                        label={t('product.quantity')}
+                                    />
                                 </div>
                             </div>
                         </div>

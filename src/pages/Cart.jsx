@@ -27,7 +27,6 @@ const Cart = () => {
     const [couponSuccess, setCouponSuccess] = useState('');
 
     useEffect(() => {
-        window.scrollTo(0, 0);
         let storedCart = [];
         try {
             const stored = localStorage.getItem('cart');

@@ -4,7 +4,7 @@ import Layout from './layouts/Layout';
 import Home from './pages/Home'; // Eager load Home for instant First Contentful Paint
 
 // Lazy load other pages
-const ProductDetail = lazy(() => import('./pages/ProductDetail'));
+import ProductDetail from './pages/ProductDetail';
 const Cart = lazy(() => import('./pages/Cart'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Checkout = lazy(() => import('./pages/Checkout'));
@@ -28,7 +28,7 @@ import PageMetadataHandler from './components/PageMetadataHandler';
 import { CurrencyProvider } from './context/CurrencyContext';
 
 import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute'; // Add Import
-const CategoryPage = lazy(() => import('./pages/CategoryPage')); // Lazy load
+import CategoryPage from './pages/CategoryPage';
 
 const preloadCommonStoreRoutes = () => {
   const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
@@ -36,8 +36,6 @@ const preloadCommonStoreRoutes = () => {
 
   // Warm only the small, frequently visited storefront chunks; admin/POS chunks stay deferred.
   void Promise.all([
-    import('./pages/CategoryPage'),
-    import('./pages/ProductDetail'),
     import('./pages/OffersPage'),
     import('./pages/Cart')
   ]);

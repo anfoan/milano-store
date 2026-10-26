@@ -13,12 +13,11 @@ const OffersPage = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-    const { generalSettings, interfaceSettings } = useSettings();
+    const { generalSettings } = useSettings();
     const { t, language, direction } = useLanguage();
     const { formatPrice } = useCurrency();
 
     useEffect(() => {
-        window.scrollTo(0, 0);
         try {
             const cached = JSON.parse(localStorage.getItem('cached_products') || '[]');
             if (Array.isArray(cached)) {
@@ -38,7 +37,6 @@ const OffersPage = () => {
                     .filter(p => {
                         const isVisible = !p.hidden;
                         const hasDiscount = (Number(p.discount || 0) > 0 || (p.priceAfterDiscount && Number(p.priceAfterDiscount) < Number(p.price))) && !p.isOfferPaused;
-                        const hideOutOfStock = interfaceSettings?.hideOutOfStock;
                         return isVisible && hasDiscount;
                     })
                     .sort((a, b) => {
@@ -70,7 +68,7 @@ const OffersPage = () => {
         });
 
         return () => unsubscribe();
-    }, [interfaceSettings]);
+    }, []);
 
     if (loading) {
         return (

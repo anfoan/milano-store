@@ -66,10 +66,16 @@ const Checkout = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch Payment Settings
-                const paymentDoc = await getDoc(doc(db, "settings", "payments"));
+                // Load all checkout settings in parallel. Sequential reads made
+                // the payment choices remain blocked on slower phones/tablets.
+                const [paymentDoc, deliveryDoc, orderDoc] = await Promise.all([
+                    getDoc(doc(db, "settings", "payments")),
+                    getDoc(doc(db, "settings", "delivery")),
+                    getDoc(doc(db, "settings", "order"))
+                ]);
+
                 if (paymentDoc.exists()) {
-                    const data = paymentDoc.data();
+                    const data = { ...paymentDoc.data() };
                     // Normalize old label to new one if they match legacy versions
                     if (data.whatsapp_label === 'تواصل لإكمال عملية الدفع عبر واتساب' || data.whatsapp_label === 'تواصل لإكمال عملية الدفع' || data.whatsapp_label === 'تواصل معنا لإكمال عملية الدفع') {
                         data.whatsapp_label = 'تواصل معنا عبر واتساب لإكمال عملية الدفع.';
@@ -77,14 +83,10 @@ const Checkout = () => {
                     setPaymentSettings(prev => ({ ...prev, ...data }));
                 }
 
-                // Fetch Delivery Settings
-                const deliveryDoc = await getDoc(doc(db, "settings", "delivery"));
                 if (deliveryDoc.exists()) {
                     setDeliverySettings(prev => ({ ...prev, ...deliveryDoc.data() }));
                 }
 
-                // Fetch Order Page Settings
-                const orderDoc = await getDoc(doc(db, "settings", "order"));
                 if (orderDoc.exists()) {
                     setOrderSettings(prev => ({ ...prev, ...orderDoc.data() }));
                 }
@@ -206,7 +208,6 @@ const Checkout = () => {
 
     // Initial Cart Load
     useEffect(() => {
-        window.scrollTo(0, 0);
         let cart = [];
         try {
             const stored = localStorage.getItem('cart');
@@ -563,8 +564,8 @@ const Checkout = () => {
                     if (!currentCoupon.isUnlimited && currentCoupon.usedCount >= currentCoupon.maxUses) {
                         alert("عذراً، لقد انتهت صلاحية هذا الكوبون للتو!");
                         localStorage.removeItem('cart_coupon');
+                        setAppliedCoupon(null);
                         setLoading(false);
-                        window.location.reload();
                         return;
                     }
 
@@ -575,8 +576,8 @@ const Checkout = () => {
                         if (today > expiry) {
                             alert("عذراً، لقد انتهى تاريخ صلاحية هذا الكوبون!");
                             localStorage.removeItem('cart_coupon');
+                            setAppliedCoupon(null);
                             setLoading(false);
-                            window.location.reload();
                             return;
                         }
                     }
@@ -589,15 +590,15 @@ const Checkout = () => {
                     if (currentCoupon.minOrderAmount && currentSubTotal < currentCoupon.minOrderAmount) {
                         alert(`عذراً، هذا الكوبون يتطلب مشتريات (قبل الخصم) بحد أدنى ${formatPrice(currentCoupon.minOrderAmount)}!`);
                         localStorage.removeItem('cart_coupon');
+                        setAppliedCoupon(null);
                         setLoading(false);
-                        window.location.reload();
                         return;
                     }
                 } else {
                     alert("عذراً، هذا الكوبون لم يعد متاحاً.");
                     localStorage.removeItem('cart_coupon');
+                    setAppliedCoupon(null);
                     setLoading(false);
-                    window.location.reload();
                     return;
                 }
             }
@@ -1125,7 +1126,7 @@ const Checkout = () => {
                                                         {showCOD && (
                                                             <div
                                                                 className="flex items-center justify-end gap-3 cursor-pointer group"
-                                                                onClick={() => setFormData({ ...formData, paymentMethod: 'cod' })}
+                                                                onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'cod' }))}
                                                             >
                                                                 <span className={`font-bold text-sm ${formData.paymentMethod === 'cod' ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>{t('checkout.payment_cod')}</span>
                                                                 <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${formData.paymentMethod === 'cod' ? 'border-[#3b82f6]' : 'border-gray-400 dark:border-gray-600'}`}>
@@ -1138,7 +1139,7 @@ const Checkout = () => {
                                                         {showWhatsApp && (
                                                             <div
                                                                 className="flex items-center justify-end gap-3 cursor-pointer group"
-                                                                onClick={() => setFormData({ ...formData, paymentMethod: 'whatsapp' })}
+                                                                onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'whatsapp' }))}
                                                             >
                                                                 <div className="flex flex-col items-end">
                                                                     <span className={`font-bold text-sm flex items-center gap-2 ${formData.paymentMethod === 'whatsapp' ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>
