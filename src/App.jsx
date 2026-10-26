@@ -52,12 +52,7 @@ function App() {
   return (
     <CurrencyProvider>
       <PageMetadataHandler />
-      <Suspense fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#111317]">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      }>
-        <Routes>
+      <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="category/:categoryName" element={<CategoryPage />} /> {/* Dynamic Category Route */}
@@ -78,10 +73,10 @@ function App() {
           </Route >
 
           {/* Standalone Chat Route (No Header/Footer) */}
-          <Route path="/chat/:chatId" element={<CustomerChat />} />
+          <Route path="/chat/:chatId" element={<Suspense fallback={<div className="min-h-screen" />}><CustomerChat /></Suspense>} />
 
           {/* Standalone Password Reset Route */}
-          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/reset-password" element={<Suspense fallback={<div className="min-h-screen" />}><ResetPassword /></Suspense>} />
 
           {/* Standalone POS Route */}
           <Route path="/pos" element={
@@ -107,8 +102,7 @@ function App() {
               </Suspense >
             </ProtectedAdminRoute>
           } />
-        </Routes>
-      </Suspense>
+      </Routes>
     </CurrencyProvider>
   );
 }
