@@ -28,7 +28,7 @@ const SIZE_GUIDE_ROWS = [
     { size: 'XXL', minWeight: 95, maxWeight: 105, minHeight: 182, maxHeight: 190 },
 ];
 
-const Navbar = () => {
+const Navbar = ({ onCategoryDrawerChange }) => {
     const { theme } = useTheme();
     const { t, language, direction, setStoreLanguage } = useLanguage();
     const { generalSettings, imageSettings, interfaceSettings } = useSettings();
@@ -91,6 +91,10 @@ const Navbar = () => {
         setIsSearchOpen(false);
         setIsCartOpen(false);
     }, [location]);
+
+    useEffect(() => {
+        onCategoryDrawerChange?.(isOpen);
+    }, [isOpen, onCategoryDrawerChange]);
 
     useEffect(() => {
         setWalletDisplayCurrency(activeCurrency);

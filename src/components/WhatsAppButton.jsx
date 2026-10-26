@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSettings } from '../hooks/useSettings';
 
-const WhatsAppButton = () => {
+const WhatsAppButton = ({ hidden = false }) => {
     const { socialLinks } = useSettings();
     const [videoPreviewOpen, setVideoPreviewOpen] = useState(false);
 
@@ -45,7 +45,7 @@ const WhatsAppButton = () => {
     return (
         <button
             onClick={handleClick}
-            className={`whatsapp-floating-button ${videoPreviewOpen ? 'hidden' : 'fixed'} print:hidden bottom-[100px] md:bottom-[86px] left-4 md:left-6 z-[9999] group flex items-center justify-center transition-all duration-300 hover:scale-110`}
+            className={`whatsapp-floating-button ${videoPreviewOpen ? 'hidden' : 'fixed'} print:hidden bottom-[100px] md:bottom-[86px] left-4 md:left-6 z-[9999] group flex items-center justify-center transition-all duration-300 hover:scale-110 ${hidden ? 'pointer-events-none opacity-0 scale-75' : 'opacity-100 scale-100'}`}
             aria-label="Contact on WhatsApp"
         >
             {/* Pulse Effect Background */}

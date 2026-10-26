@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import WhatsAppButton from '../components/WhatsAppButton';
@@ -7,11 +7,13 @@ import StoreStatusGuardian from '../components/StoreStatusGuardian';
 import ScrollToTop from '../components/ScrollToTop';
 
 const Layout = () => {
+    const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false);
+
     return (
         <div className="min-h-screen flex flex-col bg-brand-gray dark:bg-[#0f1218]">
             <ScrollToTop />
             <StoreStatusGuardian />
-            <Navbar />
+            <Navbar onCategoryDrawerChange={setCategoryDrawerOpen} />
             <main className="flex-grow pb-2">
                 <Suspense fallback={
                     <div className="min-h-[60vh] flex items-center justify-center bg-brand-gray dark:bg-[#0f1218]" aria-label="جاري التحميل">
@@ -22,7 +24,7 @@ const Layout = () => {
                 </Suspense>
             </main>
             <Footer />
-            <WhatsAppButton />
+            <WhatsAppButton hidden={categoryDrawerOpen} />
         </div>
     );
 };
