@@ -10,7 +10,7 @@ const Layout = () => {
     const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false);
 
     return (
-        <div className="store-arabic-glyphs-clear min-h-screen flex flex-col bg-brand-gray dark:bg-[#0f1218]">
+        <div className="min-h-screen flex flex-col bg-brand-gray dark:bg-[#0f1218]">
             <ScrollToTop />
             <StoreStatusGuardian />
             <Navbar onCategoryDrawerChange={setCategoryDrawerOpen} />
