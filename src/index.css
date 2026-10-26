@@ -27,6 +27,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Noto Sans Arabic keeps the dots of ي visible at the small sizes used across the store. */
+.store-arabic-glyphs-clear,
+.store-arabic-glyphs-clear * {
+  font-family: 'Noto Sans Arabic', 'Cairo', system-ui, Avenir, Helvetica, Arial, sans-serif !important;
+}
+
 @keyframes social-wave-shine {
   0%, 8% { transform: translateX(-180%) skewX(-18deg); opacity: 0; }
   18% { opacity: 1; }

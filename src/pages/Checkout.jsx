@@ -804,7 +804,7 @@ const Checkout = () => {
 
                     {/* Name */}
                     <div className="space-y-2">
-                        <label className="text-gray-700 dark:text-white font-bold text-sm">{t('checkout.name')}</label>
+                            <label className="text-gray-700 dark:text-white font-bold text-sm">{t('checkout.name')} <span className="mr-1 text-xs font-black text-rose-500">*</span></label>
                         <div className="bg-white dark:bg-[#1c1c1e] border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden shadow-sm dark:shadow-none transition-colors">
                             <input
                                 type="text"
@@ -837,7 +837,7 @@ const Checkout = () => {
 
                     {/* Phone with Country Code */}
                     <div className="space-y-2 relative">
-                        <label className="text-gray-700 dark:text-white font-bold text-sm">{t('checkout.phone')}</label>
+                        <label className="text-gray-700 dark:text-white font-bold text-sm">{t('checkout.phone')} <span className="mr-1 text-xs font-black text-rose-500">*</span></label>
                         <div className="flex border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden bg-white dark:bg-[#1c1c1e] focus-within:border-blue-500 transition-colors relative z-20 shadow-sm dark:shadow-none">
                             {/* Flag Trigger */}
                             <div
@@ -921,7 +921,7 @@ const Checkout = () => {
 
                     {/* City Selection */}
                     <div className="space-y-2">
-                        <label className="text-gray-700 dark:text-white font-bold text-sm">{t('checkout.city')}</label>
+                        <label className="text-gray-700 dark:text-white font-bold text-sm">{t('checkout.city')} <span className="mr-1 text-xs font-black text-rose-500">*</span></label>
                         <div className="relative">
                             <select
                                 className="w-full bg-white dark:bg-[#1c1c1e] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 outline-none focus:border-blue-500 appearance-none cursor-pointer text-gray-900 dark:text-white shadow-sm dark:shadow-none"
@@ -969,7 +969,7 @@ const Checkout = () => {
 
                     {/* Address */}
                     <div className="space-y-2">
-                        <label className="text-gray-700 dark:text-white font-bold text-sm">{t('checkout.address')}</label>
+                        <label className="text-gray-700 dark:text-white font-bold text-sm">{t('checkout.address')} <span className="mr-1 text-xs font-black text-rose-500">*</span></label>
                         <div className="bg-white dark:bg-[#1c1c1e] border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden shadow-sm dark:shadow-none">
                             <input
                                 type="text"
