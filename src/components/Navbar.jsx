@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, ShoppingBag, ShoppingCart, Search, ArrowRight, CheckCircle2, Check, Home, LayoutGrid, BadgePercent, Package, Wallet, Ruler } from 'lucide-react';
+import { Menu, X, ShoppingBag, ShoppingCart, Search, ArrowRight, CheckCircle2, Check, Home, LayoutGrid, BadgePercent, Package, Wallet, Shirt } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../lib/firebase';
@@ -496,7 +496,7 @@ const Navbar = ({ onCategoryDrawerChange }) => {
                                                 className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-700 active:scale-95"
                                             >
                                                 {language === 'ar' ? 'معرفة مقاسي' : 'Find my size'}
-                                                <Ruler size={16} strokeWidth={2.5} aria-hidden="true" />
+                                                <Shirt size={16} strokeWidth={2.5} aria-hidden="true" />
                                             </button>
                                         </div>
 
