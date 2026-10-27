@@ -68,7 +68,6 @@ const ProductDetail = () => {
                         setProduct(cachedProduct);
                         setActiveImage(cachedProduct.mainImage);
                         setQuantity(hasAvailableStock(cachedProduct) ? 1 : 0);
-                        preloadProductImage(cachedProduct.mainImage, cachedProduct.updatedAt?.toMillis?.() || cachedProduct.updatedAt?.seconds || cachedProduct.updatedAt?._seconds);
                         setLoading(false);
                     }
                 } catch { /* network record below remains the source of truth */ }
@@ -106,9 +105,6 @@ const ProductDetail = () => {
                         setActiveImage(data.mainImage);
                     }
                     setQuantity(hasAvailableStock(data) ? 1 : 0);
-                    if (!cachedSnapshotIsCurrent) {
-                        preloadProductImage(data.mainImage, data.updatedAt?.toMillis?.() || data.updatedAt?.seconds || data.updatedAt?._seconds);
-                    }
 
                     // SELECTION LOGIC: Set initial size and color from variants
                     const sizeVariant = data.variants?.find(v => v.type === 'size');
@@ -537,7 +533,7 @@ const ProductDetail = () => {
                                         <img
                                             src={optimizeProductImage(product.mainImage, 1200, 90, productImageVersion)}
                                             alt={product.name}
-                                            loading="eager"
+                                            loading="lazy"
                                             decoding="async"
                                             className="w-full h-full object-cover"
                                             draggable="false"
@@ -593,7 +589,7 @@ const ProductDetail = () => {
                                         className="w-24 h-24 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-[#1a1d23] shrink-0"
                                         onClick={() => { setImageViewerStartIndex(0); setShowImageViewer(true); }}
                                     >
-                                        <img src={optimizeProductImage(product.mainImage, 1200, 90, productImageVersion)} alt={product.name} loading="eager" fetchPriority="high" decoding="async" className="w-full h-full object-cover" />
+                                        <img src={optimizeProductImage(product.mainImage, 1200, 90, productImageVersion)} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex flex-col items-start gap-2 text-right">
                                         <h1 className="text-base font-black text-gray-900 dark:text-white leading-tight">
