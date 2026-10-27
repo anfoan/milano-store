@@ -16,16 +16,19 @@ const Layout = () => {
             <ScrollToTop />
             <StoreStatusGuardian />
             <Navbar onCategoryDrawerChange={setCategoryDrawerOpen} />
-            <main className="flex-grow pb-2">
+            <main className="relative flex-grow pb-2">
                 <Suspense fallback={
                     <div className="min-h-[60vh] flex items-center justify-center bg-brand-gray dark:bg-[#0f1218]" aria-label="جاري التحميل">
                         <div className="h-9 w-9 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
                     </div>
                 }>
-                    <div className={isHomeRoute ? 'contents' : 'hidden'} aria-hidden={!isHomeRoute}>
+                    <div
+                        className={isHomeRoute ? 'relative z-0 visible' : 'relative z-0 invisible pointer-events-none'}
+                        aria-hidden={!isHomeRoute}
+                    >
                         <Home />
                     </div>
-                    <div className={isHomeRoute ? 'hidden' : 'contents'}>
+                    <div className={isHomeRoute ? 'hidden' : 'absolute inset-0 z-10'}>
                         <Outlet />
                     </div>
                 </Suspense>
