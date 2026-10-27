@@ -155,6 +155,7 @@ const HangingRackSection = ({ category, products, formatPrice, language }) => {
 };
 
 const MerchantStoresSection = ({ stores, language }) => {
+    return null;
     const visibleStores = stores.filter(store => store.active !== false && store.name && (store.imageUrl || store.background));
     if (!visibleStores.length) return null;
 
