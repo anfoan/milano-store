@@ -26,7 +26,7 @@ const Layout = () => {
                         className={isHomeRoute ? 'relative z-0 visible' : 'hidden'}
                         aria-hidden={!isHomeRoute}
                     >
-                        <Home />
+                        <Home isActive={isHomeRoute} />
                     </div>
                     <div className={isHomeRoute ? 'hidden' : 'relative z-10'}>
                         <Outlet />

@@ -185,7 +185,7 @@ const MerchantStoresSection = ({ stores, language }) => {
     );
 };
 
-const Home = () => {
+const Home = ({ isActive = true }) => {
     // SECURITY & DATA FIX: Clear old cache if project has changed
     const currentProjectId = "milano-anfoan-store-2026";
     const storedProjectId = safeLocalGet('active_project_id');
@@ -290,12 +290,12 @@ const Home = () => {
     };
 
     useEffect(() => {
-        if (!newArrivalsOpen || newArrivalSlides.length < 2) return undefined;
+        if (!isActive || !newArrivalsOpen || newArrivalSlides.length < 2) return undefined;
         const timer = window.setInterval(() => {
             setNewArrivalIndex((current) => (current + 1) % newArrivalSlides.length);
         }, 3000);
         return () => window.clearInterval(timer);
-    }, [newArrivalsOpen, newArrivalSlides.length]);
+    }, [isActive, newArrivalsOpen, newArrivalSlides.length]);
 
     const handleInvoiceTracking = (event) => {
         event.preventDefault();
@@ -360,30 +360,30 @@ const Home = () => {
 
     useEffect(() => {
         const element = categoryScrollRef.current;
-        if (!element || typeof IntersectionObserver === 'undefined') {
+        if (!isActive || !element || typeof IntersectionObserver === 'undefined') {
             return undefined;
         }
         const observer = new IntersectionObserver(([entry]) => setIsCategoryCarouselVisible(entry.isIntersecting), { rootMargin: '160px 0px' });
         observer.observe(element);
         return () => observer.disconnect();
-    }, [allCategories.length]);
+    }, [isActive, allCategories.length]);
 
     useEffect(() => {
         const element = videoScrollRef.current;
-        if (!element || typeof IntersectionObserver === 'undefined') {
+        if (!isActive || !element || typeof IntersectionObserver === 'undefined') {
             return undefined;
         }
         const observer = new IntersectionObserver(([entry]) => setIsVideoSectionVisible(entry.isIntersecting), { rootMargin: '280px 0px' });
         observer.observe(element);
         return () => observer.disconnect();
-    }, [promotionalVideos.length]);
+    }, [isActive, promotionalVideos.length]);
 
     // Move the right-aligned track directly so the motion cannot stall
     // because of browser-specific RTL scroll or animation behavior.
     useEffect(() => {
         const container = categoryScrollRef.current;
         const track = categoryTrackRef.current;
-        if (!container || !track || allCategories.length < 2 || !isCategoryCarouselVisible) return undefined;
+        if (!isActive || !container || !track || allCategories.length < 2 || !isCategoryCarouselVisible) return undefined;
 
         let frameId;
         let lastTime = performance.now();
@@ -423,7 +423,7 @@ const Home = () => {
             cancelAnimationFrame(frameId);
             track.style.transform = '';
         };
-    }, [allCategories.length, isCategoryCarouselVisible]);
+    }, [isActive, allCategories.length, isCategoryCarouselVisible]);
 
     useEffect(() => {
         // 1. Real-time Store Status Sync
@@ -556,7 +556,7 @@ const Home = () => {
     useEffect(() => {
         const viewport = videoScrollRef.current;
         const track = videoTrackRef.current;
-        if (!viewport || !track || promotionalVideos.length <= 1 || !isVideoSectionVisible) return undefined;
+        if (!isActive || !viewport || !track || promotionalVideos.length <= 1 || !isVideoSectionVisible) return undefined;
         let frameId;
         let lastTime = performance.now();
         const speed = 22;
@@ -611,10 +611,10 @@ const Home = () => {
             videoDragRef.current.active = false;
             videoDragTargetRef.current = 0;
         };
-    }, [promotionalVideos.length, isVideoSectionVisible]);
+    }, [isActive, promotionalVideos.length, isVideoSectionVisible]);
 
     useEffect(() => {
-        if (!promotionalVideos.length || !isVideoSectionVisible || selectedPromotionalVideo) return undefined;
+        if (!isActive || !promotionalVideos.length || !isVideoSectionVisible || selectedPromotionalVideo) return undefined;
         const keepVideosPlaying = () => {
             document.querySelectorAll('.promotional-video-external').forEach((video) => {
                 video.muted = true;
@@ -624,7 +624,7 @@ const Home = () => {
         };
         keepVideosPlaying();
         return undefined;
-    }, [promotionalVideos.length, isVideoSectionVisible, selectedPromotionalVideo]);
+    }, [isActive, promotionalVideos.length, isVideoSectionVisible, selectedPromotionalVideo]);
 
     useEffect(() => {
         window.dispatchEvent(new CustomEvent('milano-video-preview', { detail: { open: Boolean(selectedPromotionalVideo) } }));
