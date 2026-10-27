@@ -54,44 +54,16 @@
 
 <body>
   <div id="root"></div>
-  <script>
-    window.addEventListener('vite:preloadError', (event) => {
-      event.preventDefault();
-      const recoveryKey = 'milano-vite-preload-recovery';
-      let alreadyRecovered = false;
-      try {
-        alreadyRecovered = sessionStorage.getItem(recoveryKey) === '1';
-        if (!alreadyRecovered) sessionStorage.setItem(recoveryKey, '1');
-      } catch (_) {}
-      if (alreadyRecovered) return;
-      const reload = () => window.location.reload();
-      if (navigator.serviceWorker?.getRegistrations) {
-        navigator.serviceWorker.getRegistrations()
-          .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
-          .catch(() => {})
-          .finally(reload);
-      } else {
-        reload();
-      }
-    });
-  </script>
+
   <script type="module" src="/src/main.jsx"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        const resetKey = 'milano-runtime-cache-reset-v1';
-        let alreadyReset = false;
-        try {
-          alreadyReset = sessionStorage.getItem(resetKey) === '1';
-          if (!alreadyReset) sessionStorage.setItem(resetKey, '1');
-        } catch (_) {}
         navigator.serviceWorker.getRegistrations()
           .then((registrations) => Promise.all([
             ...registrations.map((registration) => registration.unregister()),
             ...(window.caches?.keys ? [window.caches.keys().then((names) => Promise.all(names.map((name) => window.caches.delete(name))))] : [])
-          ]).then(() => {
-            if (registrations.length && !alreadyReset) window.location.reload();
-          }))
+          ]))
           .catch(() => {});
       });
     }

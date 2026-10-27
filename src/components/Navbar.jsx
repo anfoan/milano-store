@@ -272,7 +272,7 @@ const Navbar = ({ onCategoryDrawerChange }) => {
                         {/* Right Section: Title (RTL Order) */}
                         <div className="flex items-center gap-0 pointer-events-auto">
                             {/* Store Title & Logo */}
-                            <Link to="/" onClick={(event) => { event.preventDefault(); window.location.assign('/'); }} className="flex items-center gap-2 md:gap-3 font-black text-lg md:text-xl text-gray-900 dark:text-white hover:text-blue-500 transition-colors whitespace-nowrap pl-2">
+                            <Link to="/" className="flex items-center gap-2 md:gap-3 font-black text-lg md:text-xl text-gray-900 dark:text-white hover:text-blue-500 transition-colors whitespace-nowrap pl-2">
                                 <img
                                     src={imageSettings?.profileImage || "/logo-rounded.png"}
                                     alt="Milano Logo"
