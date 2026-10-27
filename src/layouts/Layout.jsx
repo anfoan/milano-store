@@ -29,15 +29,14 @@ const Layout = () => {
                         <div className="h-9 w-9 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
                     </div>
                 }>
-                    {isHomeRoute ? (
-                        <div className="relative z-0 visible">
-                            <Home isActive />
-                        </div>
-                    ) : (
-                        <div className="relative z-10">
-                            <Outlet />
-                        </div>
-                    )}
+                    {/* Keep Home mounted between route changes.  Unmounting it rebuilt the
+                        full product grid and made every image repaint when a visitor returned. */}
+                    <div className={isHomeRoute ? 'relative z-0' : 'hidden'} aria-hidden={!isHomeRoute}>
+                        <Home isActive={isHomeRoute} />
+                    </div>
+                    <div className={isHomeRoute ? 'hidden' : 'relative z-10'}>
+                        <Outlet />
+                    </div>
                 </Suspense>
             </main>
             {!videoPreviewOpen && <Footer />}

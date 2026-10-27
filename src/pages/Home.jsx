@@ -1096,8 +1096,8 @@ const Home = ({ isActive = true }) => {
                                                                 alt={product.name}
                                                                 className="absolute inset-0 w-full h-full object-cover"
                                                                 draggable="false"
-                                                                loading={productIndex < 2 ? "eager" : "lazy"}
-                                                                fetchPriority={productIndex < 2 ? "high" : "auto"}
+                                                                loading={catIdx === 0 && productIndex < 2 ? "eager" : "lazy"}
+                                                                fetchPriority={catIdx === 0 && productIndex === 0 ? "high" : "auto"}
                                                                 decoding="async"
                                                             />
 
