@@ -29,15 +29,15 @@ const Layout = () => {
                         <div className="h-9 w-9 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
                     </div>
                 }>
-                    <div
-                        className={isHomeRoute ? 'relative z-0 visible' : 'hidden'}
-                        aria-hidden={!isHomeRoute}
-                    >
-                        <Home isActive={isHomeRoute} />
-                    </div>
-                    <div className={isHomeRoute ? 'hidden' : 'relative z-10'}>
-                        <Outlet />
-                    </div>
+                    {isHomeRoute ? (
+                        <div className="relative z-0 visible">
+                            <Home isActive />
+                        </div>
+                    ) : (
+                        <div className="relative z-10">
+                            <Outlet />
+                        </div>
+                    )}
                 </Suspense>
             </main>
             {!videoPreviewOpen && <Footer />}
