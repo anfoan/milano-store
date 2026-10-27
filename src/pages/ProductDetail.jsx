@@ -77,13 +77,26 @@ const ProductDetail = () => {
 
                 if (docSnap.exists() && !cancelled) {
                     const data = { id: docSnap.id, ...docSnap.data() };
-                    const cachedVersion = cachedProduct?.updatedAt?.toMillis?.() || cachedProduct?.updatedAt?.seconds || cachedProduct?.updatedAt?._seconds || cachedProduct?.updatedAt;
-                    const serverVersion = data.updatedAt?.toMillis?.() || data.updatedAt?.seconds || data.updatedAt?._seconds || data.updatedAt;
+                    const productContentSignature = (item) => JSON.stringify([
+                        item?.name,
+                        item?.mainImage,
+                        item?.gallery || [],
+                        item?.price,
+                        item?.priceAfterDiscount,
+                        item?.oldPrice,
+                        item?.discount,
+                        item?.description,
+                        item?.subtitle,
+                        item?.code,
+                        item?.category,
+                        item?.variants || [],
+                        item?.sizeStocks || {},
+                        item?.stock,
+                        item?.colors || []
+                    ]);
                     const cachedSnapshotIsCurrent = Boolean(
                         cachedProduct
-                        && cachedProduct.mainImage === data.mainImage
-                        && cachedProduct.name === data.name
-                        && (cachedVersion && serverVersion ? String(cachedVersion) === String(serverVersion) : cachedProduct.description === data.description)
+                        && productContentSignature(cachedProduct) === productContentSignature(data)
                     );
 
                     // Avoid replacing an identical cached product: doing so causes a
@@ -94,7 +107,7 @@ const ProductDetail = () => {
                     }
                     setQuantity(hasAvailableStock(data) ? 1 : 0);
                     if (!cachedSnapshotIsCurrent) {
-                        preloadProductImage(data.mainImage, serverVersion);
+                        preloadProductImage(data.mainImage, data.updatedAt?.toMillis?.() || data.updatedAt?.seconds || data.updatedAt?._seconds);
                     }
 
                     // SELECTION LOGIC: Set initial size and color from variants
