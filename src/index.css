@@ -505,6 +505,11 @@
   transform: translateY(-3px) !important;
 }
 
+.customer-orders-whatsapp-customer-card > div > div:nth-child(3) > span:last-child,
+.customer-orders-whatsapp-customer-card > div > div:nth-child(4) > span:last-child {
+  transform: none !important;
+}
+
 @media screen and (max-width: 1024px) {
   .invoice-print-overlay .customer-orders-invoice-preview {
     display: flex !important;
