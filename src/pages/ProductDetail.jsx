@@ -20,7 +20,7 @@ import { getLocalizedCurrency } from '../lib/currencyUtils';
 import DraggableScrollContainer from '../components/DraggableScrollContainer';
 import QuantityStepper from '../components/QuantityStepper';
 import { getAvailableSizeValues, getSizeStock, hasAvailableStock } from '../lib/stockUtils';
-import { optimizeProductImage } from '../lib/imageUtils';
+import { optimizeProductImage, preloadProductImage } from '../lib/imageUtils';
 
 const ProductDetail = () => {
     const { t, direction, language } = useLanguage();
@@ -48,28 +48,38 @@ const ProductDetail = () => {
 
     // Fetch Product Data
     useEffect(() => {
+        let cancelled = false;
+        setProduct(null);
+        setRelatedProducts([]);
+        setActiveImage(null);
+        setSelectedSize(null);
+        setSelectedColor(null);
+        setQuantity(0);
+        setLoading(true);
+
         const fetchProductAndRelated = async () => {
             try {
-                setLoading(true);
                 // Render the product from the Home cache immediately on direct navigation.
                 try {
                     const cachedProducts = JSON.parse(localStorage.getItem('cached_products') || '[]');
                     const cachedProduct = Array.isArray(cachedProducts) ? cachedProducts.find(item => item.id === id) : null;
-                    if (cachedProduct) {
+                    if (cachedProduct && !cancelled) {
                         setProduct(cachedProduct);
                         setActiveImage(cachedProduct.mainImage);
                         setQuantity(hasAvailableStock(cachedProduct) ? 1 : 0);
+                        preloadProductImage(cachedProduct.mainImage, cachedProduct.updatedAt?.toMillis?.() || cachedProduct.updatedAt?.seconds || cachedProduct.updatedAt?._seconds);
                         setLoading(false);
                     }
                 } catch { /* network record below remains the source of truth */ }
                 const docRef = doc(db, "products", id);
                 const docSnap = await getDoc(docRef);
 
-                if (docSnap.exists()) {
+                if (docSnap.exists() && !cancelled) {
                     const data = { id: docSnap.id, ...docSnap.data() };
                     setProduct(data);
                     setActiveImage(data.mainImage);
                     setQuantity(hasAvailableStock(data) ? 1 : 0);
+                    preloadProductImage(data.mainImage, data.updatedAt?.toMillis?.() || data.updatedAt?.seconds || data.updatedAt?._seconds);
 
                     // SELECTION LOGIC: Set initial size and color from variants
                     const sizeVariant = data.variants?.find(v => v.type === 'size');
@@ -153,21 +163,22 @@ const ProductDetail = () => {
                             related = [...related, ...general].slice(0, 10);
                         }
 
-                        setRelatedProducts(related);
+                        if (!cancelled) setRelatedProducts(related);
                     } catch (relatedErr) {
                         console.error("Error fetching related products (non-critical):", relatedErr);
                         // No need to set loading error here, as main product is already visible
                     }
                 } else {
                     // Product not found, stop loading
-                    setLoading(false);
+                    if (!cancelled) setLoading(false);
                 }
             } catch (err) {
                 console.error("Error fetching product:", err);
-                setLoading(false);
+                if (!cancelled) setLoading(false);
             }
         };
         fetchProductAndRelated();
+        return () => { cancelled = true; };
     }, [id]);
 
     const renderDescription = (text) => {
@@ -768,6 +779,7 @@ const ProductDetail = () => {
                             <Link
                                 to={`/product/${p.id}`}
                                 key={p.id}
+                                onPointerDown={() => preloadProductImage(p.mainImage, p.updatedAt?.toMillis?.() || p.updatedAt?.seconds || p.updatedAt?._seconds)}
                                 className={`w-[200px] md:w-[240px] shrink-0 relative flex flex-col justify-between h-full bg-white dark:bg-[#0f1114] rounded-[32px] border-2 border-gray-100 dark:border-white/10 group transition-transform duration-300 hover:scale-[1.02] shadow-md dark:shadow-none Select-none`}
                                 draggable="false"
                             >
