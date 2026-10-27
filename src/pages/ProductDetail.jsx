@@ -31,6 +31,28 @@ const readCachedProduct = (id) => {
     }
 };
 
+const readCachedRelatedProducts = (product, id) => {
+    try {
+        const cachedProducts = JSON.parse(localStorage.getItem('cached_products') || '[]');
+        if (!Array.isArray(cachedProducts) || !product) return [];
+        const sameCategory = cachedProducts.filter(item => (
+            item?.id !== id
+            && item?.category === product.category
+            && !item?.hidden
+            && hasAvailableStock(item)
+        ));
+        const fallback = cachedProducts.filter(item => (
+            item?.id !== id
+            && item?.category !== product.category
+            && !item?.hidden
+            && hasAvailableStock(item)
+        ));
+        return [...sameCategory, ...fallback].slice(0, 10);
+    } catch {
+        return [];
+    }
+};
+
 const ProductDetail = () => {
     const { t, direction, language } = useLanguage();
     const { id } = useParams();
@@ -38,7 +60,7 @@ const ProductDetail = () => {
     const initialCachedProduct = readCachedProduct(id);
 
     const [product, setProduct] = useState(initialCachedProduct);
-    const [relatedProducts, setRelatedProducts] = useState([]);
+    const [relatedProducts, setRelatedProducts] = useState(() => readCachedRelatedProducts(initialCachedProduct, id));
     const [loading, setLoading] = useState(!initialCachedProduct);
     const [selectedSize, setSelectedSize] = useState(null);
     const [selectedColor, setSelectedColor] = useState(null);
@@ -69,7 +91,7 @@ const ProductDetail = () => {
         let cancelled = false;
         const isAlreadyShowingRequestedProduct = product?.id === id;
         if (!isAlreadyShowingRequestedProduct) setProduct(null);
-        setRelatedProducts([]);
+        setRelatedProducts(readCachedRelatedProducts(product, id));
         if (!isAlreadyShowingRequestedProduct) setActiveImage(null);
         setSelectedSize(null);
         setSelectedColor(null);
@@ -84,6 +106,7 @@ const ProductDetail = () => {
                     cachedProduct = readCachedProduct(id);
                     if (cachedProduct && !cancelled) {
                         setProduct(cachedProduct);
+                        setRelatedProducts(readCachedRelatedProducts(cachedProduct, id));
                         setActiveImage(cachedProduct.mainImage);
                         setQuantity(hasAvailableStock(cachedProduct) ? 1 : 0);
                         setLoading(false);
