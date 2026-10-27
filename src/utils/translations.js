@@ -138,7 +138,7 @@ export const translations = {
         'tracking.subtotal': 'المجموع الفرعي:',
         'tracking.delivery_fees': 'رسوم التوصيل:',
         'tracking.grand_total': 'الإجمالي:',
-        'tracking.thanks': 'شكراً لتسوقكم من متجر ميلانو للمستلزمات الرياضية',
+        'tracking.thanks': 'شكراً لشرائكم من متجر ميلانو',
         'tracking.track_order': 'تتبع حالة الطلب',
         'tracking.copy_link': 'نسخ الرابط',
         'tracking.link_copied': 'تم نسخ رابط التتبع بنجاح ✅',
