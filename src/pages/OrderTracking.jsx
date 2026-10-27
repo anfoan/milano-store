@@ -303,7 +303,7 @@ const OrderTracking = () => {
 
             {/* Hidden invoice for capture */}
             <div style={{ display: 'none' }}>
-                <InvoiceTemplate ref={invoiceRef} orders={order ? [order] : []} lang={language} generalSettings={generalSettings} hideHeader={true} />
+                <InvoiceTemplate ref={invoiceRef} orders={order ? [order] : []} lang={language} generalSettings={generalSettings} hideHeader={true} customerOrdersPreview />
             </div>
 
             <div className="pb-8">
