@@ -12,27 +12,6 @@ class ErrorBoundary extends React.Component {
 
     componentDidCatch(error, errorInfo) {
         console.error("Uncaught error:", error, errorInfo);
-        const message = String(error?.message || error || '');
-        const isChunkLoadError = /dynamically imported module|importing a module script failed|failed to fetch dynamically imported module|loading chunk/i.test(message);
-        if (!isChunkLoadError || typeof window === 'undefined') return;
-        let alreadyRecovered = false;
-        try {
-            alreadyRecovered = window.sessionStorage.getItem('milano-chunk-recovery') === '1';
-            if (!alreadyRecovered) window.sessionStorage.setItem('milano-chunk-recovery', '1');
-        } catch (_) {}
-        if (alreadyRecovered) return;
-        const clearRuntimeCache = async () => {
-            try {
-                const registrations = await navigator.serviceWorker?.getRegistrations?.();
-                await Promise.all((registrations || []).map((registration) => registration.unregister()));
-            } catch (_) {}
-            try {
-                const cacheNames = await window.caches?.keys?.();
-                await Promise.all((cacheNames || []).map((cacheName) => window.caches.delete(cacheName)));
-            } catch (_) {}
-            window.location.reload();
-        };
-        clearRuntimeCache();
     }
 
     render() {
