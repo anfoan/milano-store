@@ -1,5 +1,6 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Suspense, useEffect, useRef, useState } from 'react';
+import Home from '../pages/Home';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import WhatsAppButton from '../components/WhatsAppButton';
@@ -9,6 +10,8 @@ import ScrollToTop from '../components/ScrollToTop';
 const Layout = () => {
     const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false);
     const lastInternalNavigationRef = useRef({ href: '', at: 0 });
+    const { pathname } = useLocation();
+    const isHomeRoute = pathname === '/';
 
     useEffect(() => {
         const handleInternalClick = (event) => {
@@ -51,6 +54,9 @@ const Layout = () => {
             <StoreStatusGuardian />
             <Navbar onCategoryDrawerChange={setCategoryDrawerOpen} />
             <main className="flex-grow pb-2">
+                <div className={isHomeRoute ? 'block' : 'hidden'} aria-hidden={!isHomeRoute}>
+                    <Home />
+                </div>
                 <Suspense fallback={
                     <div className="min-h-[60vh] flex items-center justify-center bg-brand-gray dark:bg-[#0f1218]" aria-label="جاري التحميل">
                         <div className="h-9 w-9 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
