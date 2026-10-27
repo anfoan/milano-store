@@ -1,22 +1,23 @@
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './layouts/Layout';
 import Home from './pages/Home'; // Eager load Home for instant First Contentful Paint
 
-// Lazy load other pages
+// Keep storefront routes in the main application tree so navigation does not
+// briefly replace a page with Suspense fallback while its chunk is fetched.
 import ProductDetail from './pages/ProductDetail';
-const Cart = lazy(() => import('./pages/Cart'));
-const Contact = lazy(() => import('./pages/Contact'));
-const Checkout = lazy(() => import('./pages/Checkout'));
-const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation'));
-const Reviews = lazy(() => import('./pages/Reviews'));
-const Info = lazy(() => import('./pages/Info'));
-const UserProfile = lazy(() => import('./pages/UserProfile'));
-const CustomerChat = lazy(() => import('./pages/CustomerChat'));
-const RateOrder = lazy(() => import('./pages/RateOrder'));
-const OrderTracking = lazy(() => import('./pages/OrderTracking'));
-const OffersPage = lazy(() => import('./pages/OffersPage'));
-const CustomerWallet = lazy(() => import('./pages/CustomerWallet'));
+import Cart from './pages/Cart';
+import Contact from './pages/Contact';
+import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
+import Reviews from './pages/Reviews';
+import Info from './pages/Info';
+import UserProfile from './pages/UserProfile';
+import CustomerChat from './pages/CustomerChat';
+import RateOrder from './pages/RateOrder';
+import OrderTracking from './pages/OrderTracking';
+import OffersPage from './pages/OffersPage';
+import CustomerWallet from './pages/CustomerWallet';
 
 // Lazy load admin pages
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
@@ -30,26 +31,8 @@ import { CurrencyProvider } from './context/CurrencyContext';
 import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute'; // Add Import
 import CategoryPage from './pages/CategoryPage';
 
-const preloadCommonStoreRoutes = () => {
-  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  if (connection?.saveData || ['slow-2g', '2g'].includes(connection?.effectiveType)) return;
-
-  // Warm only the small, frequently visited storefront chunks; admin/POS chunks stay deferred.
-  void Promise.all([
-    import('./pages/OffersPage'),
-    import('./pages/Cart')
-  ]);
-};
-
 function App() {
-  useEffect(() => {
-    const schedule = window.requestIdleCallback || ((callback) => window.setTimeout(callback, 1400));
-    const cancel = window.cancelIdleCallback || window.clearTimeout;
-    const task = schedule(preloadCommonStoreRoutes, { timeout: 2200 });
-    return () => cancel(task);
-  }, []);
-
-  return (
+    return (
     <CurrencyProvider>
       <PageMetadataHandler />
       <Routes>
