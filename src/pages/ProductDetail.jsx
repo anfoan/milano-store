@@ -59,10 +59,11 @@ const ProductDetail = () => {
 
         const fetchProductAndRelated = async () => {
             try {
+                let cachedProduct = null;
                 // Render the product from the Home cache immediately on direct navigation.
                 try {
                     const cachedProducts = JSON.parse(localStorage.getItem('cached_products') || '[]');
-                    const cachedProduct = Array.isArray(cachedProducts) ? cachedProducts.find(item => item.id === id) : null;
+                    cachedProduct = Array.isArray(cachedProducts) ? cachedProducts.find(item => item.id === id) : null;
                     if (cachedProduct && !cancelled) {
                         setProduct(cachedProduct);
                         setActiveImage(cachedProduct.mainImage);
@@ -76,10 +77,25 @@ const ProductDetail = () => {
 
                 if (docSnap.exists() && !cancelled) {
                     const data = { id: docSnap.id, ...docSnap.data() };
-                    setProduct(data);
-                    setActiveImage(data.mainImage);
+                    const cachedVersion = cachedProduct?.updatedAt?.toMillis?.() || cachedProduct?.updatedAt?.seconds || cachedProduct?.updatedAt?._seconds || cachedProduct?.updatedAt;
+                    const serverVersion = data.updatedAt?.toMillis?.() || data.updatedAt?.seconds || data.updatedAt?._seconds || data.updatedAt;
+                    const cachedSnapshotIsCurrent = Boolean(
+                        cachedProduct
+                        && cachedProduct.mainImage === data.mainImage
+                        && cachedProduct.name === data.name
+                        && (cachedVersion && serverVersion ? String(cachedVersion) === String(serverVersion) : cachedProduct.description === data.description)
+                    );
+
+                    // Avoid replacing an identical cached product: doing so causes a
+                    // second render and a second image request during navigation.
+                    if (!cachedSnapshotIsCurrent) {
+                        setProduct(data);
+                        setActiveImage(data.mainImage);
+                    }
                     setQuantity(hasAvailableStock(data) ? 1 : 0);
-                    preloadProductImage(data.mainImage, data.updatedAt?.toMillis?.() || data.updatedAt?.seconds || data.updatedAt?._seconds);
+                    if (!cachedSnapshotIsCurrent) {
+                        preloadProductImage(data.mainImage, serverVersion);
+                    }
 
                     // SELECTION LOGIC: Set initial size and color from variants
                     const sizeVariant = data.variants?.find(v => v.type === 'size');
