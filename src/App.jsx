@@ -1,7 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './layouts/Layout';
-import Home from './pages/Home';
 
 // Keep storefront routes in the main application tree so navigation does not
 // briefly replace a page with Suspense fallback while its chunk is fetched.
@@ -37,7 +36,7 @@ function App() {
       <PageMetadataHandler />
       <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
+            <Route index element={null} />
             <Route path="category/:categoryName" element={<CategoryPage />} /> {/* Dynamic Category Route */}
             <Route path="product/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />

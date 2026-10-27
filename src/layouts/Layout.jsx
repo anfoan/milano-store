@@ -1,13 +1,16 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Suspense, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import WhatsAppButton from '../components/WhatsAppButton';
 import StoreStatusGuardian from '../components/StoreStatusGuardian';
 import ScrollToTop from '../components/ScrollToTop';
+import Home from '../pages/Home';
 
 const Layout = () => {
     const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false);
+    const { pathname } = useLocation();
+    const isHomeRoute = pathname === '/';
     return (
         <div className="min-h-screen flex flex-col bg-brand-gray dark:bg-[#0f1218]">
             <ScrollToTop />
@@ -19,7 +22,12 @@ const Layout = () => {
                         <div className="h-9 w-9 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
                     </div>
                 }>
-                    <Outlet />
+                    <div className={isHomeRoute ? 'contents' : 'hidden'} aria-hidden={!isHomeRoute}>
+                        <Home />
+                    </div>
+                    <div className={isHomeRoute ? 'hidden' : 'contents'}>
+                        <Outlet />
+                    </div>
                 </Suspense>
             </main>
             <Footer />
