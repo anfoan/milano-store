@@ -247,7 +247,7 @@ const Cart = () => {
                                             {/* Trash Button - Next to Quantity */}
                                             <button
                                                 onClick={() => removeFromCart(index)}
-                                                className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all flex-shrink-0"
+                                                className="absolute left-4 top-[calc(50%-8px)] -translate-y-1/2 w-8 h-8 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all flex-shrink-0"
                                                 title={t('cart.remove')}
                                             >
                                                 <Trash2 size={16} />
