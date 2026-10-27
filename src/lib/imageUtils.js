@@ -21,3 +21,14 @@ export const optimizeProductImage = (url, width, quality = 90, version) => {
     }
     return url;
 };
+
+const preloadedProductImages = new Set();
+
+export const preloadProductImage = (url, version) => {
+    const optimizedUrl = optimizeProductImage(url, 1200, 90, version);
+    if (!optimizedUrl || preloadedProductImages.has(optimizedUrl)) return;
+    preloadedProductImages.add(optimizedUrl);
+    const image = new Image();
+    image.decoding = 'async';
+    image.src = optimizedUrl;
+};

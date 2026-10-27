@@ -9,6 +9,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import DraggableScrollContainer from '../components/DraggableScrollContainer';
+import { preloadProductImage } from '../lib/imageUtils';
 
 
 const normalizeCategoryName = (value = '') => value
@@ -95,6 +96,7 @@ const HangingRackSection = ({ category, products, formatPrice, language }) => {
                         <Link
                             key={product.id}
                             to={`/product/${product.id}`}
+                            onPointerDown={() => preloadProductImage(product.mainImage || product.gallery?.[0], product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds)}
                             className={`group relative flex min-w-[31%] snap-center flex-1 flex-col items-center pt-1 transition-opacity duration-200 ${activeProductId && !isActive ? 'opacity-55' : 'opacity-100'}`}
                             onPointerEnter={() => setActiveProductId(product.id)}
                             onPointerLeave={() => setActiveProductId(null)}
@@ -742,6 +744,7 @@ const Home = () => {
                                 <Link
                                     key={product.id}
                                     to={`/product/${product.id}`}
+                                    onPointerDown={() => preloadProductImage(product.mainImage || product.gallery?.[0], product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds)}
                                     onClick={closeNewArrivals}
                                     className={`absolute inset-0 transition-all duration-500 ${index === newArrivalIndex ? 'pointer-events-auto translate-x-0 opacity-100' : 'pointer-events-none translate-x-2 opacity-0'}`}
                                 >
@@ -1079,6 +1082,7 @@ const Home = () => {
                                                 <Link
                                                     to={`/product/${product.id}`}
                                                     key={product.id}
+                                                    onPointerDown={() => preloadProductImage(product.mainImage || product.gallery?.[0], product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds)}
                                                     className={`w-[180px] md:w-[250px] shrink-0 relative flex flex-col justify-between h-full bg-white dark:bg-[#0f1114] rounded-[24px] md:rounded-[32px] border-2 border-gray-100 dark:border-white/10 group transition-transform duration-300 hover:scale-[1.02] shadow-md dark:shadow-none Select-none`}
                                                     draggable="false"
                                                     onDragStart={(e) => e.preventDefault()}

@@ -6,6 +6,7 @@ import { ArrowRight, ShoppingBag, Filter } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useSettings } from '../hooks/useSettings';
+import { preloadProductImage } from '../lib/imageUtils';
 
 const optimizeCategoryImage = (url, width = 560) => {
     if (!url || typeof url !== 'string') return url;
@@ -120,6 +121,7 @@ const CategoryPage = () => {
                             <Link
                                 to={`/product/${product.id}`}
                                 key={product.id}
+                                onPointerDown={() => preloadProductImage(product.mainImage, product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds)}
                                 className={`w-full relative flex flex-col justify-between h-full bg-white dark:bg-[#0f1114] rounded-[24px] md:rounded-[32px] border-2 border-gray-100 dark:border-white/10 group transition-transform duration-300 hover:scale-[1.02] shadow-md dark:shadow-none Select-none`}
                             >
                                 {/* Upper Block: Image & Title */}

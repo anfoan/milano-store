@@ -8,6 +8,7 @@ import { useSettings } from '../hooks/useSettings';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import ImageWithFallback from '../components/ImageWithFallback';
+import { preloadProductImage } from '../lib/imageUtils';
 
 const OffersPage = () => {
     const [products, setProducts] = useState([]);
@@ -120,6 +121,7 @@ const OffersPage = () => {
                             <Link
                                 to={`/product/${product.id}`}
                                 key={product.id}
+                                onPointerDown={() => preloadProductImage(product.mainImage, product.updatedAt?.toMillis?.() || product.updatedAt?.seconds || product.updatedAt?._seconds)}
                                 className={`w-full relative flex flex-col justify-between h-full bg-white dark:bg-[#0f1114] rounded-[20px] md:rounded-[32px] border-2 border-gray-100 dark:border-white/10 group transition-transform duration-300 hover:scale-[1.02] shadow-sm dark:shadow-none`}
                             >
                                 {/* Upper Block: Image & Title */}
