@@ -399,7 +399,7 @@ const ProductDetail = () => {
                             {/* Price Row */}
                             <div className="flex flex-row justify-between items-center px-0.5 md:px-1">
                                 <span className="text-gray-900 dark:text-white font-bold text-sm md:text-base text-right">{t('product.price')}</span>
-                                <div className="flex flex-col items-end">
+                                <div className="flex flex-col items-end" dir="rtl">
                                     {product.priceAfterDiscount && product.priceAfterDiscount < product.price ? (
                                         <>
                                             <span className="text-gray-500 dark:text-white/60 text-[10px] md:text-[12px] line-through font-bold">
@@ -441,7 +441,7 @@ const ProductDetail = () => {
                             <div className="h-[1.5px] bg-gray-400 dark:bg-white/40 w-full" />
 
                             {/* Total */}
-                            <div className="text-center py-1">
+                            <div className="text-center py-1" dir="rtl">
                                 <span className={`text-lg md:text-xl font-bold ${(product.priceAfterDiscount && product.priceAfterDiscount < product.price) ? 'text-[#16a34a] dark:text-[#4ade80]' : 'text-gray-900 dark:text-white'}`}>
                                     {formatPrice(Number((product.priceAfterDiscount && product.priceAfterDiscount < product.price) ? product.priceAfterDiscount : product.price) * quantity)}
                                 </span>
@@ -578,7 +578,7 @@ const ProductDetail = () => {
                                                     {formatPrice(Number(product.price) * quantity)}
                                                 </span>
                                             )}
-                                            <span className={`font-black text-[14px] md:text-[17px] whitespace-nowrap ${(product.priceAfterDiscount && product.priceAfterDiscount < product.price) ? 'text-[#16a34a] dark:text-[#4ade80]' : 'text-gray-900 dark:text-white'}`}>
+                                            <span dir="rtl" className={`font-black text-[14px] md:text-[17px] whitespace-nowrap ${(product.priceAfterDiscount && product.priceAfterDiscount < product.price) ? 'text-[#16a34a] dark:text-[#4ade80]' : 'text-gray-900 dark:text-white'}`}>
                                                 {formatPrice(Number((product.priceAfterDiscount && product.priceAfterDiscount < product.price) ? product.priceAfterDiscount : product.price) * quantity)}
                                             </span>
                                         </div>
@@ -617,7 +617,7 @@ const ProductDetail = () => {
                                                 {formatPrice(Number(product.price) * quantity)}
                                             </span>
                                         )}
-                                        <span className={`font-black text-lg ${(product.priceAfterDiscount && product.priceAfterDiscount < product.price) ? 'text-[#16a34a] dark:text-[#4ade80]' : 'text-gray-900 dark:text-white'}`}>
+                                        <span dir="rtl" className={`font-black text-lg ${(product.priceAfterDiscount && product.priceAfterDiscount < product.price) ? 'text-[#16a34a] dark:text-[#4ade80]' : 'text-gray-900 dark:text-white'}`}>
                                             {formatPrice(Number((product.priceAfterDiscount && product.priceAfterDiscount < product.price) ? product.priceAfterDiscount : product.price) * quantity)}
                                         </span>
                                     </div>
@@ -828,7 +828,7 @@ const ProductDetail = () => {
                                         </h3>
                                     </div>
                                 </div>
-                                <div className="px-5 py-3 flex flex-col items-start justify-center min-h-[70px]">
+                                <div className="px-5 py-3 flex flex-col items-start justify-center min-h-[70px]" dir="rtl">
                                     {p.priceAfterDiscount && p.priceAfterDiscount < p.price ? (
                                         <>
                                             <span className="text-[#16a34a] dark:text-[#4ade80] font-black text-[15px] md:text-[16px] tracking-tight leading-tight">
