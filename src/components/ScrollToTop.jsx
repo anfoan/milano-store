@@ -15,10 +15,14 @@ const ScrollToTop = () => {
     const { pathname } = useLocation();
     const navType = useNavigationType();
     const previousPathnameRef = useRef(pathname);
+    const mobileNavigationRef = useRef(
+        typeof window !== 'undefined'
+        && ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia?.('(pointer: coarse)').matches)
+    );
 
     useEffect(() => {
         if ('scrollRestoration' in window.history) {
-            window.history.scrollRestoration = 'manual';
+            window.history.scrollRestoration = mobileNavigationRef.current ? 'auto' : 'manual';
         }
 
         const savePosition = () => {
@@ -56,6 +60,12 @@ const ScrollToTop = () => {
     }, [pathname]);
 
     useLayoutEffect(() => {
+        // On touch devices, native history restoration is more reliable than
+        // forcing scrollTo during the browser's back transition. The forced
+        // reset is what creates the mobile/iPad repaint that looks like a
+        // complete page reload.
+        if (mobileNavigationRef.current && navType === 'POP') return undefined;
+
         const savedPosition = navType === 'POP' ? readScrollPosition(pathname) : 0;
 
         // If no position was captured, let the browser keep its native mobile
@@ -64,9 +74,7 @@ const ScrollToTop = () => {
 
         // Keep PUSH navigation at the top, while POP navigation returns the
         // customer to the exact place where they were browsing before.
-        const frameId = window.requestAnimationFrame(() => {
-            window.scrollTo({ top: savedPosition, left: 0, behavior: 'auto' });
-        });
+        const frameId = window.requestAnimationFrame(() => window.scrollTo({ top: savedPosition, left: 0, behavior: 'auto' }));
         return () => window.cancelAnimationFrame(frameId);
     }, [pathname, navType]);
 
