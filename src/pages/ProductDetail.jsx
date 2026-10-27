@@ -22,18 +22,28 @@ import QuantityStepper from '../components/QuantityStepper';
 import { getAvailableSizeValues, getSizeStock, hasAvailableStock } from '../lib/stockUtils';
 import { optimizeProductImage, preloadProductImage } from '../lib/imageUtils';
 
+const readCachedProduct = (id) => {
+    try {
+        const cachedProducts = JSON.parse(localStorage.getItem('cached_products') || '[]');
+        return Array.isArray(cachedProducts) ? cachedProducts.find(item => item.id === id) || null : null;
+    } catch {
+        return null;
+    }
+};
+
 const ProductDetail = () => {
     const { t, direction, language } = useLanguage();
     const { id } = useParams();
     const navigate = useNavigate();
+    const initialCachedProduct = readCachedProduct(id);
 
-    const [product, setProduct] = useState(null);
+    const [product, setProduct] = useState(initialCachedProduct);
     const [relatedProducts, setRelatedProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!initialCachedProduct);
     const [selectedSize, setSelectedSize] = useState(null);
     const [selectedColor, setSelectedColor] = useState(null);
-    const [quantity, setQuantity] = useState(0);
-    const [activeImage, setActiveImage] = useState(null);
+    const [quantity, setQuantity] = useState(initialCachedProduct && hasAvailableStock(initialCachedProduct) ? 1 : 0);
+    const [activeImage, setActiveImage] = useState(initialCachedProduct?.mainImage || null);
     const [showShare, setShowShare] = useState(false);
     const [showQtyDropdown, setShowQtyDropdown] = useState(false);
     const [showQtyDropdownSidebar, setShowQtyDropdownSidebar] = useState(false);
@@ -57,21 +67,21 @@ const ProductDetail = () => {
     // Fetch Product Data
     useEffect(() => {
         let cancelled = false;
-        setProduct(null);
+        const isAlreadyShowingRequestedProduct = product?.id === id;
+        if (!isAlreadyShowingRequestedProduct) setProduct(null);
         setRelatedProducts([]);
-        setActiveImage(null);
+        if (!isAlreadyShowingRequestedProduct) setActiveImage(null);
         setSelectedSize(null);
         setSelectedColor(null);
-        setQuantity(0);
-        setLoading(true);
+        if (!isAlreadyShowingRequestedProduct) setQuantity(0);
+        if (!isAlreadyShowingRequestedProduct) setLoading(true);
 
         const fetchProductAndRelated = async () => {
             try {
                 let cachedProduct = null;
                 // Render the product from the Home cache immediately on direct navigation.
                 try {
-                    const cachedProducts = JSON.parse(localStorage.getItem('cached_products') || '[]');
-                    cachedProduct = Array.isArray(cachedProducts) ? cachedProducts.find(item => item.id === id) : null;
+                    cachedProduct = readCachedProduct(id);
                     if (cachedProduct && !cancelled) {
                         setProduct(cachedProduct);
                         setActiveImage(cachedProduct.mainImage);

@@ -23,37 +23,40 @@ const optimizeCategoryImage = (url, width = 560) => {
     } catch { return url; }
 };
 
+const readCachedCategoryProducts = (categoryName) => {
+    try {
+        const cached = JSON.parse(localStorage.getItem('cached_products') || '[]');
+        if (!Array.isArray(cached)) return [];
+        return cached
+            .filter(product => product.category === categoryName && !product.hidden)
+            .sort((a, b) => Number(a.order ?? 999999) - Number(b.order ?? 999999));
+    } catch {
+        return [];
+    }
+};
+
 const CategoryPage = () => {
     const { categoryName } = useParams();
     const navigate = useNavigate();
     const { t, language } = useLanguage();
     const { formatPrice } = useCurrency();
     const { generalSettings, interfaceSettings } = useSettings();
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-
     // Decode URI component in case of Arabic characters
     const decodedCategoryName = decodeURIComponent(categoryName);
+    const initialCachedProducts = readCachedCategoryProducts(decodedCategoryName);
+    const [products, setProducts] = useState(initialCachedProducts);
+    const [loading, setLoading] = useState(initialCachedProducts.length === 0);
 
     useEffect(() => {
         const fetchCategoryProducts = async () => {
             // window.scrollTo(0, 0); // Handled globally by ScrollToTop
-            setLoading(true);
             try {
                 const hideOutOfStock = interfaceSettings?.hideOutOfStock;
                 // Use the Home cache for instant navigation, then refresh only this category.
+                const cachedCategory = readCachedCategoryProducts(decodedCategoryName);
                 let allProducts = [];
-                try {
-                    const cached = JSON.parse(localStorage.getItem('cached_products') || '[]');
-                    if (Array.isArray(cached)) allProducts = cached;
-                } catch { /* network fetch below remains the source of truth */ }
-                if (allProducts.length > 0) {
-                    const cachedCategory = allProducts
-                        .filter(p => p.category === decodedCategoryName && !p.hidden)
-                        .sort((a, b) => Number(a.order ?? 999999) - Number(b.order ?? 999999));
-                    setProducts(cachedCategory);
-                    setLoading(false);
-                }
+                setProducts(cachedCategory);
+                setLoading(cachedCategory.length === 0);
 
                 const productsRef = query(collection(db, 'products'), where('category', '==', decodedCategoryName));
                 const snapshot = await getDocs(productsRef);
