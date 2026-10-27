@@ -645,9 +645,9 @@ const Home = ({ isActive = true }) => {
     }, []);
 
     useEffect(() => {
-        document.body.style.overflow = isVideoFullscreen ? 'hidden' : '';
+        document.body.style.overflow = selectedPromotionalVideo || isVideoFullscreen ? 'hidden' : '';
         return () => { document.body.style.overflow = ''; };
-    }, [isVideoFullscreen]);
+    }, [selectedPromotionalVideo, isVideoFullscreen]);
 
     const toggleVideoFullscreen = async () => {
         const isTouchDevice = navigator.maxTouchPoints > 0 || window.matchMedia('(pointer: coarse)').matches;
@@ -1164,7 +1164,7 @@ const Home = ({ isActive = true }) => {
         )}
 
         {selectedPromotionalVideo && (
-            <div className={`fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm ${isVideoFullscreen ? 'p-0' : 'p-3 md:p-6'}`} onClick={() => { setSelectedPromotionalVideo(null); setIsVideoFullscreen(false); }} dir="rtl">
+            <div className={`fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm ${isVideoFullscreen ? 'p-0' : 'p-3 md:p-6'}`} onClick={() => { setSelectedPromotionalVideo(null); setIsVideoFullscreen(false); }} dir="rtl">
                 <div ref={selectedVideoContainerRef} style={isVideoFullscreen ? { height: '100dvh', minHeight: '100vh', width: '100vw', maxWidth: 'none', borderRadius: 0 } : undefined} className={`relative overflow-hidden bg-transparent shadow-2xl ring-1 ring-white/20 ${isVideoFullscreen ? 'h-[100dvh] min-h-screen w-screen rounded-none' : 'h-[min(86vh,720px)] w-[min(92vw,460px)] rounded-[24px]'}`} onClick={(event) => event.stopPropagation()}>
                         <video ref={selectedVideoElementRef} src={optimizeVideoUrl(selectedPromotionalVideo.url)} autoPlay loop playsInline preload="auto" muted={selectedVideoMuted} onLoadedData={(event) => event.currentTarget.play().catch(() => {})} onCanPlay={(event) => event.currentTarget.play().catch(() => {})} onWebkitEndFullscreen={(event) => { event.currentTarget.playsInline = true; event.currentTarget.setAttribute('webkit-playsinline', ''); setIsVideoFullscreen(false); }} className="h-full w-full object-contain will-change-transform" />
                     <div dir="ltr" className="absolute right-3 top-3 flex items-center gap-1.5">

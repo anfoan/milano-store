@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom';
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import WhatsAppButton from '../components/WhatsAppButton';
@@ -9,8 +9,15 @@ import Home from '../pages/Home';
 
 const Layout = () => {
     const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false);
+    const [videoPreviewOpen, setVideoPreviewOpen] = useState(false);
     const { pathname } = useLocation();
     const isHomeRoute = pathname === '/';
+
+    useEffect(() => {
+        const handleVideoPreview = (event) => setVideoPreviewOpen(Boolean(event.detail?.open));
+        window.addEventListener('milano-video-preview', handleVideoPreview);
+        return () => window.removeEventListener('milano-video-preview', handleVideoPreview);
+    }, []);
     return (
         <div className="min-h-screen flex flex-col bg-brand-gray dark:bg-[#0f1218]">
             <ScrollToTop />
@@ -33,7 +40,7 @@ const Layout = () => {
                     </div>
                 </Suspense>
             </main>
-            <Footer />
+            {!videoPreviewOpen && <Footer />}
             <WhatsAppButton hidden={false} />
         </div>
     );
