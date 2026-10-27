@@ -23,12 +23,12 @@ const Layout = () => {
                     </div>
                 }>
                     <div
-                        className={isHomeRoute ? 'relative z-0 visible' : 'relative z-0 invisible pointer-events-none'}
+                        className={isHomeRoute ? 'relative z-0 visible' : 'hidden'}
                         aria-hidden={!isHomeRoute}
                     >
                         <Home />
                     </div>
-                    <div className={isHomeRoute ? 'hidden' : 'absolute inset-0 z-10'}>
+                    <div className={isHomeRoute ? 'hidden' : 'relative z-10'}>
                         <Outlet />
                     </div>
                 </Suspense>
