@@ -552,7 +552,7 @@ const ProductDetail = () => {
                     {/* RIGHT COLUMN (Desktop): Product Content */}
                     <div className="lg:col-span-8 order-1 lg:order-1 space-y-1 md:space-y-2 lg:space-y-4">
                         {/* Section Headers - Desktop Only */}
-                        <div className="hidden lg:grid grid-cols-12 px-8 mb-2">
+                        {isDesktopLayout && <div className="grid grid-cols-12 px-8 mb-2">
                             <div className="col-span-7 flex justify-start">
                                 <h3 className="text-gray-400 font-bold text-sm">{t('product.product_title')}</h3>
                             </div>
@@ -560,12 +560,13 @@ const ProductDetail = () => {
                                 <h3 className="text-gray-400 font-bold text-sm">{t('product.quantity')}</h3>
                             </div>
                             <div className="col-span-2"></div>
-                        </div>
+                        </div>}
 
                         {/* Product Summary Card */}
                         <div className="translate-y-2 lg:translate-y-0 bg-transparent md:bg-transparent rounded-[24px] p-3 pb-0 md:p-4 md:pb-1 lg:p-6 lg:px-10 lg:pb-6 border border-gray-400/70 dark:border-[#2d323e] relative overflow-visible transition-colors duration-300 shadow-md">
-                            {/* Desktop Layout */}
-                            <div className="hidden lg:grid grid-cols-12 items-center w-full">
+                            {/* Render only the active responsive layout so the hidden layout cannot
+                                preload duplicate images or participate in desktop compositing. */}
+                            {isDesktopLayout ? <div className="grid grid-cols-12 items-center w-full">
                                 <div className="col-span-7 flex items-center justify-start gap-6 px-2 order-1">
                                     <div
                                         className="w-16 md:w-24 h-16 md:h-24 bg-gray-100 dark:bg-[#2b2d31] rounded-2xl overflow-hidden border border-gray-200 dark:border-white/5 shrink-0 cursor-pointer relative"
@@ -622,10 +623,9 @@ const ProductDetail = () => {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> : (
 
-                            {/* Mobile Layout */}
-                            <div className="flex lg:hidden flex-col gap-2 pb-1">
+                            <div className="flex flex-col gap-2 pb-1">
                                 <div className="flex justify-start items-center w-full gap-4">
                                     <div
                                         className="w-24 h-24 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-[#1a1d23] shrink-0"
@@ -672,6 +672,7 @@ const ProductDetail = () => {
                                     />
                                 </div>
                             </div>
+                            )}
                         </div>
 
                         {/* Description Card */}
