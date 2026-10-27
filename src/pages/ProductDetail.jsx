@@ -551,7 +551,8 @@ const ProductDetail = () => {
                                         <img
                                             src={isDesktopLayout ? optimizeProductImage(product.mainImage, 640, 90, productImageVersion) : undefined}
                                             alt={product.name}
-                                            loading="lazy"
+                                            loading="eager"
+                                            fetchPriority="high"
                                             decoding="async"
                                             className="w-full h-full object-cover"
                                             draggable="false"
@@ -607,7 +608,7 @@ const ProductDetail = () => {
                                         className="w-24 h-24 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-[#1a1d23] shrink-0"
                                         onClick={() => { setImageViewerStartIndex(0); setShowImageViewer(true); }}
                                     >
-                                        <img src={!isDesktopLayout ? optimizeProductImage(product.mainImage, 640, 90, productImageVersion) : undefined} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                                        <img src={!isDesktopLayout ? optimizeProductImage(product.mainImage, 640, 90, productImageVersion) : undefined} alt={product.name} loading="eager" fetchPriority="high" decoding="async" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex flex-col items-start gap-2 text-right">
                                         <h1 className="text-base font-black text-gray-900 dark:text-white leading-tight">
