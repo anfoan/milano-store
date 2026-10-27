@@ -319,8 +319,8 @@ const OrderTracking = () => {
                         <div className="w-20 h-20 bg-[#22c55e] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-900/20 animate-bounce">
                             <Check size={40} className="text-white" strokeWidth={3} />
                         </div>
-                        <h1 className="text-2xl md:text-3xl font-black text-white mb-2">{t('tracking.thanks')}</h1>
-                        <p className="text-blue-100 font-bold text-sm md:text-base">{t('checkout.success_message')}</p>
+                        <h1 className="relative -top-1 text-2xl md:text-3xl font-black text-white mb-2">{t('tracking.thanks')}</h1>
+                        <p className="relative -top-2 text-blue-100 font-bold text-sm md:text-base">{t('checkout.success_message')}</p>
                     </div>
                 </div>
 
@@ -351,10 +351,9 @@ const OrderTracking = () => {
 
                         <div className="relative flex justify-between items-center px-2 md:px-6">
                             <div
-                                className="absolute top-1/2 left-0 w-full h-1 -translate-y-1/2 rounded-full"
-                                style={{ background: 'linear-gradient(to right, rgba(34,197,94,0.5) 0%, rgba(34,197,94,0.5) 33.333%, rgba(59,130,246,0.5) 33.333%, rgba(59,130,246,0.5) 66.666%, rgba(139,92,246,0.5) 66.666%, rgba(139,92,246,0.5) 94%, rgba(249,115,22,0.5) 94%, rgba(249,115,22,0.5) 100%)' }}
+                                className="absolute top-1/2 left-0 w-full h-1 -translate-y-1/2 rounded-full bg-gray-200 dark:bg-white/10"
                             ></div>
-                            <div className="absolute top-1/2 right-0 h-1 -translate-y-1/2 rounded-full bg-transparent" style={{ width: `${(currentStepIndex / (stepLabels.length - 1)) * 100}%` }}></div>
+                            <div className={`absolute top-1/2 right-0 h-1 -translate-y-1/2 rounded-full transition-all duration-500 ${currentTone.line}`} style={{ width: `${(currentStepIndex / (stepLabels.length - 1)) * 100}%` }}></div>
 
                             {stepLabels.map((step, idx) => (
                                 <div key={idx} className="flex flex-col items-center gap-2 relative z-10">
