@@ -42,9 +42,17 @@ const ProductDetail = () => {
     const [showLimitToast, setShowLimitToast] = useState(false);
     const [showSuccessToast, setShowSuccessToast] = useState(false);
     const [isLimitReached, setIsLimitReached] = useState(false);
+    const [isDesktopLayout, setIsDesktopLayout] = useState(() => window.matchMedia('(min-width: 1024px)').matches);
     const { interfaceSettings, generalSettings, imageSettings, cartSettings } = useSettings();
     const productImageVersion = product?.updatedAt?.toMillis?.() || product?.updatedAt?.seconds || product?.updatedAt?._seconds;
     const { formatPrice } = useCurrency();
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(min-width: 1024px)');
+        const handleChange = (event) => setIsDesktopLayout(event.matches);
+        mediaQuery.addEventListener?.('change', handleChange);
+        return () => mediaQuery.removeEventListener?.('change', handleChange);
+    }, []);
 
     // Fetch Product Data
     useEffect(() => {
@@ -531,7 +539,7 @@ const ProductDetail = () => {
                                         onClick={() => { setImageViewerStartIndex(0); setShowImageViewer(true); }}
                                     >
                                         <img
-                                            src={optimizeProductImage(product.mainImage, 1200, 90, productImageVersion)}
+                                            src={isDesktopLayout ? optimizeProductImage(product.mainImage, 640, 90, productImageVersion) : undefined}
                                             alt={product.name}
                                             loading="lazy"
                                             decoding="async"
@@ -589,7 +597,7 @@ const ProductDetail = () => {
                                         className="w-24 h-24 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-[#1a1d23] shrink-0"
                                         onClick={() => { setImageViewerStartIndex(0); setShowImageViewer(true); }}
                                     >
-                                        <img src={optimizeProductImage(product.mainImage, 1200, 90, productImageVersion)} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                                        <img src={!isDesktopLayout ? optimizeProductImage(product.mainImage, 640, 90, productImageVersion) : undefined} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex flex-col items-start gap-2 text-right">
                                         <h1 className="text-base font-black text-gray-900 dark:text-white leading-tight">

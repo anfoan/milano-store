@@ -25,7 +25,7 @@ export const optimizeProductImage = (url, width, quality = 90, version) => {
 const preloadedProductImages = new Set();
 
 export const preloadProductImage = (url, version) => {
-    const optimizedUrl = optimizeProductImage(url, 1200, 90, version);
+    const optimizedUrl = optimizeProductImage(url, 640, 90, version);
     if (!optimizedUrl || preloadedProductImages.has(optimizedUrl)) return;
     preloadedProductImages.add(optimizedUrl);
     const image = new Image();
