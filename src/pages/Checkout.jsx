@@ -682,8 +682,11 @@ const Checkout = () => {
                 }
             });
 
-            // Auto-fix: cap negative stock at 0 and sync total with sizes
-            try {
+            // Auto-fix: cap negative stock at 0 and sync total with sizes.
+            // Run this maintenance pass in the background so it cannot delay
+            // the customer's transition to the order-tracking page.
+            void (async () => {
+              try {
                 for (const item of cartItems) {
                     const productRef = doc(db, "products", item.id);
                     const snap = await getDoc(productRef);
@@ -710,9 +713,10 @@ const Checkout = () => {
                         }
                     }
                 }
-            } catch (autoFixErr) {
-                console.warn("Auto-fix stock error:", autoFixErr);
-            }
+              } catch (autoFixErr) {
+                  console.warn("Auto-fix stock error:", autoFixErr);
+              }
+            })();
 
 
             // 2. Save to LocalStorage
@@ -1068,7 +1072,7 @@ const Checkout = () => {
                             </div>
                             <div className="flex justify-between items-center text-base font-black text-blue-500 pt-4 border-t border-gray-200 dark:border-white/10 mt-4">
                                 <span className="text-blue-500">{formatPrice(total)}</span>
-                                <span className="text-gray-900 dark:text-white">{t('cart.total')}</span>
+                                <span className="text-gray-900 dark:text-white">{language === 'ar' ? 'الأجمالي' : t('cart.total')}</span>
                             </div>
                             {walletEnabled && <button type="button" onClick={requestWalletCredit} className={`mt-2 flex w-full items-center justify-between rounded-xl border p-3 text-right transition-all ${useWalletCredit ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-400/50 dark:bg-emerald-400/10' : 'border-slate-200 bg-slate-50 hover:border-emerald-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-emerald-400/40'}`}>
                                 <div className="flex items-center gap-2"><div className={`flex h-7 w-7 items-center justify-center rounded-lg ${useWalletCredit ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-300'}`}>{useWalletCredit ? <CheckCircle2 size={16}/> : <CheckCircle2 size={16}/>}</div><div><p className="text-xs font-black text-slate-800 dark:text-white">{language === 'ar' ? 'استخدام رصيد محفظتي' : 'Use my wallet balance'}</p><p className="mt-0.5 text-[9px] font-bold text-slate-400">{language === 'ar' ? 'رصيد متاح: ' : 'Available balance: '}<span dir="ltr" className="font-mono text-emerald-600 dark:text-emerald-300">$ {walletNumber(walletBalance)}</span></p></div></div>
