@@ -21,11 +21,11 @@ const isNewArrivalsCategory = (category) => {
 };
 
 const SIZE_GUIDE_ROWS = [
-    { size: 'S', minWeight: 55, maxWeight: 65, minHeight: 160, maxHeight: 170 },
-    { size: 'M', minWeight: 65, maxWeight: 75, minHeight: 168, maxHeight: 175 },
-    { size: 'L', minWeight: 75, maxWeight: 85, minHeight: 173, maxHeight: 180 },
-    { size: 'XL', minWeight: 85, maxWeight: 95, minHeight: 178, maxHeight: 185 },
-    { size: 'XXL', minWeight: 95, maxWeight: 105, minHeight: 182, maxHeight: 190 },
+    { size: 'S', minWeight: 49, maxWeight: 61, minHeight: 160, maxHeight: 165 },
+    { size: 'M', minWeight: 61, maxWeight: 70, minHeight: 165, maxHeight: 170 },
+    { size: 'L', minWeight: 70, maxWeight: 77, minHeight: 170, maxHeight: 175 },
+    { size: 'XL', minWeight: 77, maxWeight: 87, minHeight: 175, maxHeight: 180 },
+    { size: '2XL', minWeight: 87, maxWeight: 90, minHeight: 180, maxHeight: 185 },
 ];
 
 const Navbar = ({ onCategoryDrawerChange }) => {
