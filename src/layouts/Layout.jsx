@@ -31,7 +31,12 @@ const Layout = () => {
                 }>
                     {/* Keep Home mounted between route changes.  Unmounting it rebuilt the
                         full product grid and made every image repaint when a visitor returned. */}
-                    <div className={isHomeRoute ? 'relative z-0' : 'hidden'} aria-hidden={!isHomeRoute}>
+                    <div
+                        className={isHomeRoute
+                            ? 'relative z-0'
+                            : 'absolute inset-0 z-0 overflow-hidden opacity-0 pointer-events-none'}
+                        aria-hidden={!isHomeRoute}
+                    >
                         <Home isActive={isHomeRoute} />
                     </div>
                     <div className={isHomeRoute ? 'hidden' : 'relative z-10'}>
