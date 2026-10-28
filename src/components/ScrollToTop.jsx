@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { safeSessionGet, safeSessionSet } from '../lib/safeStorage';
 
@@ -16,7 +16,7 @@ const ScrollToTop = () => {
     const { pathname, key: locationKey } = location;
     const navType = useNavigationType();
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if ('scrollRestoration' in window.history) {
             // React Router owns the route transition, so native restoration can
             // race with the new page layout and visibly jump on touch devices.
@@ -51,24 +51,26 @@ const ScrollToTop = () => {
             ? readScrollPosition(locationKey, pathname)
             : 0;
         const target = savedPosition ?? 0;
-        let frameId;
+        let frameId = null;
         let attempts = 0;
 
         const restore = () => {
             attempts += 1;
             const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
             const positionReady = target === 0 || maxScroll >= target || attempts >= 30;
+            window.scrollTo({ top: Math.min(target, maxScroll), left: 0, behavior: 'auto' });
             if (!positionReady) {
                 frameId = window.requestAnimationFrame(restore);
-                return;
             }
-            window.scrollTo({ top: Math.min(target, maxScroll), left: 0, behavior: 'auto' });
         };
 
-        // PUSH routes start at the top. POP routes wait briefly for async
-        // product/category content so the saved position is not clamped to 0.
-        frameId = window.requestAnimationFrame(restore);
-        return () => window.cancelAnimationFrame(frameId);
+        // Run before the browser paints the next route. Delaying this one frame
+        // briefly showed the old scroll position, then jumped to the new one.
+        // A later frame is used only if an async page is not tall enough yet.
+        restore();
+        return () => {
+            if (frameId !== null) window.cancelAnimationFrame(frameId);
+        };
     }, [locationKey, pathname, navType]);
 
     return null;
