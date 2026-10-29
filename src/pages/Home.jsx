@@ -62,6 +62,18 @@ const optimizeVideoUrl = (url) => {
     return url.replace('/upload/', '/upload/q_90,vc_auto,h_720,c_limit/');
 };
 
+// Firestore timestamps are class instances while the same values restored from
+// localStorage are plain JSON. Keep the browser-facing shape identical so an
+// initial Firestore snapshot does not change every Cloudinary image URL.
+const normalizeProductTimestamp = (value) => {
+    const seconds = value?.seconds ?? value?._seconds;
+    if (seconds === undefined || seconds === null) return value;
+    return {
+        seconds: Number(seconds),
+        nanoseconds: Number(value?.nanoseconds ?? value?._nanoseconds ?? 0)
+    };
+};
+
 // Keep the announcement state across SPA navigation. A full page reload
 // creates a new module instance, which intentionally allows it to appear again.
 let newArrivalsShownForPageLoad = false;
@@ -483,10 +495,14 @@ const Home = ({ isActive = true }) => {
         }, (err) => console.error("Error fetching categories:", err));
 
         const unsubProducts = onSnapshot(query(collection(db, "products")), (productSnapshot) => {
-            const items = productSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })).sort((a, b) => (a.order || 999999) - (b.order || 999999));
+            const items = productSnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    updatedAt: normalizeProductTimestamp(data.updatedAt)
+                };
+            }).sort((a, b) => (a.order || 999999) - (b.order || 999999));
 
             const getVersion = (value) => {
                 if (typeof value?.toMillis === 'function') return value.toMillis();
