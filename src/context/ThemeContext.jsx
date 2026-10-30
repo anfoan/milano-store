@@ -69,6 +69,9 @@ export function ThemeProvider({ children }) {
             setAdminTheme(prev => prev === 'dark' ? 'light' : 'dark');
         } else {
             const next = currentTheme === 'dark' ? 'light' : 'dark';
+            const root = window.document.documentElement;
+            root.classList.remove('light', 'dark');
+            root.classList.add(next);
             setUserTheme(next);
             safeLocalSet('theme_manually_set', 'true');
         }
