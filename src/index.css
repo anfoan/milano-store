@@ -125,6 +125,12 @@
 }
 
 @layer base {
+  html.theme-switching,
+  html.theme-switching * {
+    transition: none !important;
+    animation: none !important;
+  }
+
   html {
     width: 100%;
     max-width: 100%;

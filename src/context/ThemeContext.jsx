@@ -70,8 +70,12 @@ export function ThemeProvider({ children }) {
         } else {
             const next = currentTheme === 'dark' ? 'light' : 'dark';
             const root = window.document.documentElement;
+            root.classList.add('theme-switching');
             root.classList.remove('light', 'dark');
             root.classList.add(next);
+            window.requestAnimationFrame(() => {
+                window.requestAnimationFrame(() => root.classList.remove('theme-switching'));
+            });
             setUserTheme(next);
             safeLocalSet('theme_manually_set', 'true');
         }
