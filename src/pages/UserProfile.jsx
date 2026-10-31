@@ -7,7 +7,7 @@ import jsPDF from 'jspdf';
 import { db } from '../lib/firebase';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
-import { getCustomerWalletId } from '../lib/wallet';
+import { getCustomerWalletId, normalizePhone } from '../lib/wallet';
 import { useSettings } from '../hooks/useSettings';
 import InvoiceTemplate from '../components/InvoiceTemplate';
 import { formatOrderId } from '../lib/orderUtils';
@@ -124,6 +124,19 @@ const UserProfile = () => {
         const [date = '---', time = '', period = ''] = dateLabelEnglish(order).split(' ');
         return { date, time: `${time} ${period}`.trim() };
     };
+    const walletInvoicePhone = (value) => {
+        const digits = normalizePhone(value).replace(/[^0-9]/g, '');
+        const localPhone = digits.startsWith('967') && digits.length === 12 ? digits.slice(3) : digits;
+        return localPhone || value || '---';
+    };
+    const walletInvoiceOrder = printOrder ? {
+        ...printOrder,
+        date: dateLabelEnglish(printOrder),
+        formData: {
+            ...printOrder.formData,
+            phone: walletInvoicePhone(printOrder.formData?.phone),
+        },
+    } : null;
     const copyTracking = async (orderId) => {
         const cleanOrderId = formatOrderId(orderId);
         await navigator.clipboard?.writeText(cleanOrderId);
@@ -245,7 +258,7 @@ const UserProfile = () => {
 
     return (
         <div className="min-h-screen bg-[#f6f7f8] px-3 py-5 font-['Cairo'] text-slate-900 dark:bg-[#0d1017] dark:text-white md:px-5" dir={direction}>
-            {printOrder && <div className="invoice-print-overlay fixed inset-0 z-[100] overflow-y-auto bg-slate-100 p-4 sm:p-6 md:p-8 dark:bg-[#0d1017]"><div data-customer-invoice-preview className="customer-orders-invoice-preview mx-auto min-h-full w-full max-w-4xl"><InvoiceTemplate customerOrdersPreview orders={[printOrder]} lang={language} generalSettings={generalSettings} onClose={() => setPrintOrder(null)} onDownload={downloadInvoicePdf} /></div></div>}
+            {walletInvoiceOrder && <div className="invoice-print-overlay fixed inset-0 z-[100] overflow-y-auto bg-slate-100 p-4 sm:p-6 md:p-8 dark:bg-[#0d1017]"><div data-customer-invoice-preview className="customer-orders-invoice-preview mx-auto min-h-full w-full max-w-4xl"><InvoiceTemplate customerOrdersPreview orders={[walletInvoiceOrder]} lang={language} generalSettings={generalSettings} onClose={() => setPrintOrder(null)} onDownload={downloadInvoicePdf} /></div></div>}
             <main className={`${printOrder ? 'max-lg:hidden' : ''} invoice-orders-page mx-auto w-full max-w-2xl rounded-[26px] border border-slate-200 bg-white shadow-xl dark:border-white/10 dark:bg-[#171b26]`}>
                 <header className="relative flex items-start justify-between gap-3 border-b border-slate-100 px-4 py-4 dark:border-white/10 md:px-6"><button onClick={() => navigate(-1)} className="absolute left-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-red-600 text-white shadow-md transition-colors hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"><X size={18}/></button><div dir="ltr" className="flex w-full items-start justify-between gap-3 pl-12"><div dir="rtl" className="flex-1 pt-0.5 text-right"><h1 className="text-base font-black md:text-lg">{en ? 'Your Orders and Previous Invoices' : 'طلباتك وفواتيرك السابقة'}</h1><p className="text-[10px] font-bold text-slate-400"><span className="block">{en ? 'View your invoice details to track shipments.' : 'استعرض تفاصيل فواتيرك لتتبع شحناتك.'}</span><span className="block">{en ? 'Earn rewards when your orders are completed.' : 'واربح مكافآت عند اكتمال طلباتك.'}</span><span className="block">{en ? 'Your invoices appear after signing in.' : 'لن تظهر فواتيرك الجديدة والسابقة إلا عند تسجيل.'}</span></p></div><div dir="rtl" className="flex shrink-0 flex-col items-center gap-0.5 text-center"><div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-500 shadow-sm dark:bg-emerald-400/15"><Package size={18}/></div><div className="rounded-lg bg-violet-100 px-2.5 py-1 text-[10px] font-black text-violet-700 dark:bg-violet-400/15 dark:text-violet-200">{orders.length} {en ? 'Invoices' : 'فواتير'}</div>{orders[0] && <><span dir="ltr" className="font-mono text-[9px] font-black leading-3 text-slate-500 dark:text-slate-300">{datePartsEnglish(orders[0]).date}</span><span dir="ltr" className="font-mono text-[9px] font-black leading-3 text-slate-500 dark:text-slate-300">{datePartsEnglish(orders[0]).time}</span></>}</div></div></header>
                 <div className="border-b border-slate-100 px-4 py-3 dark:border-white/10 md:px-6"><div className="relative"><Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"/><input value={queryText} onChange={event => setQueryText(event.target.value)} placeholder={en ? "Search invoice by order or phone number." : "ابحث عن الفاتورة : برقم الطلب أو برقم الهاتف."} className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pr-9 pl-3 text-right text-[10px] font-bold outline-none focus:border-emerald-400 dark:border-white/10 dark:bg-white/5"/></div></div>
