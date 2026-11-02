@@ -194,6 +194,18 @@
   direction: ltr;
 }
 
+/* The mobile form baseline keeps inputs at 16px to prevent iOS zoom.
+   This search field is intentionally smaller on phones and tablets only. */
+@media screen and (max-width: 1024px) {
+  .orders-search-input {
+    font-size: 13px !important;
+  }
+
+  .orders-search-input::placeholder {
+    font-size: 13px !important;
+  }
+}
+
 /* External promotional videos: keep iPhone/iPad from painting native controls. */
 .promotional-video-external {
   -webkit-appearance: none;
