@@ -74,7 +74,7 @@ const RateOrder = () => {
                     onClick={() => navigate(-1)}
                     className={`absolute top-6 z-20 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all shadow-sm border border-white/5 ${direction === 'rtl' ? 'right-6' : 'left-6'}`}
                 >
-                    <ArrowRight size={20} className="flip-rtl" />
+                    <ArrowRight size={20} />
                 </button>
 
                 {/* 1. Header Section (Blue Background) */}
