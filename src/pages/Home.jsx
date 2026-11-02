@@ -650,7 +650,21 @@ const Home = ({ isActive = true }) => {
     useEffect(() => {
         if (!selectedPromotionalVideo) return undefined;
         document.querySelectorAll('.promotional-video-external').forEach(video => video.pause());
-        const timer = window.setTimeout(() => selectedVideoElementRef.current?.play().catch(() => {}), 80);
+        const timer = window.setTimeout(() => {
+            const video = selectedVideoElementRef.current;
+            if (!video) return;
+            const isDesktopPointer = window.innerWidth >= 768 && window.matchMedia('(pointer: fine)').matches;
+            video.play().catch(() => {
+                // Desktop browsers can reject unmuted autoplay after the modal mounts.
+                // Fall back to muted playback only on computer/laptop layouts so the
+                // clicked video still opens and plays without changing touch behavior.
+                if (isDesktopPointer) {
+                    video.muted = true;
+                    setSelectedVideoMuted(true);
+                    video.play().catch(() => {});
+                }
+            });
+        }, 80);
         return () => window.clearTimeout(timer);
     }, [selectedPromotionalVideo, selectedVideoMuted]);
 
