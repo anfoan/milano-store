@@ -25,7 +25,6 @@ const POSView = lazy(() => import('./components/admin/POSView'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 
 import PageMetadataHandler from './components/PageMetadataHandler';
-import ScrollHandGuide from './components/ScrollHandGuide';
 import { CurrencyProvider } from './context/CurrencyContext';
 
 import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute'; // Add Import
@@ -35,7 +34,6 @@ function App() {
     return (
     <CurrencyProvider>
       <PageMetadataHandler />
-      <ScrollHandGuide />
       <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={null} />
