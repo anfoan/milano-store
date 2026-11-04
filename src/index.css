@@ -1109,14 +1109,14 @@ input[type=number] {
   position: relative;
   z-index: 2;
   opacity: 0;
-  transform: translateY(34vh) scale(.985);
+  transform: translateY(58vh) scale(.985);
   transform-origin: top center;
   transition: opacity .48s cubic-bezier(.23, 1, .32, 1), transform .58s cubic-bezier(.23, 1, .32, 1);
 }
 
 .phase-revealing .invoice-reveal-invoice {
   opacity: .72;
-  transform: translateY(4vh) scale(.995);
+  transform: translateY(8vh) scale(.99);
 }
 
 .phase-shown .invoice-reveal-invoice {
@@ -1133,19 +1133,17 @@ input[type=number] {
   height: 94px;
   pointer-events: none;
   transform: translateX(-50%);
-  animation: invoice-plane-rise 2.2s cubic-bezier(.23, 1, .32, 1) forwards;
+  animation: invoice-plane-rise 1.45s cubic-bezier(.23, 1, .32, 1) forwards;
 }
 
 .invoice-reveal-plane {
   position: absolute;
   left: 50%;
   top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   color: #111317;
+  font-size: 38px;
   line-height: 1;
-  transform: translateX(-50%) rotate(-90deg);
+  transform: translateX(-50%) rotate(-45deg);
   filter: drop-shadow(0 4px 5px rgba(15, 23, 42, .18));
 }
 
@@ -1156,12 +1154,12 @@ input[type=number] {
   background: radial-gradient(circle, rgba(203, 213, 225, .62) 0%, rgba(148, 163, 184, .28) 55%, transparent 74%);
   filter: blur(5px);
   transform: translateX(-50%);
-  animation: invoice-smoke-fade 1.65s ease-out forwards;
+  animation: invoice-smoke-fade .72s ease-out forwards;
 }
 
 .smoke-one { top: 34px; width: 13px; height: 28px; }
-.smoke-two { top: 50px; width: 20px; height: 24px; animation-delay: .18s; }
-.smoke-three { top: 68px; width: 28px; height: 18px; animation-delay: .36s; }
+.smoke-two { top: 50px; width: 20px; height: 24px; animation-delay: .12s; }
+.smoke-three { top: 68px; width: 28px; height: 18px; animation-delay: .24s; }
 
 html.dark .invoice-reveal-plane { color: #ffffff; }
 html.dark .invoice-reveal-bar { background: #000000; }
@@ -1178,13 +1176,8 @@ html.dark .invoice-reveal-bar { background: #000000; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .invoice-reveal-flight { animation-duration: .5s; }
+  .invoice-reveal-flight { animation-duration: .35s; }
   .invoice-reveal-invoice, .invoice-reveal-bar { transition-duration: .2s; }
-}
-
-@media screen and (max-width: 1024px) {
-  .invoice-gallery-save-button { display: inline-flex !important; }
-  .invoice-preview-toolbar { display: none !important; }
 }
 
 @media screen and (min-width: 1025px) {
