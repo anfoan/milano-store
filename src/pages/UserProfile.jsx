@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
-import { Check, Clock3, Copy, FileText, MapPin, Package, Printer, Search, Truck, X } from 'lucide-react';
+import { Check, Clock3, Copy, Download, FileText, MapPin, Package, Printer, Search, Truck, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { db } from '../lib/firebase';
@@ -33,6 +33,7 @@ const UserProfile = () => {
     const [printOrder, setPrintOrder] = useState(null);
     const [invoiceRevealPhase, setInvoiceRevealPhase] = useState('idle');
     const [downloadingInvoice, setDownloadingInvoice] = useState(false);
+    const [savingInvoiceImage, setSavingInvoiceImage] = useState(false);
 
     useEffect(() => {
         if (!printOrder) {
@@ -40,8 +41,8 @@ const UserProfile = () => {
             return undefined;
         }
         setInvoiceRevealPhase('launching');
-        const revealTimer = window.setTimeout(() => setInvoiceRevealPhase('revealing'), 780);
-        const settleTimer = window.setTimeout(() => setInvoiceRevealPhase('shown'), 1420);
+        const revealTimer = window.setTimeout(() => setInvoiceRevealPhase('revealing'), 1120);
+        const settleTimer = window.setTimeout(() => setInvoiceRevealPhase('shown'), 1950);
         return () => {
             window.clearTimeout(revealTimer);
             window.clearTimeout(settleTimer);
@@ -149,6 +150,51 @@ const UserProfile = () => {
         await navigator.clipboard?.writeText(cleanOrderId);
         setCopied(cleanOrderId);
         setTimeout(() => setCopied(''), 1600);
+    };
+
+    const saveInvoiceImage = async () => {
+        if (savingInvoiceImage) return;
+        const element = document.querySelector('[data-customer-invoice-preview] .invoice-preview-page');
+        if (!element) return;
+        setSavingInvoiceImage(true);
+        try {
+            await document.fonts.ready;
+            const canvas = await html2canvas(element, {
+                scale: Math.min(2, window.devicePixelRatio || 1.5),
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                onclone: clonedDocument => {
+                    const clonedPage = clonedDocument.querySelector('.invoice-preview-page');
+                    if (clonedPage) {
+                        clonedPage.style.width = '794px';
+                        clonedPage.style.maxWidth = '794px';
+                        clonedPage.style.margin = '0 auto';
+                        clonedPage.style.minHeight = '0';
+                        clonedPage.style.height = 'auto';
+                    }
+                },
+            });
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1));
+            if (!blob) throw new Error('Invoice image could not be created');
+            const fileName = `Milano-Invoice-${String(printOrder?.orderId || printOrder?.id || 'Order').replace('#', '')}.png`;
+            const file = new File([blob], fileName, { type: 'image/png' });
+            if (navigator.canShare?.({ files: [file] }) && navigator.share) {
+                await navigator.share({ files: [file], title: en ? 'Invoice preview' : 'معاينة الفاتورة' });
+            } else {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                link.click();
+                URL.revokeObjectURL(url);
+            }
+        } catch (error) {
+            if (error?.name !== 'AbortError') console.error('Invoice image save failed:', error);
+        } finally {
+            setSavingInvoiceImage(false);
+        }
     };
 
     const downloadInvoicePdf = async () => {
@@ -266,6 +312,7 @@ const UserProfile = () => {
     return (
         <div className="min-h-screen bg-[#f6f7f8] px-3 py-5 font-['Cairo'] text-slate-900 dark:bg-[#0d1017] dark:text-white md:px-5" dir={direction}>
             {printOrder && <div className={`invoice-print-overlay invoice-reveal-overlay phase-${invoiceRevealPhase} fixed inset-0 z-[100] overflow-y-auto bg-slate-100 p-4 sm:p-6 md:p-8 dark:bg-[#0d1017]`}>
+                <button type="button" onClick={saveInvoiceImage} disabled={savingInvoiceImage} className="invoice-gallery-save-button fixed left-3 top-3 z-[110] inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-black text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:opacity-60"><Download size={14}/>{savingInvoiceImage ? (en ? 'Saving...' : 'جاري الحفظ...') : (en ? 'Save to Photos' : 'حفظ إلى معرض الصور')}</button>
                 <div className="invoice-reveal-bar" aria-hidden="true" />
                 <div className="invoice-reveal-flight" aria-hidden="true"><span className="invoice-reveal-smoke smoke-one" /><span className="invoice-reveal-smoke smoke-two" /><span className="invoice-reveal-smoke smoke-three" /><span className="invoice-reveal-plane">✈</span></div>
                 <div data-customer-invoice-preview className="customer-orders-invoice-preview invoice-reveal-invoice mx-auto min-h-full w-full max-w-4xl"><InvoiceTemplate customerOrdersPreview orders={[printOrder]} lang={language} generalSettings={generalSettings} onClose={() => setPrintOrder(null)} onDownload={downloadInvoicePdf} /></div>
