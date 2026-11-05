@@ -474,7 +474,7 @@
     height: auto !important;
     overflow: visible !important;
     box-sizing: border-box !important;
-    transform: translate(-16px, -11px) !important;
+    transform: translate(-16px, -27px) !important;
   }
   .invoice-preview-page table th:first-child {
     text-align: center !important;
@@ -1099,6 +1099,10 @@ input[type=number] {
   transition: height .55s cubic-bezier(.23, 1, .32, 1), transform .55s cubic-bezier(.23, 1, .32, 1);
 }
 
+.invoice-mobile-close-button {
+  display: none;
+}
+
 .phase-revealing .invoice-reveal-bar,
 .phase-shown .invoice-reveal-bar {
   height: 46px;
@@ -1183,4 +1187,38 @@ html.dark .invoice-reveal-bar { background: #000000; }
 
 @media screen and (min-width: 1025px) {
   .invoice-gallery-save-button { display: none !important; }
+}
+
+@media screen and (max-width: 1024px) {
+  .invoice-reveal-flight {
+    animation-duration: 6s;
+  }
+
+  .phase-revealing .invoice-reveal-invoice {
+    transform: translateY(40vh) scale(.99) !important;
+  }
+
+  .phase-shown .invoice-reveal-invoice {
+    transform: translateY(32vh) scale(1) !important;
+  }
+
+  .invoice-mobile-close-button {
+    display: inline-flex;
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 7px;
+    background: #dc2626;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 900;
+    box-shadow: 0 3px 8px rgba(127, 29, 29, .28);
+  }
 }
