@@ -42,8 +42,8 @@ const UserProfile = () => {
         }
         setInvoiceRevealPhase('launching');
         const touchDevice = window.innerWidth <= 1024;
-        const revealTimer = window.setTimeout(() => setInvoiceRevealPhase('revealing'), touchDevice ? 3600 : 1120);
-        const settleTimer = window.setTimeout(() => setInvoiceRevealPhase('shown'), touchDevice ? 6200 : 1950);
+        const revealTimer = window.setTimeout(() => setInvoiceRevealPhase('revealing'), touchDevice ? 1200 : 1120);
+        const settleTimer = window.setTimeout(() => setInvoiceRevealPhase('shown'), touchDevice ? 5600 : 1950);
         return () => {
             window.clearTimeout(revealTimer);
             window.clearTimeout(settleTimer);
