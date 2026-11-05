@@ -474,7 +474,7 @@
     height: auto !important;
     overflow: visible !important;
     box-sizing: border-box !important;
-    transform: translate(-16px, -8px) !important;
+    transform: translate(-16px, -11px) !important;
   }
   .invoice-preview-page table th:first-child {
     text-align: center !important;
@@ -545,7 +545,7 @@
     width: 794px !important;
     max-width: 794px !important;
     flex: 0 0 794px !important;
-    margin-top: 48px !important;
+    margin-top: 54px !important;
     margin-bottom: 12px !important;
   }
 
@@ -1127,13 +1127,13 @@ input[type=number] {
 .invoice-reveal-flight {
   position: fixed;
   left: 50%;
-  bottom: 10vh;
+  bottom: -4vh;
   z-index: 5;
   width: 54px;
   height: 94px;
   pointer-events: none;
   transform: translateX(-50%);
-  animation: invoice-plane-rise 1.45s cubic-bezier(.23, 1, .32, 1) forwards;
+  animation: invoice-plane-rise 3s cubic-bezier(.23, 1, .32, 1) forwards;
 }
 
 .invoice-reveal-plane {
@@ -1165,9 +1165,10 @@ html.dark .invoice-reveal-plane { color: #ffffff; }
 html.dark .invoice-reveal-bar { background: #000000; }
 
 @keyframes invoice-plane-rise {
-  from { opacity: 0; transform: translate(-50%, 22vh); }
-  12% { opacity: 1; }
-  to { opacity: 1; transform: translate(-50%, -64vh); }
+  from { opacity: 0; transform: translate(-50%, 0); }
+  10% { opacity: 1; }
+  88% { opacity: 1; }
+  to { opacity: 0; transform: translate(-50%, -120vh); }
 }
 
 @keyframes invoice-smoke-fade {
@@ -1176,7 +1177,7 @@ html.dark .invoice-reveal-bar { background: #000000; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .invoice-reveal-flight { animation-duration: .35s; }
+  .invoice-reveal-flight { animation-duration: .5s; }
   .invoice-reveal-invoice, .invoice-reveal-bar { transition-duration: .2s; }
 }
 
