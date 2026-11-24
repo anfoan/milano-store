@@ -201,7 +201,7 @@ const Contact = () => {
                 <form onSubmit={handleSubmit} className="space-y-8">
                     {/* Name */}
                     <div className="space-y-3">
-                        <label className="flex items-center gap-1 text-start font-extrabold dark:font-bold text-sm text-gray-700 dark:text-gray-200"><span>{t('contact.name')}</span><span className="text-red-500">*</span></label>
+                        <label className="flex items-center gap-1 text-start font-extrabold dark:font-bold text-xs text-gray-700 dark:text-gray-200"><span>{t('contact.name')}</span><span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             className="w-full bg-white dark:bg-[#1c1c1e] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 outline-none focus:border-[#06b6d4] transition-colors text-start text-xl text-gray-900 dark:text-white"
@@ -214,7 +214,7 @@ const Contact = () => {
 
                     {/* Phone */}
                     <div className="space-y-3">
-                        <label className="flex items-center gap-1 text-start font-extrabold dark:font-bold text-sm text-gray-700 dark:text-gray-200"><span>{t('contact.email')}</span><span className="text-red-500">*</span></label>
+                        <label className="flex items-center gap-1 text-start font-extrabold dark:font-bold text-xs text-gray-700 dark:text-gray-200"><span>{t('contact.email')}</span><span className="text-red-500">*</span></label>
                         <input
                             type="tel"
                             dir="rtl"
@@ -233,7 +233,7 @@ const Contact = () => {
 
                     {/* Subject */}
                     <div className="space-y-3">
-                        <label className="flex items-center gap-1 text-start font-extrabold dark:font-bold text-sm text-gray-700 dark:text-gray-200"><span>{t('contact.subject')}</span><span className="text-red-500">*</span></label>
+                        <label className="flex items-center gap-1 text-start font-extrabold dark:font-bold text-xs text-gray-700 dark:text-gray-200"><span>{t('contact.subject')}</span><span className="text-red-500">*</span></label>
                         <div className="relative">
                             <select
                                 className={`w-full bg-white dark:bg-[#1c1c1e] border border-[#06b6d4]/50 rounded-xl px-4 py-4 outline-none appearance-none text-start text-xl cursor-pointer ${formData.subject ? 'text-gray-900 dark:text-white' : 'text-blue-600 dark:text-blue-400'}`}
@@ -254,7 +254,7 @@ const Contact = () => {
 
                     {/* Message */}
                     <div className="space-y-3">
-                        <label className="flex items-center gap-1 text-start font-extrabold dark:font-bold text-sm text-gray-700 dark:text-gray-200"><span>{t('contact.message')}</span><span className="text-red-500">*</span></label>
+                        <label className="flex items-center gap-1 text-start font-extrabold dark:font-bold text-xs text-gray-700 dark:text-gray-200"><span>{t('contact.message')}</span><span className="text-red-500">*</span></label>
                         <textarea
                             rows="6"
                             className="w-full bg-white dark:bg-[#1c1c1e] border border-[#06b6d4]/50 rounded-2xl px-4 py-4 outline-none focus:border-[#06b6d4] transition-colors text-start text-xl resize-none text-gray-900 dark:text-white"
