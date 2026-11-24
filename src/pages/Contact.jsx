@@ -231,10 +231,11 @@ const Contact = () => {
                                 required
                             >
                                 <option value="">{t('contact.select_option')}</option>
-                                <option value="تفاصيل المنتج">{t('contact.subject_options.product_details')}</option>
-                                <option value="المنتج غير متوفر">{t('contact.subject_options.not_available')}</option>
                                 <option value="تأخر في موعد التسليم">{t('contact.subject_options.delivery_delay')}</option>
-                                <option value="آخر">{t('contact.subject_options.other')}</option>
+                                <option value="تعديل فاتورة المنتجات">{t('contact.subject_options.invoice_edit')}</option>
+                                <option value="تغيير مقاس تم اختياره بالغلط">{t('contact.subject_options.wrong_size')}</option>
+                                <option value="المنتج غير متوفر">{t('contact.subject_options.not_available')}</option>
+                                <option value="موضوع أخر">{t('contact.subject_options.other')}</option>
                             </select>
                             <ChevronDown className={`absolute top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none ${direction === 'rtl' ? 'left-4' : 'right-4'}`} size={20} />
                         </div>
