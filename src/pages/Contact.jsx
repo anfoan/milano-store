@@ -196,7 +196,7 @@ const Contact = () => {
                 <form onSubmit={handleSubmit} className="space-y-8">
                     {/* Name */}
                     <div className="space-y-3">
-                        <label className="block text-start font-bold text-sm text-gray-700 dark:text-gray-200">{t('contact.name')}</label>
+                        <label className="flex items-center gap-1 text-start font-bold text-sm text-gray-700 dark:text-gray-200"><span>{t('contact.name')}</span><span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             className="w-full bg-white dark:bg-[#1c1c1e] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 outline-none focus:border-[#06b6d4] transition-colors text-start text-gray-900 dark:text-white"
@@ -207,11 +207,11 @@ const Contact = () => {
                         />
                     </div>
 
-                    {/* Email */}
+                    {/* Phone */}
                     <div className="space-y-3">
-                        <label className="block text-start font-bold text-sm text-gray-700 dark:text-gray-200">{t('contact.email')}</label>
+                        <label className="flex items-center gap-1 text-start font-bold text-sm text-gray-700 dark:text-gray-200"><span>{t('contact.email')}</span><span className="text-red-500">*</span></label>
                         <input
-                            type="email"
+                            type="tel"
                             className="w-full bg-white dark:bg-[#1c1c1e] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 outline-none focus:border-[#06b6d4] transition-colors text-start text-gray-900 dark:text-white"
                             placeholder=""
                             value={formData.email}
@@ -222,7 +222,7 @@ const Contact = () => {
 
                     {/* Subject */}
                     <div className="space-y-3">
-                        <label className="block text-start font-bold text-sm text-gray-700 dark:text-gray-200">{t('contact.subject')}</label>
+                        <label className="flex items-center gap-1 text-start font-bold text-sm text-gray-700 dark:text-gray-200"><span>{t('contact.subject')}</span><span className="text-red-500">*</span></label>
                         <div className="relative">
                             <select
                                 className="w-full bg-white dark:bg-[#1c1c1e] border border-[#06b6d4]/50 rounded-xl px-4 py-4 outline-none appearance-none text-start cursor-pointer text-gray-900 dark:text-white"
@@ -234,7 +234,7 @@ const Contact = () => {
                                 <option value="تأخر في موعد التسليم">{t('contact.subject_options.delivery_delay')}</option>
                                 <option value="تعديل فاتورة المنتجات">{t('contact.subject_options.invoice_edit')}</option>
                                 <option value="تغيير مقاس تم اختياره بالغلط">{t('contact.subject_options.wrong_size')}</option>
-                                <option value="المنتج غير متوفر">{t('contact.subject_options.not_available')}</option>
+                                <option value="منتج غير متوفر">{t('contact.subject_options.not_available')}</option>
                                 <option value="موضوع أخر">{t('contact.subject_options.other')}</option>
                             </select>
                             <ChevronDown className={`absolute top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none ${direction === 'rtl' ? 'left-4' : 'right-4'}`} size={20} />
@@ -243,7 +243,7 @@ const Contact = () => {
 
                     {/* Message */}
                     <div className="space-y-3">
-                        <label className="block text-start font-bold text-sm text-gray-700 dark:text-gray-200">{t('contact.message')}</label>
+                        <label className="flex items-center gap-1 text-start font-bold text-sm text-gray-700 dark:text-gray-200"><span>{t('contact.message')}</span><span className="text-red-500">*</span></label>
                         <textarea
                             rows="6"
                             className="w-full bg-white dark:bg-[#1c1c1e] border border-[#06b6d4]/50 rounded-2xl px-4 py-4 outline-none focus:border-[#06b6d4] transition-colors text-start resize-none text-gray-900 dark:text-white"
