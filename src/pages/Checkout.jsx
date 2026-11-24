@@ -14,6 +14,7 @@ import { buildCustomerOrderHistory, customerOrderHistoryRef } from '../lib/custo
 import { getSizeStock, toStockNumber } from '../lib/stockUtils';
 import { getNextInvoiceNumber } from '../lib/invoiceNumber';
 import { isValidYemenPhone } from '../lib/phoneValidation';
+import { notifyAdminOfNewOrder } from '../lib/pushOrderEvent';
 
 const Checkout = () => {
     const { t, direction, language } = useLanguage();
@@ -681,6 +682,7 @@ const Checkout = () => {
                     transaction.update(couponRef, { usedCount: increment(1) });
                 }
             });
+            void notifyAdminOfNewOrder({ ...orderData, id: orderRef.id }, 'storefront');
 
             // Auto-fix: cap negative stock at 0 and sync total with sizes.
             // Run this maintenance pass in the background so it cannot delay
@@ -785,6 +787,7 @@ const Checkout = () => {
                         const history = buildCustomerOrderHistory(pendingOrder, orderRef.id);
                         if (customerHistoryRef && history) transaction.set(customerHistoryRef, history);
                     });
+                    void notifyAdminOfNewOrder({ ...orderData, id: orderRef.id }, 'storefront');
                     const existingOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
                     existingOrders.unshift({ ...orderData, sourceOrderId: orderRef.id, historyVersion: 1, inventorySyncPending: true, walletDebitPending: walletApplied > 0, couponUsagePending: Boolean(appliedCoupon?.id), createdAt: new Date().toISOString(), timestamp: Date.now() });
                     localStorage.setItem('myOrders', JSON.stringify(existingOrders));
