@@ -242,11 +242,11 @@ const Contact = () => {
                                 required
                             >
                                 <option value="" className="text-blue-600 dark:text-blue-400">{t('contact.select_option')}</option>
-                                <option value="تأخر في موعد التسليم">{t('contact.subject_options.delivery_delay')}</option>
-                                <option value="تعديل فاتورة المنتجات">{t('contact.subject_options.invoice_edit')}</option>
-                                <option value="تغيير مقاس تم اختياره بالغلط">{t('contact.subject_options.wrong_size')}</option>
-                                <option value="منتج غير متوفر">{t('contact.subject_options.not_available')}</option>
-                                <option value="موضوع أخر">{t('contact.subject_options.other')}</option>
+                                <option value="تأخر في موعد التسليم" className="text-gray-900 dark:text-white">{t('contact.subject_options.delivery_delay')}</option>
+                                <option value="تعديل فاتورة المنتجات" className="text-gray-900 dark:text-white">{t('contact.subject_options.invoice_edit')}</option>
+                                <option value="تغيير مقاس تم اختياره بالغلط" className="text-gray-900 dark:text-white">{t('contact.subject_options.wrong_size')}</option>
+                                <option value="منتج غير متوفر" className="text-gray-900 dark:text-white">{t('contact.subject_options.not_available')}</option>
+                                <option value="موضوع أخر" className="text-gray-900 dark:text-white">{t('contact.subject_options.other')}</option>
                             </select>
                             <ChevronDown className={`absolute top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none ${direction === 'rtl' ? 'left-4' : 'right-4'}`} size={20} />
                         </div>
