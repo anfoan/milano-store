@@ -219,12 +219,11 @@ const Contact = () => {
                             type="tel"
                             dir="rtl"
                             inputMode="numeric"
-                            maxLength={9}
                             pattern="^(70|71|72|73|77|78)[0-9]{7}$"
                             className="w-full bg-white dark:bg-[#1c1c1e] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 outline-none focus:border-[#06b6d4] transition-colors text-right text-gray-900 dark:text-white"
                             placeholder=""
                             value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: normalizeYemenPhone(e.target.value).slice(0, 9) })}
+                            onChange={(e) => setFormData({ ...formData, email: normalizeYemenPhone(e.target.value) })}
                             required
                         />
                         {formData.email && !isPhoneValid && (
