@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { collection, addDoc, serverTimestamp, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useLanguage } from '../context/LanguageContext';
+import { normalizeYemenPhone } from '../lib/phoneValidation';
 
 const Contact = () => {
     const { t, direction } = useLanguage();
@@ -18,6 +19,9 @@ const Contact = () => {
     const [submitted, setSubmitted] = useState(false);
     const [messageId, setMessageId] = useState(null);
     const [socialLinks, setSocialLinks] = useState({});
+
+    const phoneDigits = normalizeYemenPhone(formData.email);
+    const isPhoneValid = /^(70|71|72|73|77|78)\d{7}$/.test(phoneDigits);
 
     const getChatDeviceKey = () => {
         const existingKey = localStorage.getItem('milano_chat_device_key');
@@ -77,6 +81,7 @@ const Contact = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!isPhoneValid) return;
         setLoading(true);
         try {
             // Save to Firestore
@@ -212,12 +217,19 @@ const Contact = () => {
                         <label className="flex items-center gap-1 text-start font-bold text-sm text-gray-700 dark:text-gray-200"><span>{t('contact.email')}</span><span className="text-red-500">*</span></label>
                         <input
                             type="tel"
-                            className="w-full bg-white dark:bg-[#1c1c1e] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 outline-none focus:border-[#06b6d4] transition-colors text-start text-gray-900 dark:text-white"
+                            dir="rtl"
+                            inputMode="numeric"
+                            maxLength={9}
+                            pattern="^(70|71|72|73|77|78)[0-9]{7}$"
+                            className="w-full bg-white dark:bg-[#1c1c1e] border border-gray-200 dark:border-white/5 rounded-xl px-4 py-4 outline-none focus:border-[#06b6d4] transition-colors text-right text-gray-900 dark:text-white"
                             placeholder=""
                             value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            onChange={(e) => setFormData({ ...formData, email: normalizeYemenPhone(e.target.value).slice(0, 9) })}
                             required
                         />
+                        {formData.email && !isPhoneValid && (
+                            <p className="text-xs text-red-500 text-right font-bold">{t('contact.invalid_phone')}</p>
+                        )}
                     </div>
 
                     {/* Subject */}
