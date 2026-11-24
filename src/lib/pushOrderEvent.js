@@ -1,5 +1,5 @@
-const ADMIN_PUSH_ENDPOINT = import.meta.env.VITE_ADMIN_PUSH_ENDPOINT || 'https://milano.admin.pages.dev/api/push/order';
-const ADMIN_PUSH_EVENT_ENDPOINT = import.meta.env.VITE_ADMIN_PUSH_EVENT_ENDPOINT || 'https://milano.admin.pages.dev/api/push/event';
+const ADMIN_PUSH_ENDPOINT = import.meta.env.VITE_ADMIN_PUSH_ENDPOINT || 'https://milano-admin.pages.dev/api/push/order';
+const ADMIN_PUSH_EVENT_ENDPOINT = import.meta.env.VITE_ADMIN_PUSH_EVENT_ENDPOINT || 'https://milano-admin.pages.dev/api/push/event';
 
 export const notifyAdminOfNewOrder = (order, source = 'storefront') => {
   const payload = { order: { ...order, source, id: order.id || order.orderId } };
