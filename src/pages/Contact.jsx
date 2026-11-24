@@ -5,6 +5,7 @@ import { collection, addDoc, serverTimestamp, doc, getDoc, updateDoc } from 'fir
 import { db } from '../lib/firebase';
 import { useLanguage } from '../context/LanguageContext';
 import { normalizeYemenPhone } from '../lib/phoneValidation';
+import { notifyAdminOfNewMessage } from '../lib/pushOrderEvent';
 
 const Contact = () => {
     const { t, direction } = useLanguage();
@@ -100,6 +101,7 @@ const Contact = () => {
                 sender: 'user',
                 createdAt: serverTimestamp(),
             });
+            void notifyAdminOfNewMessage({ id: docRef.id, name: formData.name, subject: formData.subject });
 
             // Persist session locally
             localStorage.setItem('milano_active_chat', docRef.id);
