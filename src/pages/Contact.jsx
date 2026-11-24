@@ -236,12 +236,12 @@ const Contact = () => {
                         <label className="flex items-center gap-1 text-start font-bold text-sm text-gray-700 dark:text-gray-200"><span>{t('contact.subject')}</span><span className="text-red-500">*</span></label>
                         <div className="relative">
                             <select
-                                className="w-full bg-white dark:bg-[#1c1c1e] border border-[#06b6d4]/50 rounded-xl px-4 py-4 outline-none appearance-none text-start cursor-pointer text-gray-900 dark:text-white"
+                                className={`w-full bg-white dark:bg-[#1c1c1e] border border-[#06b6d4]/50 rounded-xl px-4 py-4 outline-none appearance-none text-start cursor-pointer ${formData.subject ? 'text-gray-900 dark:text-white' : 'text-blue-600 dark:text-blue-400'}`}
                                 value={formData.subject}
                                 onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                                 required
                             >
-                                <option value="">{t('contact.select_option')}</option>
+                                <option value="" className="text-blue-600 dark:text-blue-400">{t('contact.select_option')}</option>
                                 <option value="تأخر في موعد التسليم">{t('contact.subject_options.delivery_delay')}</option>
                                 <option value="تعديل فاتورة المنتجات">{t('contact.subject_options.invoice_edit')}</option>
                                 <option value="تغيير مقاس تم اختياره بالغلط">{t('contact.subject_options.wrong_size')}</option>

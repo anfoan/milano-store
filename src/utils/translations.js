@@ -198,7 +198,7 @@ export const translations = {
         'contact.email': 'رقم الهاتف',
         'contact.invalid_phone': 'قم بكتابة رقم الهاتف بشكل صحيح',
         'contact.subject': 'الموضوع',
-        'contact.select_option': 'حدد اختياراً',
+        'contact.select_option': 'حدد خياراً',
         'contact.subject_options.delivery_delay': 'تأخر في موعد التسليم',
         'contact.subject_options.invoice_edit': 'تعديل فاتورة المنتجات',
         'contact.subject_options.wrong_size': 'تغيير مقاس تم اختياره بالغلط',
