@@ -1092,7 +1092,7 @@ input[type=number] {
   width: min(82vw, 420px);
   height: 32px;
   border-radius: 999px;
-  background: #111317;
+  background: #dc2626;
   box-shadow: 0 10px 26px rgba(15, 23, 42, .24);
   transform: translateX(-50%) scaleX(.72);
   transform-origin: center top;
@@ -1137,7 +1137,7 @@ input[type=number] {
   height: 94px;
   pointer-events: none;
   transform: translateX(-50%);
-  animation: invoice-plane-rise 3s cubic-bezier(.23, 1, .32, 1) forwards;
+  animation: invoice-plane-rise 1.8s cubic-bezier(.23, 1, .32, 1) forwards;
 }
 
 .invoice-reveal-plane {
@@ -1166,7 +1166,7 @@ input[type=number] {
 .smoke-three { top: 68px; width: 28px; height: 18px; animation-delay: .24s; }
 
 html.dark .invoice-reveal-plane { color: #ffffff; }
-html.dark .invoice-reveal-bar { background: #000000; }
+html.dark .invoice-reveal-bar { background: #dc2626; }
 
 @keyframes invoice-plane-rise {
   from { opacity: 0; transform: translate(-50%, 0); }
@@ -1191,7 +1191,7 @@ html.dark .invoice-reveal-bar { background: #000000; }
 
 @media screen and (max-width: 1024px) {
   .invoice-reveal-flight {
-    animation-duration: 6s;
+    animation-duration: 2.4s;
   }
 
   .phase-revealing .invoice-reveal-invoice {
