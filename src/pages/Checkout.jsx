@@ -13,7 +13,7 @@ import { getCustomerWalletId, getPhoneWalletId, hashWalletPin, normalizePhone, w
 import { buildCustomerOrderHistory, customerOrderHistoryRef } from '../lib/customerOrderHistory';
 import { getSizeStock, toStockNumber } from '../lib/stockUtils';
 import { getNextInvoiceNumber } from '../lib/invoiceNumber';
-import { isValidYemenPhone } from '../lib/phoneValidation';
+import { isValidYemenPhone, sanitizeYemenPhoneInput } from '../lib/phoneValidation';
 import { notifyAdminOfNewOrder } from '../lib/pushOrderEvent';
 
 const Checkout = () => {
@@ -395,7 +395,7 @@ const Checkout = () => {
         e.preventDefault();
 
         if (formData.phone.trim() && !isValidYemenPhone(formData.phone)) {
-            alert(language === 'ar' ? 'يجب أن يبدأ رقم العميل بـ 77 أو 78 أو 73 أو 71 أو 70' : 'The customer number must start with 77, 78, 73, 71, or 70');
+            alert(language === 'ar' ? 'يجب أن يبدأ رقم العميل بـ 77 أو 78 أو 73 أو 72 أو 71 أو 70 ويتكون من 9 أرقام' : 'The customer number must start with 77, 78, 73, 72, 71, or 70 and contain 9 digits');
             return;
         }
 
@@ -874,7 +874,9 @@ const Checkout = () => {
                                 placeholder={t('checkout.phone_placeholder')}
                                 className="w-full bg-transparent border-none px-4 py-3 outline-none text-start placeholder-gray-400 dark:placeholder-gray-600 text-gray-900 dark:text-white"
                                 value={formData.phone}
-                                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                onChange={e => setFormData({ ...formData, phone: sanitizeYemenPhoneInput(e.target.value) })}
+                                inputMode="numeric"
+                                maxLength={9}
                                 dir="rtl"
                                 required
                             />
