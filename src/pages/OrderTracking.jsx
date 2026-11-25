@@ -424,8 +424,8 @@ const OrderTracking = () => {
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-500 dark:text-gray-400">{t('tracking.payment_method')}</span>
                                 <span className="text-gray-900 dark:text-white font-bold flex items-center gap-1">
-                                    {formData?.paymentMethod === 'cod' ? t('checkout.cod') : 'WhatsApp'}
-                                    {formData?.paymentMethod === 'cod' && <img src="https://cdn-icons-png.flaticon.com/512/5163/5163829.png" className="w-4 h-4 opacity-80 dark:invert" alt="" />}
+                                    {formData?.paymentMethod === 'cod' ? t('checkout.cod') : 'واتساب'}
+                                    {formData?.paymentMethod === 'cod' ? <img src="https://cdn-icons-png.flaticon.com/512/5163/5163829.png" className="w-4 h-4 opacity-80 dark:invert" alt="" /> : <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" className="w-4 h-4" alt="واتساب" />}
                                 </span>
                             </div>
                             <div className="flex justify-between text-sm">
