@@ -1,7 +1,7 @@
 import { formatOrderId } from '../lib/orderUtils';
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, getDocs, getDoc, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Check, ShoppingBag, Download, Star, Truck, MapPin, Package, FileText, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
 import html2canvas from 'html2canvas';
@@ -36,14 +36,26 @@ const OrderTracking = () => {
 
         const setupRealtimeListener = async () => {
             try {
-                const rawId = decodeURIComponent(orderId || '').replace(/\s+/g, '').trim();
-                const possibleIds = [rawId, `#${rawId.replace(/^#/, '')}`, rawId.replace(/^#/, '')];
-                const uniqueIds = [...new Set(possibleIds.filter(Boolean))];
+                const rawId = decodeURIComponent(orderId || '').trim();
+                const normalizedId = rawId
+                    .replace(/[٠-٩]/g, digit => '٠١٢٣٤٥٦٧٨٩'.indexOf(digit))
+                    .replace(/\s+/g, '')
+                    .replace(/^#+/, '');
+                const possibleIds = [normalizedId, `#${normalizedId}`].filter(Boolean);
+                const uniqueIds = [...new Set(possibleIds)];
+                const numericId = /^\d+$/.test(normalizedId) ? Number(normalizedId) : null;
+                const lookupValues = [...new Set([...uniqueIds, ...(numericId !== null ? [numericId] : [])])];
 
                 try {
                     const deviceOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
                     localOrder = Array.isArray(deviceOrders)
-                        ? deviceOrders.find(item => uniqueIds.includes(String(item.orderId || item.id || '').trim()))
+                        ? deviceOrders.find(item => {
+                            const itemId = String(item.orderId || item.id || '')
+                                .replace(/[٠-٩]/g, digit => '٠١٢٣٤٥٦٧٨٩'.indexOf(digit))
+                                .replace(/\s+/g, '')
+                                .replace(/^#+/, '');
+                            return itemId === normalizedId;
+                        })
                         : null;
                     if (localOrder) {
                         setOrder(localOrder);
@@ -56,7 +68,7 @@ const OrderTracking = () => {
                 const walletId = getCustomerWalletId();
                 if (!walletId || uniqueIds.length === 0) {
                     if (!localOrder) {
-                        setError(`${t('tracking.order_not_found')}: ${rawId}`);
+                        setError(`${t('tracking.order_not_found')}: ${normalizedId}`);
                         setLoading(false);
                     }
                     return;
@@ -65,9 +77,21 @@ const OrderTracking = () => {
                 // Only query this customer's own durable invoice history. The global
                 // orders collection stays private to the administrator.
                 const historyRef = collection(db, 'customer_wallets', walletId, 'orders');
-                const historyQuery = query(historyRef, where('orderId', 'in', uniqueIds));
+                const historyQuery = query(historyRef, where('orderId', 'in', lookupValues));
                 const historySnapshot = await getDocs(historyQuery);
-                const targetDocRef = historySnapshot.docs[0]?.ref || null;
+                let targetDocRef = historySnapshot.docs[0]?.ref || null;
+
+                // Older records may be addressed by the source order ID rather than
+                // the displayed invoice number. Check that known document key too.
+                if (!targetDocRef) {
+                    for (const candidate of uniqueIds) {
+                        const candidateSnapshot = await getDoc(doc(historyRef, candidate));
+                        if (candidateSnapshot.exists()) {
+                            targetDocRef = candidateSnapshot.ref;
+                            break;
+                        }
+                    }
+                }
 
                 if (targetDocRef) {
                     unsubscribe = onSnapshot(targetDocRef, snapshot => {
@@ -87,7 +111,7 @@ const OrderTracking = () => {
                         }
                     });
                 } else if (!localOrder) {
-                    setError(`${t('tracking.order_not_found')}: ${rawId}`);
+                    setError(`${t('tracking.order_not_found')}: ${normalizedId}`);
                     setLoading(false);
                 }
             } catch (err) {

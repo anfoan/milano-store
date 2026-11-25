@@ -740,6 +740,11 @@ const Checkout = () => {
             };
             existingOrders.unshift(orderForStorage);
             localStorage.setItem('myOrders', JSON.stringify(existingOrders));
+            // Keep the phone-linked history addressable from the tracking page on
+            // the same device. The order history itself remains in Firestore.
+            if (phoneWalletId) {
+                localStorage.setItem('milano_customer_wallet_phone_id', phoneWalletId);
+            }
 
             // Update Daily Order Count
             const currentDaily = JSON.parse(localStorage.getItem('daily_orders') || '{}');
