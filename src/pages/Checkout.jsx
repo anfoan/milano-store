@@ -804,6 +804,9 @@ const Checkout = () => {
                     const existingOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
                     existingOrders.unshift({ ...orderData, sourceOrderId: orderRef.id, historyVersion: 1, inventorySyncPending: true, walletDebitPending: walletApplied > 0, couponUsagePending: Boolean(appliedCoupon?.id), createdAt: new Date().toISOString(), timestamp: Date.now() });
                     localStorage.setItem('myOrders', JSON.stringify(existingOrders));
+                    if (phoneWalletId) {
+                        localStorage.setItem('milano_customer_wallet_phone_id', phoneWalletId);
+                    }
                     localStorage.removeItem('cart');
                     localStorage.removeItem('cart_coupon');
                     window.dispatchEvent(new CustomEvent('cart-updated'));
