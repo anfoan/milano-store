@@ -38,7 +38,12 @@ const Checkout = () => {
         cod_enabled: true,
         whatsapp_enabled: true,
         whatsapp_number: '',
-        whatsapp_label: 'تواصل معنا عبر واتساب لإكمال عملية الدفع.'
+        whatsapp_label: 'تواصل معنا عبر واتساب لإكمال عملية الدفع.',
+        custom_methods: [],
+        cod_title: '',
+        cod_icon: '',
+        whatsapp_title: '',
+        whatsapp_icon: ''
     });
     const [deliverySettings, setDeliverySettings] = useState({
         freeDeliveryAll: false,
@@ -1142,6 +1147,8 @@ const Checkout = () => {
                                                     }
                                                 }
 
+                                                const customMethods = (Array.isArray(paymentSettings.custom_methods) ? paymentSettings.custom_methods : [])
+                                                    .filter(method => method?.id && method?.title && method.enabled !== false);
                                                 return (
                                                     <>
                                                         {/* Cash on Delivery */}
@@ -1150,7 +1157,7 @@ const Checkout = () => {
                                                                 className="flex items-center justify-end gap-3 cursor-pointer group"
                                                                 onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'cod' }))}
                                                             >
-                                                                <span className={`font-bold text-sm ${formData.paymentMethod === 'cod' ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>{t('checkout.payment_cod')}</span>
+                                                                <span className={`font-bold text-sm flex items-center gap-2 ${formData.paymentMethod === 'cod' ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>{paymentSettings.cod_icon && <img src={paymentSettings.cod_icon} alt="" className="h-5 w-5 rounded-md object-cover" />}{paymentSettings.cod_title || t('checkout.payment_cod')}</span>
                                                                 <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${formData.paymentMethod === 'cod' ? 'border-[#3b82f6]' : 'border-gray-400 dark:border-gray-600'}`}>
                                                                     {formData.paymentMethod === 'cod' && <div className="w-2.5 h-2.5 bg-[#3b82f6] rounded-full shadow-lg shadow-blue-500/50"></div>}
                                                                 </div>
@@ -1165,8 +1172,8 @@ const Checkout = () => {
                                                             >
                                                                 <div className="flex flex-col items-end">
                                                                     <span className={`font-bold text-sm flex items-center gap-2 ${formData.paymentMethod === 'whatsapp' ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>
-                                                                        <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp" className="w-5 h-5" />
-                                                                        {paymentSettings.whatsapp_label || t('checkout.whatsapp_default')}
+                                                                        <img src={paymentSettings.whatsapp_icon || "https://cdn-icons-png.flaticon.com/512/733/733585.png"} alt="WhatsApp" className="w-5 h-5 rounded-md object-cover" />
+                                                                        {paymentSettings.whatsapp_title || paymentSettings.whatsapp_label || t('checkout.whatsapp_default')}
                                                                     </span>
                                                                     {formData.paymentMethod === 'whatsapp' && paymentSettings.whatsapp_number && (
                                                                         <span className="text-xs text-blue-500 font-bold mt-1 dir-ltr font-mono">{paymentSettings.whatsapp_number}</span>
@@ -1178,8 +1185,20 @@ const Checkout = () => {
                                                             </div>
                                                         )}
 
+                                                        {/* Custom Payment Methods */}
+                                                        {customMethods.map(method => (
+                                                            <div key={method.id} className="flex items-center justify-end gap-3 cursor-pointer group" onClick={() => setFormData(prev => ({ ...prev, paymentMethod: method.id }))}>
+                                                                <span className={`font-bold text-sm flex items-center gap-2 ${formData.paymentMethod === method.id ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>
+                                                                    {method.iconUrl && <img src={method.iconUrl} alt="" className="h-5 w-5 rounded-md object-cover" />}
+                                                                    {method.title}
+                                                                </span>
+                                                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${formData.paymentMethod === method.id ? 'border-[#3b82f6]' : 'border-gray-400 dark:border-gray-600'}`}>
+                                                                    {formData.paymentMethod === method.id && <div className="w-2.5 h-2.5 bg-[#3b82f6] rounded-full shadow-lg shadow-blue-500/50"></div>}
+                                                                </div>
+                                                            </div>
+                                                        ))}
                                                         {/* Fallback Message: Show if NO methods are available/visible */}
-                                                        {!showCOD && !showWhatsApp && (
+                                                        {!showCOD && !showWhatsApp && customMethods.length === 0 && (
                                                             <div className="text-center text-red-500 font-bold py-4 bg-red-50 dark:bg-red-500/10 rounded-xl border border-red-100 dark:border-red-500/20">
                                                                 {t('checkout.order_unavailable_amount', { amount: total.toLocaleString() })}
                                                             </div>
