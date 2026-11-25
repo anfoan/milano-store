@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
-import { Check, Clock3, Copy, Download, FileText, MapPin, Package, Printer, Search, Truck, X } from 'lucide-react';
+import { ArrowRight, Check, Clock3, Copy, Download, FileText, MapPin, Package, Printer, Search, Truck, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { db } from '../lib/firebase';
@@ -312,7 +312,7 @@ const UserProfile = () => {
         <div className="min-h-screen bg-[#f6f7f8] px-3 py-5 font-['Cairo'] text-slate-900 dark:bg-[#0d1017] dark:text-white md:px-5" dir={direction}>
             {printOrder && <div className={`invoice-print-overlay invoice-reveal-overlay phase-${invoiceRevealPhase} fixed inset-0 z-[100] overflow-y-auto bg-slate-100 p-4 sm:p-6 md:p-8 dark:bg-[#0d1017]`}>
                 <button type="button" onClick={saveInvoiceImage} disabled={savingInvoiceImage} className="invoice-gallery-save-button fixed left-3 top-3 z-[110] inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-black text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:opacity-60"><Download size={14}/>{savingInvoiceImage ? (en ? 'Saving...' : 'جاري الحفظ...') : (en ? 'Save to Photos' : 'حفظ إلى معرض الصور')}</button>
-                <div className="invoice-reveal-bar"><button type="button" onClick={() => setPrintOrder(null)} className="invoice-mobile-close-button">إغلاق</button></div>
+                <div className="invoice-reveal-bar"><button type="button" onClick={() => setPrintOrder(null)} className="invoice-mobile-close-button"><ArrowRight size={16} strokeWidth={3} /><span>{en ? 'Back' : 'رجوع'}</span></button></div>
                 <div className="invoice-reveal-flight" aria-hidden="true"><span className="invoice-reveal-smoke smoke-one" /><span className="invoice-reveal-smoke smoke-two" /><span className="invoice-reveal-smoke smoke-three" /><span className="invoice-reveal-plane">✈</span></div>
                 <div data-customer-invoice-preview className="customer-orders-invoice-preview invoice-reveal-invoice mx-auto min-h-full w-full max-w-4xl"><InvoiceTemplate customerOrdersPreview orders={[printOrder]} lang={language} generalSettings={generalSettings} onClose={() => setPrintOrder(null)} onDownload={downloadInvoicePdf} /></div>
             </div>}
