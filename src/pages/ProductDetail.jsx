@@ -22,6 +22,29 @@ import QuantityStepper from '../components/QuantityStepper';
 import { getAvailableSizeValues, getSizeStock, hasAvailableStock } from '../lib/stockUtils';
 import { optimizeProductImage, preloadProductImage } from '../lib/imageUtils';
 
+const playAddToCartSound = () => {
+    try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        const context = new AudioContextClass();
+        const gain = context.createGain();
+        gain.gain.setValueAtTime(0.0001, context.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.16, context.currentTime + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.28);
+        gain.connect(context.destination);
+        const oscillator = context.createOscillator();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(660, context.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(880, context.currentTime + 0.16);
+        oscillator.connect(gain);
+        oscillator.start();
+        oscillator.stop(context.currentTime + 0.3);
+        oscillator.addEventListener('ended', () => context.close().catch(() => {}), { once: true });
+    } catch (error) {
+        console.warn('Add-to-cart sound unavailable:', error);
+    }
+};
+
 const readCachedProduct = (id) => {
     try {
         const cachedProducts = JSON.parse(localStorage.getItem('cached_products') || '[]');
@@ -382,6 +405,7 @@ const ProductDetail = () => {
         window.dispatchEvent(new CustomEvent('cart-updated'));
 
         // Visual Feedback
+        playAddToCartSound();
         setShowSuccessToast(true);
         setTimeout(() => setShowSuccessToast(false), 5000);
     };
@@ -797,15 +821,15 @@ const ProductDetail = () => {
                     )}
                 </AnimatePresence>
 
-                {/* Success Toast */}
-                <AnimatePresence>
-                    {showSuccessToast && (
-                        <motion.div
-                            initial={{ opacity: 0, x: 20, y: -20 }}
-                            animate={{ opacity: 1, x: 0, y: 0 }}
-                            exit={{ opacity: 0, x: 20, y: -20 }}
-                            className="fixed top-4 right-4 z-[10000] w-[90%] max-w-[320px]"
-                        >
+                        {/* Success Toast */}
+                        <AnimatePresence>
+                            {showSuccessToast && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20, y: -20 }}
+                                    animate={{ opacity: 1, x: 0, y: 0 }}
+                                    exit={{ opacity: 0, x: 20, y: -20 }}
+                                    className="fixed top-20 sm:top-24 left-3 right-3 z-[10000] mx-auto w-auto max-w-[420px]"
+                                >
                             <div className="bg-[#3e7b27] rounded-xl overflow-hidden shadow-2xl relative px-4 py-6">
                                 <motion.div
                                     initial={{ width: "0%" }}
