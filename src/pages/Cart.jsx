@@ -297,7 +297,7 @@ const Cart = () => {
                                         {Math.round((totalDiscount / displaySubtotal) * 100)}%
                                     </span>
                                 )}
-                                <span className="text-gray-500 dark:text-gray-400">{t('cart.discount')}</span>
+                                <span className="text-red-500 dark:text-red-400">{language === 'ar' ? 'خصم إضافي' : 'Additional discount'}</span>
                             </div>
                         </div>
                         <div className="flex justify-between items-center text-base font-black border-t border-gray-100 dark:border-white/10 pt-4 mt-4">
