@@ -3,13 +3,14 @@ import { ShoppingBag, Star, MapPin, Search, Clock, ShieldCheck, Info, Facebook, 
 import { Link, useNavigate } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { safeLocalGet, safeLocalSet, safeLocalRemove, safeSessionGet, safeSessionSet, safeJsonParse } from '../lib/safeStorage';
-import { collection, query, doc, onSnapshot, setDoc, increment, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, onSnapshot, setDoc, increment, serverTimestamp } from 'firebase/firestore';
 import { useSettings } from '../hooks/useSettings';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import DraggableScrollContainer from '../components/DraggableScrollContainer';
 import { preloadProductImage } from '../lib/imageUtils';
+import { getCustomerWalletId } from '../lib/wallet';
 
 
 const normalizeCategoryName = (value = '') => value
@@ -234,6 +235,8 @@ const Home = ({ isActive = true }) => {
     const [isVideoFullscreen, setIsVideoFullscreen] = useState(false);
     const [trackingOpen, setTrackingOpen] = useState(false);
     const [trackingInvoice, setTrackingInvoice] = useState('');
+    const [trackingError, setTrackingError] = useState('');
+    const [trackingChecking, setTrackingChecking] = useState(false);
     const [newArrivalsOpen, setNewArrivalsOpen] = useState(false);
     const [newArrivalIndex, setNewArrivalIndex] = useState(0);
     const selectedVideoElementRef = useRef(null);
@@ -309,12 +312,49 @@ const Home = ({ isActive = true }) => {
         return () => window.clearInterval(timer);
     }, [isActive, newArrivalsOpen, newArrivalSlides.length]);
 
-    const handleInvoiceTracking = (event) => {
+    const handleInvoiceTracking = async (event) => {
         event.preventDefault();
         const invoiceNumber = trackingInvoice.trim();
         if (!invoiceNumber) return;
-        setTrackingOpen(false);
-        navigate(`/order-tracking/${encodeURIComponent(invoiceNumber.replace(/\s+/g, ''))}`);
+        const normalizedId = invoiceNumber
+            .replace(/[٠-٩]/g, digit => '٠١٢٣٤٥٦٧٨٩'.indexOf(digit))
+            .replace(/\s+/g, '')
+            .replace(/^#+/, '');
+        const lookupIds = [...new Set([normalizedId, `#${normalizedId}`].filter(Boolean))];
+        const numericId = /^\d+$/.test(normalizedId) ? Number(normalizedId) : null;
+        const lookupValues = [...new Set([...lookupIds, ...(numericId !== null ? [numericId] : [])])];
+        setTrackingError('');
+        setTrackingChecking(true);
+        try {
+            const localOrders = safeJsonParse(safeLocalGet('myOrders'), []);
+            const localMatch = Array.isArray(localOrders) && localOrders.some(item => {
+                const itemId = String(item?.orderId || item?.id || '')
+                    .replace(/[٠-٩]/g, digit => '٠١٢٣٤٥٦٧٨٩'.indexOf(digit))
+                    .replace(/\s+/g, '')
+                    .replace(/^#+/, '');
+                return itemId === normalizedId;
+            });
+            let found = localMatch;
+            if (!found) {
+                const walletId = getCustomerWalletId();
+                if (walletId) {
+                    const historyRef = collection(db, 'customer_wallets', walletId, 'orders');
+                    const snapshot = await getDocs(query(historyRef, where('orderId', 'in', lookupValues)));
+                    found = !snapshot.empty;
+                }
+            }
+            if (!found) {
+                setTrackingError(language === 'ar' ? 'الطلب غير موجود' : 'Order not found');
+                return;
+            }
+            setTrackingOpen(false);
+            navigate(`/order-tracking/${encodeURIComponent(normalizedId)}`);
+        } catch (error) {
+            console.error('Order tracking lookup error:', error);
+            setTrackingError(language === 'ar' ? 'الطلب غير موجود' : 'Order not found');
+        } finally {
+            setTrackingChecking(false);
+        }
     };
 
     // Calculate max discount for the banner
@@ -841,7 +881,7 @@ const Home = ({ isActive = true }) => {
                                 />
                             </div>
                             <div className="inline-flex items-center gap-1.5 mb-3">
-                                <button type="button" onClick={() => setTrackingOpen(true)} className="tracking-wave-bar text-[11px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-100 dark:bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-200 dark:border-cyan-400/20 hover:bg-cyan-200 dark:hover:bg-cyan-400/20 transition-colors">
+                                <button type="button" onClick={() => { setTrackingOpen(true); setTrackingError(''); }} className="tracking-wave-bar text-[11px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-widest bg-cyan-100 dark:bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-200 dark:border-cyan-400/20 hover:bg-cyan-200 dark:hover:bg-cyan-400/20 transition-colors">
                                     {language === 'ar' ? 'ادخل رقم الطلب لتتبع طلبك' : 'Enter your order number to track your order'}
                                 </button>
                             </div>
@@ -1218,9 +1258,10 @@ const Home = ({ isActive = true }) => {
                     <form onSubmit={handleInvoiceTracking} className="space-y-2">
                         <div className="relative">
                             <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input autoFocus dir="ltr" value={trackingInvoice} onChange={(event) => setTrackingInvoice(event.target.value)} placeholder={language === 'ar' ? 'رقم الطلب' : 'Order number'} className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-3 pr-9 text-center text-xs font-black outline-none focus:border-cyan-400 dark:border-white/10 dark:bg-white/5 dark:text-white" />
+                    <input autoFocus dir="ltr" value={trackingInvoice} onChange={(event) => { setTrackingInvoice(event.target.value); setTrackingError(''); }} placeholder={language === 'ar' ? 'رقم الطلب' : 'Order number'} className={`h-10 w-full rounded-xl border bg-slate-50 py-2 pl-3 pr-9 text-center text-xs font-black outline-none focus:border-cyan-400 dark:bg-white/5 dark:text-white ${trackingError ? 'border-red-500 dark:border-red-400' : 'border-slate-200 dark:border-white/10'}`} />
+                            {trackingError && <p className="mt-1 text-right text-[11px] font-bold text-red-600 dark:text-red-400">{trackingError}</p>}
                         </div>
-                    <button type="submit" disabled={!trackingInvoice.trim()} className="h-10 w-full rounded-xl bg-cyan-600 text-xs font-black text-white transition-colors hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50">{language === 'ar' ? 'بحث عن الطلب' : 'Search order'}</button>
+                    <button type="submit" disabled={!trackingInvoice.trim() || trackingChecking} className="h-10 w-full rounded-xl bg-cyan-600 text-xs font-black text-white transition-colors hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50">{trackingChecking ? (language === 'ar' ? 'جاري البحث...' : 'Searching...') : (language === 'ar' ? 'بحث عن الطلب' : 'Search order')}</button>
                     </form>
                 </div>
             </div>
