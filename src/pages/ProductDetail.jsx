@@ -24,22 +24,10 @@ import { optimizeProductImage, preloadProductImage } from '../lib/imageUtils';
 
 const playAddToCartSound = () => {
     try {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) return;
-        const context = new AudioContextClass();
-        const gain = context.createGain();
-        gain.gain.setValueAtTime(0.0001, context.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.16, context.currentTime + 0.015);
-        gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.28);
-        gain.connect(context.destination);
-        const oscillator = context.createOscillator();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(660, context.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(880, context.currentTime + 0.16);
-        oscillator.connect(gain);
-        oscillator.start();
-        oscillator.stop(context.currentTime + 0.3);
-        oscillator.addEventListener('ended', () => context.close().catch(() => {}), { once: true });
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+        audio.volume = 1;
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
     } catch (error) {
         console.warn('Add-to-cart sound unavailable:', error);
     }
