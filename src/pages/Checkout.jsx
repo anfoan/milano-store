@@ -1066,7 +1066,7 @@ const Checkout = () => {
                                             {Math.round((discountAmount / cartTotal) * 100)}%
                                         </span>
                                     )}
-                                    <span className="text-gray-500 dark:text-gray-400">{t('cart.discount')}</span>
+                                    <span className="text-gray-500 dark:text-gray-400">{language === 'ar' ? 'خصم إضافي' : t('cart.discount')}</span>
                                 </div>
                             </div>
                             <div className="flex justify-between items-center text-sm font-bold">
