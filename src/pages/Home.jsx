@@ -1025,7 +1025,7 @@ const Home = ({ isActive = true }) => {
                                 {/* Text & Button Content */}
                                 <div className="text-center md:text-right flex-1 flex flex-col items-center md:items-start">
                                     <h2 className="text-xl md:text-3xl font-black mb-0.5 leading-tight flex items-center justify-center md:justify-start">
-                                        {language === 'ar' ? 'عروض خاصة لاتفوت، 🔥' : "Special offers you can't miss!"}
+                                        {language === 'ar' ? 'عروض خاصة لاتفوت 🔥' : "Special offers you can't miss!"}
                                     </h2>
                                     <p className="text-pink-100 font-bold text-[13px] md:text-base mb-1.5 text-center md:text-right leading-relaxed">
                                         {language === 'ar' ? 'استفد من تخفيضاتنا المميزة واغتنم فرصة التوفير.' : 'Enjoy our special discounts and save more.'}
