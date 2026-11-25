@@ -11,7 +11,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import { getCustomerWalletId, getPhoneWalletId, hashWalletPin, normalizePhone, walletNumber } from '../lib/wallet';
 import { buildCustomerOrderHistory, customerOrderHistoryRef } from '../lib/customerOrderHistory';
-import { getSizeStock, toStockNumber } from '../lib/stockUtils';
+import { getCanonicalSizeStocks, getSizeStock, getSizeStocksTotal, toStockNumber } from '../lib/stockUtils';
 import { getNextInvoiceNumber } from '../lib/invoiceNumber';
 import { isValidYemenPhone, sanitizeYemenPhoneInput } from '../lib/phoneValidation';
 import { notifyAdminOfNewOrder } from '../lib/pushOrderEvent';
@@ -643,7 +643,10 @@ const Checkout = () => {
                     const max = Number(couponSnap.data().maxUses || 0);
                     if (used >= max) throw new Error("COUPON_LIMIT_REACHED");
                 }
-                const productSnaps = await Promise.all(productRefs.map(ref => transaction.get(ref)));
+                const productSnaps = [];
+                for (const productRef of productRefs) {
+                    productSnaps.push(await transaction.get(productRef));
+                }
 
                 if (walletRef) {
                     if (!walletSnap?.exists() || Number(walletSnap.data().balance || 0) < walletApplied) {
@@ -663,7 +666,7 @@ const Checkout = () => {
                     const data = snap.data();
                     const hasSizeStocks = data.sizeStocks && Object.keys(data.sizeStocks).length > 0;
                     const currentStock = hasSizeStocks
-                        ? Object.values(data.sizeStocks).reduce((sum, quantity) => sum + Math.max(0, toStockNumber(quantity)), 0)
+                        ? getSizeStocksTotal(data) ?? Object.values(data.sizeStocks).reduce((sum, quantity) => sum + Math.max(0, toStockNumber(quantity)), 0)
                         : Math.max(0, toStockNumber(data.stock));
                     if (!hasSizeStocks && group.total > currentStock) throw new Error(`INSUFFICIENT_STOCK:${productId}`);
 
@@ -701,16 +704,16 @@ const Checkout = () => {
                         const data = snap.data();
                         const fixes = {};
                         if (Number(data.stock || 0) < 0) fixes.stock = 0;
-                        if (item.size && data.sizeStocks) {
-                            const sizeQty = getSizeStock(data, item.size);
-                            if (sizeQty < 0) fixes[`sizeStocks.${item.size}`] = 0;
-                        }
                         // Sync total stock with sum of sizes if product has sizes
                         if (data.sizeStocks && Object.keys(data.sizeStocks).length > 0) {
-                            const sumOfSizes = Object.values(data.sizeStocks).reduce((sum, qty) => sum + toStockNumber(qty), 0);
+                            const canonicalSizes = getCanonicalSizeStocks(data);
+                            const sumOfSizes = getSizeStocksTotal(data) ?? Object.values(data.sizeStocks).reduce((sum, qty) => sum + toStockNumber(qty), 0);
                             const currentStock = toStockNumber(data.stock);
                             // if size was just fixed to 0, recalculate
                             const adjustedStock = fixes.stock !== undefined ? 0 : currentStock;
+                            if (canonicalSizes && JSON.stringify(canonicalSizes) !== JSON.stringify(data.sizeStocks)) {
+                                fixes.sizeStocks = canonicalSizes;
+                            }
                             if (adjustedStock !== sumOfSizes) {
                                 fixes.stock = sumOfSizes;
                             }

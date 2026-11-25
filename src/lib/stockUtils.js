@@ -21,6 +21,18 @@ export const getSizeStock = (product, requestedSize) => {
     return exact == null ? 0 : Math.max(0, toStockNumber(stocks[exact]));
 };
 
+export const getSizeStocksTotal = (product, sizeStocks = product?.sizeStocks) => {
+    const values = product?.variants?.find((variant) => variant.type === 'size')?.values || [];
+    if (values.length === 0) return null;
+    return values.reduce((total, size) => total + getSizeStock({ sizeStocks }, size), 0);
+};
+
+export const getCanonicalSizeStocks = (product, sizeStocks = product?.sizeStocks) => {
+    const values = product?.variants?.find((variant) => variant.type === 'size')?.values || [];
+    if (values.length === 0) return null;
+    return Object.fromEntries(values.map((size) => [size, getSizeStock({ sizeStocks }, size)]));
+};
+
 export const getAvailableSizeValues = (product) => {
     const values = product?.variants?.find((variant) => variant.type === 'size')?.values || [];
     if (!product?.sizeStocks || typeof product.sizeStocks !== 'object') return values;
@@ -29,7 +41,7 @@ export const getAvailableSizeValues = (product) => {
 
 export const getAvailableStock = (product) => {
     if (product?.sizeStocks && typeof product.sizeStocks === 'object' && Object.keys(product.sizeStocks).length > 0) {
-        return Object.values(product.sizeStocks).reduce((total, quantity) => total + Math.max(0, toStockNumber(quantity)), 0);
+        return getSizeStocksTotal(product) ?? Object.values(product.sizeStocks).reduce((total, quantity) => total + Math.max(0, toStockNumber(quantity)), 0);
     }
     return Math.max(0, toStockNumber(product?.stock));
 };
