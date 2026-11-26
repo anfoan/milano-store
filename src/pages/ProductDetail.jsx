@@ -474,7 +474,7 @@ const ProductDetail = () => {
                             </div>
 
                             {/* Quantity Row */}
-                            <div className="flex flex-row justify-between items-center px-0.5 md:px-1 gap-3">
+                            <div className="hidden lg:flex flex-row justify-between items-center px-0.5 md:px-1 gap-3">
                                 <span className="text-gray-900 dark:text-white font-black text-sm md:text-base text-right">{t('product.quantity')}</span>
                                 <QuantityStepper
                                     value={quantity}
