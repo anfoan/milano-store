@@ -547,7 +547,7 @@ const ProductDetail = () => {
                                     className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-black text-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-2"
                                 >
                                     <span>{t('product.add_to_cart')}</span>
-                                    <ShoppingBag className="w-6 h-6" />
+                                    <ShoppingCart className="w-6 h-6" />
                                 </button>
                             ) : (
                                 <button
