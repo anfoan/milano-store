@@ -35,18 +35,22 @@ const UserProfile = () => {
     const [invoiceRevealPhase, setInvoiceRevealPhase] = useState('idle');
     const [downloadingInvoice, setDownloadingInvoice] = useState(false);
     const [savingInvoiceImage, setSavingInvoiceImage] = useState(false);
-    const iosInvoicePreview = useMemo(() => typeof navigator !== 'undefined' && (
-        /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    const [preparingInvoiceImage, setPreparingInvoiceImage] = useState(false);
+    const preparedInvoiceImageRef = useRef(null);
+    const invoiceImageGenerationRef = useRef(0);
+    const mobileInvoicePreview = useMemo(() => typeof navigator !== 'undefined' && (
+        /Android|iPad|iPhone|iPod/i.test(navigator.userAgent) ||
+        navigator.userAgentData?.platform === 'Android' ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
     ), []);
-    const iosInvoiceOverlayRef = useRef(null);
-    const iosInvoiceStageRef = useRef(null);
+    const mobileInvoiceOverlayRef = useRef(null);
+    const mobileInvoiceStageRef = useRef(null);
 
-    // Measure only the iOS presentation scale; the captured invoice remains 794px wide.
+    // Measure only the phone/tablet presentation scale; the captured invoice remains 794px wide.
     useLayoutEffect(() => {
-        if (!printOrder || !iosInvoicePreview) return undefined;
-        const overlay = iosInvoiceOverlayRef.current;
-        const stage = iosInvoiceStageRef.current;
+        if (!printOrder || !mobileInvoicePreview) return undefined;
+        const overlay = mobileInvoiceOverlayRef.current;
+        const stage = mobileInvoiceStageRef.current;
         if (!overlay || !stage) return undefined;
         let disposed = false;
         const fit = () => {
@@ -56,21 +60,21 @@ const UserProfile = () => {
             const height = overlay.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
             const widthScale = Math.min(1, width / 794);
             const page = overlay.querySelector('.invoice-preview-page');
-            const currentScale = parseFloat(style.getPropertyValue('--ios-invoice-scale')) || 1;
+            const currentScale = parseFloat(style.getPropertyValue('--mobile-invoice-scale')) || 1;
             const pageHeight = page ? page.getBoundingClientRect().height / currentScale : 0;
             const heightScale = pageHeight > 0 ? height / pageHeight : widthScale;
             // Fit ordinary invoices in landscape; long invoices scroll instead of becoming unreadable.
             const scale = heightScale >= Math.min(widthScale, .65) ? Math.min(widthScale, heightScale) : widthScale;
             if (scale <= 0) return;
-            overlay.style.setProperty('--ios-invoice-scale', String(scale));
-            overlay.style.setProperty('--ios-invoice-grid', `${1 / scale}px`);
+            overlay.style.setProperty('--mobile-invoice-scale', String(scale));
+            overlay.style.setProperty('--mobile-invoice-grid', `${1 / scale}px`);
         };
         fit();
         document.fonts?.ready.then(fit);
         const observer = new ResizeObserver(fit);
         observer.observe(overlay);
         return () => { disposed = true; observer.disconnect(); };
-    }, [printOrder, iosInvoicePreview]);
+    }, [printOrder, mobileInvoicePreview]);
 
     useEffect(() => {
         if (!printOrder) {
@@ -79,16 +83,25 @@ const UserProfile = () => {
         }
         setInvoiceRevealPhase('launching');
         const touchDevice = window.innerWidth <= 1024;
-        const iosDuration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 200 : 3800;
-        const revealTimer = window.setTimeout(() => setInvoiceRevealPhase('shown'), iosInvoicePreview ? iosDuration : (touchDevice ? 2400 : 1800));
+        const mobileDuration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 200 : 3800;
+        const revealTimer = window.setTimeout(() => setInvoiceRevealPhase('shown'), mobileInvoicePreview ? mobileDuration : (touchDevice ? 2400 : 1800));
         return () => {
             window.clearTimeout(revealTimer);
         };
-    }, [printOrder, iosInvoicePreview]);
+    }, [printOrder, mobileInvoicePreview]);
 
     const openInvoicePreview = (order) => {
         setInvoiceRevealPhase('launching');
+        if (mobileInvoicePreview) setPreparingInvoiceImage(true);
         setPrintOrder(order);
+    };
+
+    const closeInvoicePreview = () => {
+        if (mobileInvoicePreview) {
+            invoiceImageGenerationRef.current += 1;
+            preparedInvoiceImageRef.current = null;
+        }
+        setPrintOrder(null);
     };
 
     useEffect(() => {
@@ -189,7 +202,117 @@ const UserProfile = () => {
         setTimeout(() => setCopied(''), 1600);
     };
 
+    const prepareMobileInvoiceImage = async () => {
+        const element = document.querySelector('[data-customer-invoice-preview] .invoice-preview-page');
+        if (!element) throw new Error('Invoice preview is unavailable');
+        await document.fonts.ready;
+        await Promise.all(Array.from(element.querySelectorAll('img')).map(image => image.decode?.().catch(() => {})));
+        const canvas = await html2canvas(element, {
+            scale: 2,
+            width: 794,
+            useCORS: true,
+            allowTaint: false,
+            backgroundColor: '#ffffff',
+            logging: false,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: window.innerWidth,
+            windowHeight: window.innerHeight,
+            onclone: (clonedDocument, page) => {
+                const set = (node, property, value) => node.style.setProperty(property, value, 'important');
+                // Undo screen scaling only inside the capture clone, never on the visible invoice.
+                for (let node = page; node; node = node.parentElement) {
+                    Object.entries({ zoom: '1', transform: 'none', animation: 'none', transition: 'none', opacity: '1', overflow: 'visible', 'max-height': 'none' }).forEach(([property, value]) => set(node, property, value));
+                }
+                const overlay = page.closest('.invoice-print-overlay');
+                const preview = page.closest('[data-customer-invoice-preview]');
+                const stage = page.closest('.invoice-mobile-stage');
+                const container = page.closest('.print-container');
+                [overlay, stage, preview, container, page].filter(Boolean).forEach(node => {
+                    set(node, 'width', '794px');
+                    set(node, 'max-width', '794px');
+                });
+                if (overlay) {
+                    Object.entries({ '--mobile-invoice-scale': '1', '--mobile-invoice-grid': '1px', position: 'absolute', inset: 'auto', left: '0', top: '0', padding: '0', height: 'auto' }).forEach(([property, value]) => set(overlay, property, value));
+                }
+                set(page, 'height', 'auto');
+                set(page, 'min-height', '0');
+                set(page, 'margin', '0');
+                // Give the captured Arabic header glyphs a complete line box.
+                page.querySelectorAll('.invoice-items-table th').forEach(cell => set(cell, 'line-height', '1.4'));
+                page.querySelectorAll('.invoice-table-header-label').forEach(label => {
+                    set(label, 'line-height', '1.4');
+                    set(label, 'vertical-align', 'middle');
+                });
+                page.querySelectorAll('[data-invoice-product-title]').forEach(title => {
+                    Object.entries({ 'white-space': 'normal', 'overflow-wrap': 'anywhere', 'min-width': '0', flex: '1 1 0%' }).forEach(([property, value]) => set(title, property, value));
+                });
+            },
+        });
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1));
+        if (!blob) throw new Error('Invoice image could not be created');
+        return new File([blob], `Milano-Invoice-${String(printOrder?.orderId || printOrder?.id || 'Order').replace('#', '')}.png`, { type: 'image/png' });
+    };
+
+    useEffect(() => {
+        preparedInvoiceImageRef.current = null;
+        invoiceImageGenerationRef.current += 1;
+        if (!printOrder || !mobileInvoicePreview || invoiceRevealPhase !== 'shown') return undefined;
+        let disposed = false;
+        const generation = invoiceImageGenerationRef.current;
+        setPreparingInvoiceImage(true);
+        // Prepare before the tap so native sharing retains its required user gesture.
+        prepareMobileInvoiceImage().then(file => {
+            if (!disposed && generation === invoiceImageGenerationRef.current) preparedInvoiceImageRef.current = { order: printOrder, file };
+        }).catch(error => {
+            if (!disposed) console.warn('Invoice image preparation failed:', error);
+        }).finally(() => {
+            if (!disposed && generation === invoiceImageGenerationRef.current) setPreparingInvoiceImage(false);
+        });
+        return () => { disposed = true; preparedInvoiceImageRef.current = null; invoiceImageGenerationRef.current += 1; };
+    }, [printOrder, mobileInvoicePreview, invoiceRevealPhase, language, generalSettings]);
+
+    const saveMobileInvoiceImage = async () => {
+        if (savingInvoiceImage || preparingInvoiceImage) return;
+        setSavingInvoiceImage(true);
+        const generation = invoiceImageGenerationRef.current;
+        try {
+            let file = preparedInvoiceImageRef.current?.order === printOrder ? preparedInvoiceImageRef.current.file : null;
+            if (!file) {
+                file = await prepareMobileInvoiceImage();
+                if (generation !== invoiceImageGenerationRef.current) return;
+                preparedInvoiceImageRef.current = { order: printOrder, file };
+                alert(en ? 'The image is ready. Tap Save to Photos again.' : 'تم تجهيز الصورة. اضغط حفظ إلى معرض الصور مرة أخرى.');
+                return;
+            }
+            if (navigator.share && navigator.canShare?.({ files: [file] })) {
+                try {
+                    await navigator.share({ files: [file], title: en ? 'Invoice preview' : 'معاينة الفاتورة' });
+                    return;
+                } catch (error) {
+                    if (error?.name === 'AbortError' || generation !== invoiceImageGenerationRef.current) return;
+                    // Unsupported or rejected sharing falls back to the same complete PNG.
+                }
+            }
+            const url = URL.createObjectURL(file);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = file.name;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+        } catch (error) {
+            if (generation !== invoiceImageGenerationRef.current) return;
+            console.error('Invoice image save failed:', error);
+            alert(en ? 'Unable to save the invoice image. Please try again.' : 'تعذّر حفظ صورة الفاتورة، يرجى المحاولة مرة أخرى.');
+        } finally {
+            setSavingInvoiceImage(false);
+        }
+    };
+
     const saveInvoiceImage = async () => {
+        if (mobileInvoicePreview) return saveMobileInvoiceImage();
         if (savingInvoiceImage) return;
         const element = document.querySelector('[data-customer-invoice-preview] .invoice-preview-page');
         if (!element) return;
@@ -346,19 +469,20 @@ const UserProfile = () => {
         { key: 'completed', label: en ? 'Completed' : 'مكتمل', Icon: MapPin, tone: 'border-emerald-400 bg-emerald-100 text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-300' }
     ];
 
+    const saveInvoiceButton = <button type="button" onClick={saveInvoiceImage} disabled={savingInvoiceImage || (mobileInvoicePreview && (preparingInvoiceImage || invoiceRevealPhase !== 'shown'))} className="invoice-gallery-save-button fixed left-3 top-3 z-[110] inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-black text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:opacity-60"><Download size={14}/>{savingInvoiceImage ? (en ? 'Saving...' : 'جاري الحفظ...') : mobileInvoicePreview && preparingInvoiceImage ? (en ? 'Preparing...' : 'جاري التجهيز...') : (en ? 'Save to Photos' : 'حفظ إلى معرض الصور')}</button>;
     const invoiceContent = printOrder && <>
-                <div className="invoice-reveal-bar"><button type="button" onClick={() => setPrintOrder(null)} className="invoice-mobile-close-button"><ArrowRight size={16} strokeWidth={3} /><span>{en ? 'Back' : 'رجوع'}</span></button></div>
-                <div className="invoice-reveal-flight" aria-hidden="true" onAnimationEnd={iosInvoicePreview ? event => { if (event.animationName === 'invoice-ios-plane-rise') setInvoiceRevealPhase('shown'); } : undefined}><span className="invoice-reveal-smoke smoke-one" /><span className="invoice-reveal-smoke smoke-two" /><span className="invoice-reveal-smoke smoke-three" /><span className="invoice-reveal-plane">✈</span></div>
-                <div data-customer-invoice-preview className="customer-orders-invoice-preview invoice-reveal-invoice mx-auto min-h-full w-full max-w-4xl"><InvoiceTemplate customerOrdersPreview orders={[printOrder]} lang={language} generalSettings={generalSettings} onClose={() => setPrintOrder(null)} onDownload={downloadInvoicePdf} /></div>
+                <div className="invoice-reveal-bar"><button type="button" onClick={closeInvoicePreview} aria-label={en ? 'Back' : 'رجوع'} className="invoice-mobile-close-button">{mobileInvoicePreview ? <ArrowRight size={24} strokeWidth={3} /> : <><ArrowRight size={16} strokeWidth={3} /><span>{en ? 'Back' : 'رجوع'}</span></>}</button>{mobileInvoicePreview && saveInvoiceButton}</div>
+                <div className="invoice-reveal-flight" aria-hidden="true" onAnimationEnd={mobileInvoicePreview ? event => { if (event.animationName === 'invoice-mobile-plane-rise') setInvoiceRevealPhase('shown'); } : undefined}><span className="invoice-reveal-smoke smoke-one" /><span className="invoice-reveal-smoke smoke-two" /><span className="invoice-reveal-smoke smoke-three" /><span className="invoice-reveal-plane">✈</span></div>
+                <div data-customer-invoice-preview className="customer-orders-invoice-preview invoice-reveal-invoice mx-auto min-h-full w-full max-w-4xl"><InvoiceTemplate customerOrdersPreview orders={[printOrder]} lang={language} generalSettings={generalSettings} onClose={closeInvoicePreview} onDownload={downloadInvoicePdf} /></div>
     </>;
-    const invoiceOverlay = printOrder && <div ref={iosInvoiceOverlayRef} dir={direction} className={`invoice-print-overlay invoice-reveal-overlay${iosInvoicePreview ? ' invoice-ios-preview' : ''} phase-${invoiceRevealPhase} fixed inset-0 z-[100] overflow-y-auto bg-slate-100 p-4 sm:p-6 md:p-8 dark:bg-[#0d1017]`}>
-        <button type="button" onClick={saveInvoiceImage} disabled={savingInvoiceImage} className="invoice-gallery-save-button fixed left-3 top-3 z-[110] inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-black text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:opacity-60"><Download size={14}/>{savingInvoiceImage ? (en ? 'Saving...' : 'جاري الحفظ...') : (en ? 'Save to Photos' : 'حفظ إلى معرض الصور')}</button>
-        {iosInvoicePreview ? <div ref={iosInvoiceStageRef} className="invoice-ios-stage">{invoiceContent}</div> : invoiceContent}
+    const invoiceOverlay = printOrder && <div ref={mobileInvoiceOverlayRef} dir={direction} className={`invoice-print-overlay invoice-reveal-overlay${mobileInvoicePreview ? ' invoice-mobile-preview' : ''} phase-${invoiceRevealPhase} fixed inset-0 z-[100] overflow-y-auto bg-slate-100 p-4 sm:p-6 md:p-8 dark:bg-[#0d1017]`}>
+        {!mobileInvoicePreview && saveInvoiceButton}
+        {mobileInvoicePreview ? <div ref={mobileInvoiceStageRef} className="invoice-mobile-stage">{invoiceContent}</div> : invoiceContent}
     </div>;
 
     return (
         <div className="min-h-screen bg-[#f6f7f8] px-3 py-5 font-['Cairo'] text-slate-900 dark:bg-[#0d1017] dark:text-white md:px-5" dir={direction}>
-            {iosInvoicePreview && invoiceOverlay ? createPortal(invoiceOverlay, document.body) : invoiceOverlay}
+            {mobileInvoicePreview && invoiceOverlay ? createPortal(invoiceOverlay, document.body) : invoiceOverlay}
             <main className={`${printOrder ? 'max-lg:hidden' : ''} invoice-orders-page mx-auto w-full max-w-2xl rounded-[26px] border border-slate-200 bg-white shadow-xl dark:border-white/10 dark:bg-[#171b26]`}>
                 <header className="relative flex items-start justify-between gap-3 border-b border-slate-100 px-4 py-4 dark:border-white/10 md:px-6"><button onClick={() => navigate(-1)} className="absolute left-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-red-600 text-white shadow-md transition-colors hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"><X size={18}/></button><div dir="ltr" className="flex w-full items-start justify-between gap-3 pl-12"><div dir="rtl" className="flex-1 pt-0.5 text-right"><h1 className="text-base font-black md:text-lg">{en ? 'Your Orders and Previous Invoices' : 'طلباتك وفواتيرك السابقة'}</h1><p className="text-[10px] font-bold text-slate-400"><span className="block">{en ? 'View your invoice details to track shipments.' : 'استعرض تفاصيل فواتيرك لتتبع شحناتك.'}</span><span className="block">{en ? 'Earn rewards when your orders are completed.' : 'واربح مكافآت عند اكتمال طلباتك.'}</span><span className="block">{en ? 'Your invoices appear after signing in.' : 'لن تظهر فواتيرك الجديدة والسابقة إلا عند تسجيل الدخول.'}</span></p></div><div dir="rtl" className="flex shrink-0 flex-col items-center gap-0.5 text-center"><div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-500 shadow-sm dark:bg-emerald-400/15"><Package size={18}/></div><div className="rounded-lg bg-violet-100 px-2.5 py-1 text-[10px] font-black text-violet-700 dark:bg-violet-400/15 dark:text-violet-200">{orders.length} {en ? 'Invoices' : 'فواتير'}</div>{orders[0] && <><span dir="ltr" className="font-mono text-[9px] font-black leading-3 text-slate-500 dark:text-slate-300">{datePartsEnglish(orders[0]).date}</span><span dir="ltr" className="font-mono text-[9px] font-black leading-3 text-slate-500 dark:text-slate-300">{datePartsEnglish(orders[0]).time}</span></>}</div></div></header>
                 <div className="border-b border-slate-100 px-4 py-3 dark:border-white/10 md:px-6"><div className="relative"><Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"/><input value={queryText} onChange={event => setQueryText(event.target.value)} placeholder={en ? "Search invoice by order or phone number." : "ابحث عن الفاتورة : برقم الطلب أو برقم الهاتف."} className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pr-9 pl-3 text-right text-[10px] max-[1024px]:text-[9px] orders-search-input font-bold outline-none focus:border-emerald-400 dark:border-white/10 dark:bg-white/5"/></div></div>
