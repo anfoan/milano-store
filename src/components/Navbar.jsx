@@ -552,7 +552,7 @@ const Navbar = ({ onCategoryDrawerChange }) => {
                                 <div className="mt-4 rounded-xl border border-dashed border-gray-200 p-4 dark:border-white/10">
                                     <div className="mb-4 text-center">
                                         <p className="text-[13px] font-black leading-relaxed text-gray-700 dark:text-gray-200">
-                                            {language === 'ar' ? 'اختر مقاسك التقريبي للتيشرت' : 'Choose your approximate T-shirt size'}
+                                            {language === 'ar' ? 'اختر مقاسك التقريبي للفنيلة' : 'Choose your approximate T-shirt size'}
                                         </p>
                                     </div>
 
