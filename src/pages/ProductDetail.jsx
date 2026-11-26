@@ -660,7 +660,7 @@ const ProductDetail = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex w-full justify-start px-0 mt-0 -translate-y-4 translate-x-2" dir="ltr">
+                                <div className="hidden" dir="ltr">
                                     <div className="flex flex-col items-start text-left">
                                         {product.priceAfterDiscount && product.priceAfterDiscount < product.price && (
                                             <span className="text-gray-500 dark:text-white/60 text-[10px] line-through font-bold mb-0.5">
