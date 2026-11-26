@@ -569,7 +569,7 @@ const ProductDetail = () => {
                                 <h3 className="text-gray-400 font-bold text-sm">{t('product.product_title')}</h3>
                             </div>
                             <div className="col-span-3 flex justify-center">
-                                <h3 className="text-gray-400 font-bold text-sm">{t('product.quantity')}</h3>
+                                <h3 className="text-gray-400 font-bold text-sm" aria-hidden="true"></h3>
                             </div>
                             <div className="col-span-2"></div>
                         </div>}
