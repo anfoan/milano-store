@@ -82,7 +82,7 @@ const Info = () => {
                                 <div className="space-y-3">
                                     <h3 className="text-sm font-black text-gray-400 uppercase tracking-wider">{t('info.phone_label')}</h3>
                                     <p className="text-2xl font-black text-cyan-500" dir="ltr">
-                                        <a href={`tel:${general.countryCode}${general.phoneNumber}`} className="hover:underline flex items-center gap-2">
+                                        <a href={`tel:${general.countryCode}${general.phoneNumber}`} className="hover:underline flex w-full items-center justify-end gap-2">
                                             <span>{general.countryCode}</span>
                                             <span>{general.phoneNumber}</span>
                                         </a>
