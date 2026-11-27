@@ -558,7 +558,7 @@ const OrderTracking = () => {
                             className={`w-full py-4 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-black flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg active:scale-[0.98] ${downloading ? 'opacity-70 cursor-wait' : ''}`}
                         >
                             <Download size={20} className={downloading ? 'animate-bounce' : ''} />
-                            {downloading ? (language === 'ar' ? 'جاري التحميل...' : 'Downloading...') : (language === 'ar' ? 'تحميل الفاتورة (PDF)' : 'Download Invoice (PDF)')}
+                            {downloading ? (language === 'ar' ? 'جاري التحميل...' : 'Downloading...') : (language === 'ar' ? 'حفظ الفاتورة إلى معرض الصور' : 'Save Invoice to Gallery')}
                         </button>
 
                         <Link to="/rate-order" className="w-full py-4 bg-white dark:bg-[#1a1d23] border border-gray-200 dark:border-white/10 rounded-xl text-yellow-500 dark:text-yellow-400 font-bold flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors shadow-md dark:shadow-none">
