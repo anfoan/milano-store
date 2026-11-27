@@ -14,13 +14,13 @@ const RateOrder = () => {
     const [name, setName] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
+    const ratingLabels = direction === 'rtl'
+        ? { 1: 'سيئ', 2: 'ضعيف', 3: 'جيد', 4: 'جيد جداً', 5: 'ممتاز' }
+        : { 1: 'Poor', 2: 'Weak', 3: 'Good', 4: 'Very Good', 5: 'Excellent' };
+
     // Helper to get text based on rating
     const getRatingText = (r) => {
-        if (r === 1) return t('rate.very_bad');
-        if (r === 2) return t('rate.bad');
-        if (r === 3) return t('rate.average');
-        if (r === 4) return t('rate.good');
-        if (r === 5) return t('rate.excellent');
+        if (ratingLabels[r]) return ratingLabels[r];
         return t('rate.click_to_rate');
     };
 
