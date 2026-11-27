@@ -192,87 +192,60 @@ const OrderTracking = () => {
     }, [order]);
 
     const handleDownloadInvoice = async () => {
-        if (!invoiceRef.current) return;
+        if (!invoiceRef.current || !invoiceCaptureHostRef.current || downloading) return;
         setDownloading(true);
 
         const originalOverflow = document.body.style.overflow;
         const originalBg = document.body.style.backgroundColor;
+        const parent = invoiceCaptureHostRef.current;
 
         try {
-            // Wait for all fonts to be ready to ensure Cairo is rendered
             await document.fonts.ready;
-
-            // Use a specific positioning strategy for the capture to avoid user visible scrolling
-            const element = invoiceRef.current;
-            const parent = element.parentElement;
-
-            // Save original styles
-            const originalDisplay = parent.style.display;
-            const originalPos = parent.style.position;
-            const originalVisibility = parent.style.visibility;
-            const originalTop = parent.style.top;
-            const originalLeft = parent.style.left;
-            const originalZIndex = parent.style.zIndex;
-
-            // Prepare for capture WITHOUT scrolling the main window
             parent.style.display = 'block';
-            parent.style.position = 'fixed'; // Fixed instead of absolute
+            parent.style.position = 'fixed';
             parent.style.visibility = 'visible';
             parent.style.top = '0';
             parent.style.left = '0';
             parent.style.zIndex = '-9999';
             parent.style.pointerEvents = 'none';
 
-            const canvas = await html2canvas(element, {
-                scale: 2.5, // Balanced quality/compatibility
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                logging: false,
-                allowTaint: true,
-                onclone: (clonedDoc) => {
-                    const clonedEl = clonedDoc.querySelector('.print-container');
-                    if (clonedEl) {
-                        clonedEl.style.width = '794px';
-                        clonedEl.style.margin = '0 auto';
-                    }
-                }
-            });
+            const blob = await createWhatsAppInvoiceBlob(invoiceRef.current);
+            const fileName = `Milano-Invoice-${order?.orderId?.replace('#', '') || 'Order'}.png`;
+            const invoiceFile = new File([blob], fileName, { type: 'image/png' });
 
-            // Restore styles
-            parent.style.display = originalDisplay;
-            parent.style.position = originalPos;
-            parent.style.visibility = originalVisibility;
-            parent.style.top = originalTop;
-            parent.style.left = originalLeft;
-            parent.style.zIndex = originalZIndex;
-            parent.style.pointerEvents = '';
-
-            const imgData = canvas.toDataURL('image/png', 1.0);
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight, '', 'FAST');
-            pdf.save(`Milano-Invoice-${order?.orderId?.replace('#', '') || 'Order'}.pdf`);
-
+            // The native share sheet lets iPhone and Android users choose
+            // Save Image/Photos for the generated PNG.
+            if (navigator.share && navigator.canShare?.({ files: [invoiceFile] })) {
+                await navigator.share({
+                    files: [invoiceFile],
+                    title: language === 'ar' ? 'فاتورة الطلب' : 'Order invoice',
+                });
+            } else {
+                const url = URL.createObjectURL(invoiceFile);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+            }
         } catch (error) {
-            console.error("Error generating invoice:", error);
-            alert("حدث خطأ أثناء تنزيل الفاتورة، يرجى المحاولة مرة أخرى.");
+            if (error?.name !== 'AbortError') {
+                console.error('Invoice image save failed:', error);
+                alert(language === 'ar' ? 'تعذّر حفظ صورة الفاتورة، يرجى المحاولة مرة أخرى.' : 'Unable to save the invoice image. Please try again.');
+            }
         } finally {
             setDownloading(false);
             document.body.style.overflow = originalOverflow;
             document.body.style.backgroundColor = originalBg;
-            document.documentElement.style.backgroundColor = '';
-            const captureParent = invoiceCaptureHostRef.current;
-            if (captureParent) {
-                captureParent.style.display = 'none';
-                captureParent.style.position = '';
-                captureParent.style.visibility = '';
-                captureParent.style.top = '';
-                captureParent.style.left = '';
-                captureParent.style.zIndex = '';
-                captureParent.style.pointerEvents = '';
-            }
+            parent.style.display = 'none';
+            parent.style.position = '';
+            parent.style.visibility = '';
+            parent.style.top = '';
+            parent.style.left = '';
+            parent.style.zIndex = '';
+            parent.style.pointerEvents = '';
         }
     };
 
