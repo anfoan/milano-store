@@ -1175,7 +1175,7 @@ const Checkout = () => {
                                                 const customMethods = (Array.isArray(paymentSettings.custom_methods) ? paymentSettings.custom_methods : [])
                                                     .filter(method => method?.id && method?.title && method.enabled !== false);
                                                 return (
-                                                    <>
+                                                    <div className="flex flex-col gap-4">
                                                         {/* Cash on Delivery */}
                                                         {showCOD && (
                                                             <div
@@ -1228,7 +1228,7 @@ const Checkout = () => {
                                                                 {t('checkout.order_unavailable_amount', { amount: total.toLocaleString() })}
                                                             </div>
                                                         )}
-                                                    </>
+                                                    </div>
                                                 );
                                             })()}
                                         </>
