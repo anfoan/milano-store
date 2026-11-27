@@ -50,15 +50,18 @@ const RateOrder = () => {
                 time: "جديد",
             };
 
-            await addDoc(collection(db, "reviews"), reviewData);
+            const reviewWrite = addDoc(collection(db, "reviews"), reviewData);
+            const writeTimeout = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Review submission timed out')), 15000);
+            });
+            await Promise.race([reviewWrite, writeTimeout]);
 
             // Success
-            setTimeout(() => {
-                navigate('/reviews');
-            }, 800);
+            navigate('/reviews');
         } catch (error) {
             console.error("DEBUG: Review Submission Failed:", error);
             alert(`${t('rate.alert_error')} (${error.message || 'Unknown Error'})`);
+        } finally {
             setSubmitting(false);
         }
     };
