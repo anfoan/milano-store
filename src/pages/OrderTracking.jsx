@@ -149,9 +149,9 @@ const OrderTracking = () => {
                 parent.style.display = 'block';
                 parent.style.position = 'fixed';
                 parent.style.visibility = 'visible';
-                parent.style.top = '0';
-                parent.style.left = '0';
-                parent.style.zIndex = '-9999';
+                parent.style.top = '-10000px';
+                parent.style.left = '-10000px';
+                parent.style.zIndex = '-1';
                 parent.style.pointerEvents = 'none';
                 const blob = await createWhatsAppInvoiceBlob(element);
                 if (!cancelled) {
@@ -202,9 +202,9 @@ const OrderTracking = () => {
             parent.style.display = 'block';
             parent.style.position = 'fixed';
             parent.style.visibility = 'visible';
-            parent.style.top = '0';
-            parent.style.left = '0';
-            parent.style.zIndex = '-9999';
+            parent.style.top = '-10000px';
+            parent.style.left = '-10000px';
+            parent.style.zIndex = '-1';
             parent.style.pointerEvents = 'none';
 
             const blob = await createWhatsAppInvoiceBlob(invoiceRef.current);
