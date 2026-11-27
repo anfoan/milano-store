@@ -252,10 +252,10 @@ const Cart = () => {
                                         {item.title}
                                     </h3>
                                     
-                                    <div className="flex items-center gap-3 mt-4">
+                                    <div className="flex flex-nowrap items-center gap-3 mt-4">
                                         {item.size && (
-                                            <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-bold whitespace-nowrap shrink-0 translate-y-1">
-                                                {language === 'ar' ? 'مقاس' : t('common.size')}: {formatCartSize(item.size)}
+                                            <p className="flex min-w-max shrink-0 items-center whitespace-nowrap text-gray-500 dark:text-gray-400 text-xs md:text-sm font-bold translate-y-1">
+                                                <span className="whitespace-nowrap">{language === 'ar' ? 'مقاس' : t('common.size')}: {formatCartSize(item.size)}</span>
                                             </p>
                                         )}
 
