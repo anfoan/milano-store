@@ -11,6 +11,24 @@ import { useCurrency } from '../context/CurrencyContext';
 import { getLocalizedCurrency } from '../lib/currencyUtils';
 import QuantityStepper from '../components/QuantityStepper';
 
+const cartItemKey = (item) => `${item?.id || ''}::${String(item?.size || '').trim()}`;
+
+const mergeCartItems = (cart) => {
+    const merged = [];
+    const indexesByKey = new Map();
+    cart.forEach(item => {
+        const key = cartItemKey(item);
+        const existingIndex = indexesByKey.get(key);
+        if (existingIndex === undefined) {
+            indexesByKey.set(key, merged.length);
+            merged.push({ ...item, quantity: Number(item.quantity) || 0 });
+            return;
+        }
+        merged[existingIndex].quantity += Number(item.quantity) || 0;
+    });
+    return merged;
+};
+
 const Cart = () => {
     const { t, direction, language } = useLanguage();
     const { cartSettings, generalSettings } = useSettings();
@@ -36,11 +54,16 @@ const Cart = () => {
             console.error("Cart corrupted", e);
             storedCart = [];
         }
-        setItems(storedCart);
+        const mergedCart = mergeCartItems(storedCart);
+        setItems(mergedCart);
+        if (mergedCart.length !== storedCart.length) {
+            localStorage.setItem('cart', JSON.stringify(mergedCart));
+            window.dispatchEvent(new CustomEvent('cart-updated'));
+        }
 
         // Read live stock so a stale cart cannot request more than inventory.
         const loadStock = async () => {
-            const entries = await Promise.all(storedCart.map(async (item) => {
+            const entries = await Promise.all(mergedCart.map(async (item) => {
                 try {
                     const snap = await getDoc(doc(db, 'products', item.id));
                     if (!snap.exists()) return [item.id + '::' + (item.size || ''), 0];

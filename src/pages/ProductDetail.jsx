@@ -330,7 +330,7 @@ const ProductDetail = () => {
         try {
             const stored = JSON.parse(localStorage.getItem('cart') || '[]');
             const match = Array.isArray(stored) && stored.find(item =>
-                item.id === product.id && item.size === selectedSize && item.color === selectedColor
+                item.id === product.id && item.size === selectedSize
             );
             return Number(match?.quantity || 0);
         } catch { return 0; }
@@ -373,8 +373,7 @@ const ProductDetail = () => {
 
         const existingItemIndex = cart.findIndex(item =>
             item.id === newItem.id &&
-            item.size === newItem.size &&
-            item.color === newItem.color
+            item.size === newItem.size
         );
 
         if (existingItemIndex > -1) {
