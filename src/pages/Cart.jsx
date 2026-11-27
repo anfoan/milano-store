@@ -254,7 +254,7 @@ const Cart = () => {
                                     
                                     <div className="flex items-center gap-3 mt-4">
                                         {item.size && (
-                                            <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-bold">
+                                            <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-bold whitespace-nowrap shrink-0 translate-y-1">
                                                 {language === 'ar' ? 'مقاس' : t('common.size')}: {formatCartSize(item.size)}
                                             </p>
                                         )}
@@ -262,14 +262,16 @@ const Cart = () => {
                                         {/* Row for Quantity and Remove Button */}
                                         <div className="flex w-full items-center gap-2">
                                             {/* Inventory-aware quantity stepper */}
-                                            <QuantityStepper
-                                                value={item.quantity}
-                                                min={0}
-                                                max={Number.isFinite(stockByItem[item.id + '::' + (item.size || '')]) ? stockByItem[item.id + '::' + (item.size || '')] : item.quantity}
-                                                onChange={(next) => updateQuantity(index, next)}
-                                                compact
-                                                label={t('cart.quantity') || 'Quantity'}
-                                            />
+                                            <div className="-translate-x-1">
+                                                <QuantityStepper
+                                                    value={item.quantity}
+                                                    min={0}
+                                                    max={Number.isFinite(stockByItem[item.id + '::' + (item.size || '')]) ? stockByItem[item.id + '::' + (item.size || '')] : item.quantity}
+                                                    onChange={(next) => updateQuantity(index, next)}
+                                                    compact
+                                                    label={t('cart.quantity') || 'Quantity'}
+                                                />
+                                            </div>
 
                                             {/* Trash Button - Next to Quantity */}
                                             <button
