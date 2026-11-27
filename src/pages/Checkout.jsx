@@ -61,6 +61,9 @@ const Checkout = () => {
 
     const [loading, setLoading] = useState(true);
     const deviceWalletId = getCustomerWalletId();
+    const [walletSessionId, setWalletSessionId] = useState(() => (
+        typeof window !== 'undefined' ? localStorage.getItem('milano_customer_wallet_phone_id') || '' : ''
+    ));
     const [customerWallet, setCustomerWallet] = useState(null);
     const [walletSettings, setWalletSettings] = useState({ enabled: true });
     const [useWalletCredit, setUseWalletCredit] = useState(false);
@@ -111,6 +114,11 @@ const Checkout = () => {
         }, error => console.error('Checkout wallet availability listener:', error));
         return () => unsubscribe();
     }, []);
+    useEffect(() => {
+        const refreshWalletSession = () => setWalletSessionId(localStorage.getItem('milano_customer_wallet_phone_id') || '');
+        window.addEventListener('milano-wallet-session-changed', refreshWalletSession);
+        return () => window.removeEventListener('milano-wallet-session-changed', refreshWalletSession);
+    }, []);
 
     // Fetch Cart Settings
     const [cartSettings, setCartSettings] = useState({});
@@ -143,7 +151,8 @@ const Checkout = () => {
     // Once the visitor enters a valid phone number, always use that phone-linked wallet.
     // Before a phone is entered, the device wallet remains the safe default for the header flow.
     const phoneWalletId = getPhoneWalletId(`${selectedCountry.dial_code}${normalizePhone(formData.phone)}`);
-    const activeWalletId = phoneWalletId || deviceWalletId;
+    const walletSessionMatchesPhone = Boolean(walletSessionId && (!phoneWalletId || phoneWalletId === walletSessionId));
+    const activeWalletId = phoneWalletId || walletSessionId || deviceWalletId;
     const walletEnabled = walletSettings.enabled !== false;
 
     useEffect(() => {
@@ -357,7 +366,7 @@ const Checkout = () => {
     const discountAmount = (cartTotal - effectiveSubtotal) + couponDiscount;
     const total = cartTotal - discountAmount + deliveryCost;
     const walletBalance = walletEnabled ? Math.max(0, Number(customerWallet?.balance || 0)) : 0;
-    const walletApplied = walletEnabled && useWalletCredit && walletPinVerified ? Math.min(walletBalance, total) : 0;
+    const walletApplied = walletEnabled && walletSessionMatchesPhone && useWalletCredit && walletPinVerified ? Math.min(walletBalance, total) : 0;
     const amountDueAfterWallet = Math.max(0, total - walletApplied);
 
     const requestWalletCredit = () => {
@@ -1095,7 +1104,7 @@ const Checkout = () => {
                                 <span className="text-blue-500">{formatPrice(total)}</span>
                                 <span className="text-gray-900 dark:text-white">{language === 'ar' ? 'الإجمالي النهائي' : t('cart.total')}</span>
                             </div>
-                            {walletEnabled && <button type="button" onClick={requestWalletCredit} className={`mt-2 flex w-full items-center justify-between rounded-xl border p-3 text-right transition-all ${useWalletCredit ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-400/50 dark:bg-emerald-400/10' : 'border-slate-200 bg-slate-50 hover:border-emerald-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-emerald-400/40'}`}>
+                            {walletEnabled && walletSessionMatchesPhone && <button type="button" onClick={requestWalletCredit} className={`mt-2 flex w-full items-center justify-between rounded-xl border p-3 text-right transition-all ${useWalletCredit ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-400/50 dark:bg-emerald-400/10' : 'border-slate-200 bg-slate-50 hover:border-emerald-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-emerald-400/40'}`}>
                                 <div className="flex items-center gap-2"><div className={`flex h-7 w-7 items-center justify-center rounded-lg ${useWalletCredit ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-300'}`}>{useWalletCredit ? <CheckCircle2 size={16}/> : <CheckCircle2 size={16}/>}</div><div><p className="text-xs font-black text-slate-800 dark:text-white">{language === 'ar' ? 'استخدام رصيد محفظتي' : 'Use my wallet balance'}</p><p className="mt-0.5 text-[9px] font-bold text-slate-400">{language === 'ar' ? 'رصيد متاح: ' : 'Available balance: '}<span dir="ltr" className="font-mono text-emerald-600 dark:text-emerald-300">$ {walletNumber(walletBalance)}</span></p></div></div>
                                 <span className={`h-5 w-5 rounded-full border-2 ${useWalletCredit ? 'border-emerald-500 bg-emerald-500' : 'border-slate-300 dark:border-slate-600'}`}>{useWalletCredit && <CheckCircle2 size={16} className="m-[-1px] text-white"/>}</span>
                             </button>}
