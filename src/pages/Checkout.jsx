@@ -1120,7 +1120,7 @@ const Checkout = () => {
                         <div className={`mb-8 ${direction === 'rtl' ? 'text-right' : 'text-left'}`}>
                             <h3 className="text-gray-900 dark:text-white font-bold mb-6">{t('checkout.payment_method')}</h3>
 
-                            <div className="flex flex-col space-y-4">
+                            <div className="flex flex-col gap-4">
                                 {/* Store Busy Overlay for Payment Section */}
                                 {(!storeStatus || !storeStatus.isOpen) ? (
                                     <div className="text-center py-6 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-white/10">
