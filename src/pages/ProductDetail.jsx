@@ -778,7 +778,7 @@ const ProductDetail = () => {
                             initial={{ opacity: 0, x: 20, y: -20 }}
                             animate={{ opacity: 1, x: 0, y: 0 }}
                             exit={{ opacity: 0, x: 20, y: -20 }}
-                            className="fixed top-4 right-4 z-[10000] w-[90%] max-w-[320px]"
+                            className="fixed top-20 sm:top-24 left-3 right-3 z-[10000] mx-auto w-auto max-w-[420px]"
                         >
                             <div className="bg-[#b44444] rounded-xl overflow-hidden shadow-2xl relative px-4 py-6">
                                 <motion.div
