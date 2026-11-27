@@ -26,6 +26,7 @@ const OrderTracking = () => {
     const whatsappShareInProgressRef = useRef(false);
     const [error, setError] = useState(null);
     const invoiceRef = useRef();
+    const invoiceCaptureHostRef = useRef();
     const { t, direction, language } = useLanguage();
     const { formatPrice } = useCurrency();
     const { generalSettings, storeUrl, socialLinks } = useSettings();
@@ -134,7 +135,7 @@ const OrderTracking = () => {
         let cancelled = false;
         const prepareInvoiceFile = async () => {
             const element = invoiceRef.current;
-            const parent = element?.parentElement;
+            const parent = invoiceCaptureHostRef.current;
             if (!element || !parent) return;
             const originalStyles = {
                 display: parent.style.display,
@@ -177,8 +178,7 @@ const OrderTracking = () => {
             // The invoice is rendered off-screen only for image generation.
             // Always restore the original hidden state if the effect is
             // cancelled while an earlier generation is still running.
-            const element = invoiceRef.current;
-            const parent = element?.parentElement;
+            const parent = invoiceCaptureHostRef.current;
             if (parent) {
                 parent.style.display = 'none';
                 parent.style.position = '';
@@ -263,7 +263,7 @@ const OrderTracking = () => {
             document.body.style.overflow = originalOverflow;
             document.body.style.backgroundColor = originalBg;
             document.documentElement.style.backgroundColor = '';
-            const captureParent = invoiceRef.current?.parentElement;
+            const captureParent = invoiceCaptureHostRef.current;
             if (captureParent) {
                 captureParent.style.display = 'none';
                 captureParent.style.position = '';
@@ -352,7 +352,7 @@ const OrderTracking = () => {
         <div className="min-h-screen bg-gray-50 dark:bg-[#111317] text-gray-900 dark:text-white pb-0 font-['Cairo'] transition-colors duration-300">
 
             {/* Hidden invoice for capture */}
-            <div style={{ display: 'none' }}>
+            <div ref={invoiceCaptureHostRef} style={{ display: 'none' }}>
                 <InvoiceTemplate ref={invoiceRef} orders={order ? [order] : []} lang={language} generalSettings={generalSettings} hideHeader={true} customerOrdersPreview />
             </div>
 
