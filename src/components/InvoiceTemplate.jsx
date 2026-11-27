@@ -185,6 +185,7 @@ const InvoiceTemplate = React.forwardRef(({ orders, lang = 'ar', onClose, onDown
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                         <img
                                                             src={item.image}
+                                                            data-invoice-product-image="true"
                                                             style={{ width: '55px', height: '55px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #9ca3af', verticalAlign: 'middle', flexShrink: 0 }}
                                                             onError={(e) => {
                                                                 e.target.onerror = null;

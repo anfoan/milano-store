@@ -60,6 +60,14 @@ const prepareClonedInvoice = (clonedDocument) => {
             cell.style.setProperty('position', 'static', 'important');
             cell.style.setProperty('isolation', 'auto', 'important');
         });
+
+        clonedPage.querySelectorAll('[data-invoice-product-image]').forEach(image => {
+            image.style.setProperty('width', '55px', 'important');
+            image.style.setProperty('height', '55px', 'important');
+            image.style.setProperty('object-fit', 'contain', 'important');
+            image.style.setProperty('background-color', '#f8fafc', 'important');
+            image.style.setProperty('display', 'block', 'important');
+        });
     }
 };
 
