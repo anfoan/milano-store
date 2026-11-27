@@ -1116,7 +1116,7 @@ const Checkout = () => {
                         <div className={`mb-8 ${direction === 'rtl' ? 'text-right' : 'text-left'}`}>
                             <h3 className="text-gray-900 dark:text-white font-bold mb-6">{t('checkout.payment_method')}</h3>
 
-                            <div className="space-y-4">
+                            <div className="flex flex-col space-y-4">
                                 {/* Store Busy Overlay for Payment Section */}
                                 {(!storeStatus || !storeStatus.isOpen) ? (
                                     <div className="text-center py-6 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-white/10">
@@ -1175,7 +1175,7 @@ const Checkout = () => {
                                                         {/* Cash on Delivery */}
                                                         {showCOD && (
                                                             <div
-                                                                className="flex items-center justify-end gap-3 cursor-pointer group"
+                                                                className="order-2 flex items-center justify-end gap-3 cursor-pointer group"
                                                                 onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'cod' }))}
                                                             >
                                                                 <span className={`font-bold text-sm flex items-center gap-2 ${formData.paymentMethod === 'cod' ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>{paymentSettings.cod_icon && <img src={paymentSettings.cod_icon} alt="" className="h-5 w-5 rounded-md object-cover" />}{paymentSettings.cod_title || t('checkout.payment_cod')}</span>
@@ -1188,7 +1188,7 @@ const Checkout = () => {
                                                         {/* WhatsApp Payment */}
                                                         {showWhatsApp && (
                                                             <div
-                                                                className="flex items-center justify-end gap-3 cursor-pointer group"
+                                                                className="order-3 flex items-center justify-end gap-3 cursor-pointer group"
                                                                 onClick={() => setFormData(prev => ({ ...prev, paymentMethod: 'whatsapp' }))}
                                                             >
                                                                 <div className="flex flex-col items-end">
@@ -1208,7 +1208,7 @@ const Checkout = () => {
 
                                                         {/* Custom Payment Methods */}
                                                         {customMethods.map(method => (
-                                                            <div key={method.id} className="flex items-center justify-end gap-3 cursor-pointer group" onClick={() => setFormData(prev => ({ ...prev, paymentMethod: method.id }))}>
+                                                            <div key={method.id} className="order-1 flex items-center justify-end gap-3 cursor-pointer group" onClick={() => setFormData(prev => ({ ...prev, paymentMethod: method.id }))}>
                                                                 <span className={`font-bold text-sm flex items-center gap-2 ${formData.paymentMethod === method.id ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>
                                                                     {method.iconUrl && <img src={method.iconUrl} alt="" className="h-5 w-5 rounded-md object-cover" />}
                                                                     {method.title}
