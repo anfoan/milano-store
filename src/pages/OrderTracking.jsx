@@ -4,8 +4,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { collection, query, where, getDocs, getDoc, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Check, ShoppingBag, Download, Star, Truck, MapPin, Package, FileText, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useSettings } from '../hooks/useSettings';
