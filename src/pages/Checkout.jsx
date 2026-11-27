@@ -36,6 +36,7 @@ const Checkout = () => {
     // Settings State
     const [paymentSettings, setPaymentSettings] = useState({
         cod_enabled: true,
+        cod_deleted: false,
         whatsapp_enabled: true,
         whatsapp_number: '',
         whatsapp_label: 'تواصل معنا عبر واتساب لإكمال عملية الدفع.',
@@ -1137,7 +1138,7 @@ const Checkout = () => {
                                             {(() => {
                                                 // 1. Calculate COD Visibility
                                                 let showCOD = false;
-                                                if (paymentSettings.cod_enabled) {
+                                                if (paymentSettings.cod_enabled && !paymentSettings.cod_deleted) {
                                                     showCOD = true;
                                                     if (paymentSettings.cod_condition_enabled) {
                                                         const type = paymentSettings.cod_condition_type;
