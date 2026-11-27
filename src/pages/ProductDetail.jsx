@@ -693,7 +693,7 @@ const ProductDetail = () => {
                                 <h3 className="font-black text-gray-900 dark:text-white text-lg">{t('product.description')}</h3>
                             </div>
 
-                            <div className="flex flex-nowrap md:flex-wrap gap-1 md:gap-6 overflow-x-auto pb-4 -mx-4 px-1 md:mx-0 md:px-0 md:pb-0 scrollbar-hide snap-x">
+                            <div className="flex flex-nowrap md:flex-wrap gap-1 md:gap-6 overflow-x-auto pb-1 -mx-4 px-1 md:mx-0 md:px-0 md:pb-0 scrollbar-hide snap-x">
                                 {(() => {
                                     const allGallery = product.gallery || [];
                                     const displayLimit = 3;
