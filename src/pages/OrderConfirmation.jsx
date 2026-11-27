@@ -45,13 +45,47 @@ const OrderConfirmation = () => {
                 windowWidth: 1200,
                 windowHeight: 1600,
                 onclone: clonedDocument => {
+                    const clonedHtml = clonedDocument.documentElement;
+                    const clonedBody = clonedDocument.body;
+                    const container = clonedDocument.querySelector('.print-container');
                     const page = clonedDocument.querySelector('.invoice-preview-page');
+
+                    clonedHtml.style.setProperty('width', '794px', 'important');
+                    clonedHtml.style.setProperty('min-width', '794px', 'important');
+                    clonedBody.style.setProperty('width', '794px', 'important');
+                    clonedBody.style.setProperty('min-width', '794px', 'important');
+                    clonedBody.style.setProperty('margin', '0', 'important');
+                    clonedBody.style.setProperty('padding', '0', 'important');
+                    clonedBody.style.setProperty('background', '#ffffff', 'important');
+                    clonedDocument.querySelectorAll('[data-html2canvas-ignore="true"], .invoice-preview-toolbar').forEach(node => node.remove());
+
+                    if (container) {
+                        container.style.setProperty('display', 'block', 'important');
+                        container.style.setProperty('width', '794px', 'important');
+                        container.style.setProperty('max-width', '794px', 'important');
+                        container.style.setProperty('margin', '0', 'important');
+                        container.style.setProperty('padding', '0', 'important');
+                    }
                     if (page) {
-                        page.style.width = '794px';
-                        page.style.maxWidth = '794px';
-                        page.style.margin = '0 auto';
-                        page.style.height = 'auto';
-                        page.style.minHeight = '0';
+                        page.style.setProperty('display', 'flex', 'important');
+                        page.style.setProperty('width', '794px', 'important');
+                        page.style.setProperty('max-width', '794px', 'important');
+                        page.style.setProperty('margin', '0', 'important');
+                        page.style.setProperty('height', 'auto', 'important');
+                        page.style.setProperty('min-height', '0', 'important');
+                        page.style.setProperty('padding', '24px 32px', 'important');
+                        page.style.setProperty('border-radius', '0', 'important');
+                        page.style.setProperty('box-shadow', 'none', 'important');
+                        page.style.setProperty('overflow', 'visible', 'important');
+                        page.querySelectorAll('table th, table td').forEach(cell => {
+                            cell.style.setProperty('transform', 'none', 'important');
+                            cell.style.setProperty('position', 'static', 'important');
+                        });
+                        page.querySelectorAll('[data-invoice-product-image]').forEach(image => {
+                            image.style.setProperty('object-fit', 'contain', 'important');
+                            image.style.setProperty('background-color', '#f8fafc', 'important');
+                            image.style.setProperty('display', 'block', 'important');
+                        });
                     }
                     const card = clonedDocument.querySelector('[data-invoice-customer-card]');
                     if (card) {
