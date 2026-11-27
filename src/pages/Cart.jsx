@@ -29,6 +29,10 @@ const mergeCartItems = (cart) => {
     return merged;
 };
 
+const formatCartSize = (size) => String(size || '')
+    .replace(/^\s*(?:المقاس|مقاس|size)\s*[:：]?\s*/i, '')
+    .trim();
+
 const Cart = () => {
     const { t, direction, language } = useLanguage();
     const { cartSettings, generalSettings } = useSettings();
@@ -251,7 +255,7 @@ const Cart = () => {
                                     <div className="flex items-center gap-3 mt-4">
                                         {item.size && (
                                             <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-bold">
-                                                {t('common.size')}: {item.size}
+                                                {language === 'ar' ? 'مقاس' : t('common.size')}: {formatCartSize(item.size)}
                                             </p>
                                         )}
 
