@@ -233,7 +233,7 @@ const Cart = () => {
                                         )}
 
                                         {/* Row for Quantity and Remove Button */}
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex w-full items-center gap-2">
                                             {/* Inventory-aware quantity stepper */}
                                             <QuantityStepper
                                                 value={item.quantity}
@@ -247,7 +247,7 @@ const Cart = () => {
                                             {/* Trash Button - Next to Quantity */}
                                             <button
                                                 onClick={() => removeFromCart(index)}
-                                                className="w-8 h-8 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all flex-shrink-0"
+                                                className="mr-auto w-8 h-8 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all flex-shrink-0"
                                                 title={t('cart.remove')}
                                             >
                                                 <Trash2 size={16} />
