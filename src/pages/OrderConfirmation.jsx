@@ -66,8 +66,13 @@ const OrderConfirmation = () => {
                 }
             });
             const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
+            // Match the PDF page height to the captured invoice so a short
+            // invoice is not rendered as a small block at the top of A4.
+            const pdfWidth = 210;
+            const a4Height = 297;
+            const imageHeightAtFullWidth = (canvas.height * pdfWidth) / canvas.width;
+            const pageHeight = Math.min(a4Height, imageHeightAtFullWidth + 8);
+            const pdf = new jsPDF('p', 'mm', [pdfWidth, pageHeight]);
             const pdfHeight = pdf.internal.pageSize.getHeight();
             const imageHeight = (canvas.height * pdfWidth) / canvas.width;
             const fit = Math.min(1, (pdfHeight - 8) / imageHeight);
