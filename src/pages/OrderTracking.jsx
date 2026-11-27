@@ -172,7 +172,23 @@ const OrderTracking = () => {
         setWhatsappInvoiceFile(null);
         setWhatsappInvoiceReady(false);
         prepareInvoiceFile();
-        return () => { cancelled = true; };
+        return () => {
+            cancelled = true;
+            // The invoice is rendered off-screen only for image generation.
+            // Always restore the original hidden state if the effect is
+            // cancelled while an earlier generation is still running.
+            const element = invoiceRef.current;
+            const parent = element?.parentElement;
+            if (parent) {
+                parent.style.display = 'none';
+                parent.style.position = '';
+                parent.style.visibility = '';
+                parent.style.top = '';
+                parent.style.left = '';
+                parent.style.zIndex = '';
+                parent.style.pointerEvents = '';
+            }
+        };
     }, [order]);
 
     const handleDownloadInvoice = async () => {
@@ -247,6 +263,16 @@ const OrderTracking = () => {
             document.body.style.overflow = originalOverflow;
             document.body.style.backgroundColor = originalBg;
             document.documentElement.style.backgroundColor = '';
+            const captureParent = invoiceRef.current?.parentElement;
+            if (captureParent) {
+                captureParent.style.display = 'none';
+                captureParent.style.position = '';
+                captureParent.style.visibility = '';
+                captureParent.style.top = '';
+                captureParent.style.left = '';
+                captureParent.style.zIndex = '';
+                captureParent.style.pointerEvents = '';
+            }
         }
     };
 
