@@ -318,6 +318,7 @@ const OrderTracking = () => {
         ? 'wallet'
         : String(order.paymentMethod || formData?.paymentMethod || '').trim().toLowerCase();
     const isWhatsAppPayment = selectedPaymentMethod === 'whatsapp';
+    const isJibWalletPayment = ['wallet', 'jib', 'jib_wallet'].includes(selectedPaymentMethod);
     const selectedCustomMethod = (Array.isArray(paymentSettings.custom_methods) ? paymentSettings.custom_methods : [])
         .find(method => String(method?.id || '').trim().toLowerCase() === selectedPaymentMethod);
     const paymentLabel = selectedPaymentMethod === 'cod'
@@ -419,6 +420,7 @@ const OrderTracking = () => {
                         </div>
                     </div>
 
+                    {isJibWalletPayment && (
                     <div className="max-w-3xl mx-auto w-full print:hidden">
                         <button
                             type="button"
@@ -442,6 +444,7 @@ const OrderTracking = () => {
                             </div>
                         )}
                     </div>
+                    )}
 
                     {/* WhatsApp Payment Prompt - Simplified */}
                     {isWhatsAppPayment && (
