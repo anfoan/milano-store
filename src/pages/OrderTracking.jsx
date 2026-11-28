@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { collection, query, where, getDocs, getDoc, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { Check, ShoppingBag, Download, Star, Truck, MapPin, Package, FileText, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Check, ShoppingBag, Download, Star, Truck, MapPin, Package, FileText, ArrowRight, ArrowLeft, AlertCircle, Wallet } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useSettings } from '../hooks/useSettings';
@@ -28,6 +28,20 @@ const OrderTracking = () => {
     const { t, direction, language } = useLanguage();
     const { formatPrice } = useCurrency();
     const { generalSettings, storeUrl, socialLinks } = useSettings();
+    const [paymentSettings, setPaymentSettings] = useState({
+        cod_title: '',
+        cod_icon: '',
+        whatsapp_title: '',
+        whatsapp_label: '',
+        whatsapp_icon: '',
+        custom_methods: []
+    });
+
+    useEffect(() => {
+        getDoc(doc(db, 'settings', 'payments')).then(snapshot => {
+            if (snapshot.exists()) setPaymentSettings(prev => ({ ...prev, ...snapshot.data() }));
+        }).catch(error => console.error('Order tracking payment settings error:', error));
+    }, []);
 
     useEffect(() => {
         let unsubscribe = () => {};
@@ -298,8 +312,22 @@ const OrderTracking = () => {
     );
 
     const { formData, cartItems, total, subTotal, discount, discountPercentage, deliveryCost, orderId: displayedId, date, couponCode, currency } = order;
-    const isWhatsAppPayment = [formData?.paymentMethod, order.paymentMethod]
-        .some((method) => String(method || '').trim().toLowerCase() === 'whatsapp');
+    const selectedPaymentMethod = String(order.paymentMethod || formData?.paymentMethod || '').trim().toLowerCase();
+    const isWhatsAppPayment = selectedPaymentMethod === 'whatsapp';
+    const selectedCustomMethod = (Array.isArray(paymentSettings.custom_methods) ? paymentSettings.custom_methods : [])
+        .find(method => String(method?.id || '').trim().toLowerCase() === selectedPaymentMethod);
+    const paymentLabel = selectedPaymentMethod === 'cod'
+        ? (paymentSettings.cod_title || t('checkout.cod'))
+        : selectedPaymentMethod === 'whatsapp'
+            ? (paymentSettings.whatsapp_title || paymentSettings.whatsapp_label || 'واتساب')
+            : ['wallet', 'jib', 'jib_wallet'].includes(selectedPaymentMethod)
+                ? 'محفظة جيب'
+                : (selectedCustomMethod?.title || selectedPaymentMethod || '—');
+    const paymentIcon = selectedPaymentMethod === 'cod'
+        ? (paymentSettings.cod_icon || '/cash-on-delivery.png')
+        : selectedPaymentMethod === 'whatsapp'
+            ? (paymentSettings.whatsapp_icon || 'https://cdn-icons-png.flaticon.com/512/733/733585.png')
+            : selectedCustomMethod?.iconUrl || '';
 
     const stepLabels = [
         { label: t('tracking.status_label.new'), status: 'new', icon: Check },
@@ -444,9 +472,13 @@ const OrderTracking = () => {
                         <div className="bg-gray-50 dark:bg-[#111317] rounded-xl p-4 border border-gray-200 dark:border-white/5 space-y-3 transition-colors">
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-500 dark:text-gray-400">{t('tracking.payment_method')}</span>
-                                <span className="text-gray-900 dark:text-white font-bold flex items-center gap-1">
-                                    {formData?.paymentMethod === 'cod' ? t('checkout.cod') : 'واتساب'}
-                                    {formData?.paymentMethod === 'cod' ? <img src="https://cdn-icons-png.flaticon.com/512/5163/5163829.png" className="w-4 h-4 opacity-80 dark:invert" alt="" /> : <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" className="w-4 h-4" alt="واتساب" />}
+                                <span className="text-gray-900 dark:text-white font-bold flex items-center gap-1.5">
+                                    <span>{paymentLabel}</span>
+                                    {paymentIcon ? (
+                                        <img src={paymentIcon} className="w-4 h-4 rounded object-cover" alt="" />
+                                    ) : ['wallet', 'jib', 'jib_wallet'].includes(selectedPaymentMethod) ? (
+                                        <Wallet size={16} strokeWidth={2.5} />
+                                    ) : null}
                                 </span>
                             </div>
                             <div className="flex justify-between text-sm">
