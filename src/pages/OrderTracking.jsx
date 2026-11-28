@@ -312,7 +312,10 @@ const OrderTracking = () => {
     );
 
     const { formData, cartItems, total, subTotal, discount, discountPercentage, deliveryCost, orderId: displayedId, date, couponCode, currency } = order;
-    const selectedPaymentMethod = String(order.paymentMethod || formData?.paymentMethod || '').trim().toLowerCase();
+    const walletWasUsed = Number(order.walletApplied || formData?.walletApplied || 0) > 0;
+    const selectedPaymentMethod = walletWasUsed
+        ? 'wallet'
+        : String(order.paymentMethod || formData?.paymentMethod || '').trim().toLowerCase();
     const isWhatsAppPayment = selectedPaymentMethod === 'whatsapp';
     const selectedCustomMethod = (Array.isArray(paymentSettings.custom_methods) ? paymentSettings.custom_methods : [])
         .find(method => String(method?.id || '').trim().toLowerCase() === selectedPaymentMethod);
