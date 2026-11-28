@@ -36,6 +36,7 @@ const OrderTracking = () => {
         whatsapp_icon: '',
         custom_methods: []
     });
+    const [walletTransferOpen, setWalletTransferOpen] = useState(false);
 
     useEffect(() => {
         getDoc(doc(db, 'settings', 'payments')).then(snapshot => {
@@ -416,6 +417,30 @@ const OrderTracking = () => {
                                 </div>
                             ))}
                         </div>
+                    </div>
+
+                    <div className="max-w-3xl mx-auto w-full print:hidden">
+                        <button
+                            type="button"
+                            onClick={() => setWalletTransferOpen(prev => !prev)}
+                            aria-expanded={walletTransferOpen}
+                            className="w-full rounded-xl border border-[#8f3047]/60 bg-[#7f1735]/75 px-4 py-3.5 text-white shadow-lg shadow-[#7f1735]/15 transition-all hover:bg-[#7f1735]/90 active:scale-[0.99]"
+                        >
+                            <span className="flex items-center justify-between gap-3" dir="ltr">
+                                <span className="flex-1 text-right text-sm font-black md:text-base" dir="rtl">أكمل طريقة الدفع عبر محفظة جيب</span>
+                                <img src="/jib-wallet-white.png" alt="محفظة جيب" className="h-7 w-7 shrink-0 object-contain" />
+                            </span>
+                        </button>
+                        {walletTransferOpen && (
+                            <div className="mt-2 rounded-xl border border-[#8f3047]/40 bg-[#7f1735]/10 px-5 py-4 text-center shadow-sm dark:bg-[#7f1735]/25">
+                                <p className="text-sm font-black leading-6 text-[#7f1735] dark:text-white">قم بتحويل مبلغ الطلب وارسال صورة الايصال عبر واتساب المتجر</p>
+                                <div className="mt-3 space-y-1.5 text-sm font-bold text-gray-700 dark:text-gray-100" dir="rtl">
+                                    <p>الاسم : حمزه فاضل محسن الزقري</p>
+                                    <p>رقم الحساب : 783700707</p>
+                                    <p>الرقم البديل : 377234</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* WhatsApp Payment Prompt - Simplified */}
